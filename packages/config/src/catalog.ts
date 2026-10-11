@@ -270,7 +270,7 @@ export const STATIC_ADDONS: ExperienceAddOn[] = [
 
 export const STATIC_BOOKINGS: BookingRecord[] = [
   {
-    id: 'bk-demo-cotonou',
+    id: 'bk-demo-cotonou-1',
     referenceCode: 'AURA-2026-8841',
     status: 'CONFIRMED',
     checkIn: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
@@ -309,6 +309,132 @@ export const STATIC_BOOKINGS: BookingRecord[] = [
       totalPrice: 501000,
       currency: 'XOF'
     },
-    createdAt: new Date().toISOString()
+    createdAt: new Date(Date.now() - 3600000 * 5).toISOString()
+  },
+  {
+    id: 'bk-demo-cotonou-2',
+    referenceCode: 'AURA-2026-7419',
+    status: 'CONFIRMED',
+    checkIn: new Date(Date.now() + 86400000 * 4).toISOString().split('T')[0],
+    checkOut: new Date(Date.now() + 86400000 * 8).toISOString().split('T')[0],
+    nights: 4,
+    adults: 2,
+    children: 1,
+    room: {
+      id: STATIC_SUITES[3].id,
+      slug: STATIC_SUITES[3].slug,
+      name: STATIC_SUITES[3].name,
+      subtitle: STATIC_SUITES[3].subtitle,
+      heroImage: STATIC_SUITES[3].heroImage,
+      category: STATIC_SUITES[3].category,
+      sizeSqm: STATIC_SUITES[3].sizeSqm
+    },
+    addOns: [STATIC_ADDONS[2]],
+    guest: {
+      title: 'Mme',
+      firstName: 'Aïcha',
+      lastName: 'Bello-Hountondji',
+      email: 'aicha.bello@diaspora-invest.com',
+      phone: '+229 01 96 44 55 88',
+      country: 'Bénin / France',
+      arrivalTime: '14:00',
+      specialRequests: 'Menu dégustation béninois (Agoun & Amiwo Royal) souhaité le premier soir.',
+      vipPreferences: ['Corbeille de Fruits Tropicaux', 'Paiement Mobile Money / Carte à l’arrivée']
+    },
+    pricing: {
+      nights: 4,
+      roomRatePerNight: 240000,
+      roomSubtotal: 960000,
+      addOnsSubtotal: 65000,
+      discountAmount: 0,
+      taxesAndFees: 20000,
+      totalPrice: 1045000,
+      currency: 'XOF'
+    },
+    createdAt: new Date(Date.now() - 3600000 * 18).toISOString()
+  },
+  {
+    id: 'bk-demo-cotonou-3',
+    referenceCode: 'AURA-2026-5290',
+    status: 'PENDING_CONCIERGE',
+    checkIn: new Date(Date.now() + 86400000 * 1).toISOString().split('T')[0],
+    checkOut: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+    nights: 2,
+    adults: 2,
+    children: 0,
+    room: {
+      id: STATIC_SUITES[4].id,
+      slug: STATIC_SUITES[4].slug,
+      name: STATIC_SUITES[4].name,
+      subtitle: STATIC_SUITES[4].subtitle,
+      heroImage: STATIC_SUITES[4].heroImage,
+      category: STATIC_SUITES[4].category,
+      sizeSqm: STATIC_SUITES[4].sizeSqm
+    },
+    addOns: [STATIC_ADDONS[0], STATIC_ADDONS[3]],
+    guest: {
+      title: 'Dr.',
+      firstName: 'Ousmane',
+      lastName: 'Diop',
+      email: 'o.diop@boad-uemoa.org',
+      phone: '+228 90 12 34 56',
+      country: 'Sénégal / UEMOA',
+      arrivalTime: '18:00',
+      specialRequests: 'Préparation de la salle de réunion privée pour 6 personnes le lendemain à 10h.',
+      vipPreferences: ['Navette Aéroport Cotonou', 'Check-in Prioritaire Dès 12h00']
+    },
+    pricing: {
+      nights: 2,
+      roomRatePerNight: 380000,
+      roomSubtotal: 760000,
+      addOnsSubtotal: 70000,
+      discountAmount: 83000,
+      taxesAndFees: 10000,
+      totalPrice: 757000,
+      currency: 'XOF'
+    },
+    createdAt: new Date(Date.now() - 3600000 * 28).toISOString()
+  },
+  {
+    id: 'bk-demo-cotonou-4',
+    referenceCode: 'AURA-2026-3104',
+    status: 'CONFIRMED',
+    checkIn: new Date(Date.now() + 86400000 * 6).toISOString().split('T')[0],
+    checkOut: new Date(Date.now() + 86400000 * 9).toISOString().split('T')[0],
+    nights: 3,
+    adults: 1,
+    children: 0,
+    room: {
+      id: STATIC_SUITES[0].id,
+      slug: STATIC_SUITES[0].slug,
+      name: STATIC_SUITES[0].name,
+      subtitle: STATIC_SUITES[0].subtitle,
+      heroImage: STATIC_SUITES[0].heroImage,
+      category: STATIC_SUITES[0].category,
+      sizeSqm: STATIC_SUITES[0].sizeSqm
+    },
+    addOns: [],
+    guest: {
+      title: 'M.',
+      firstName: 'Sébastien',
+      lastName: 'Dossou-Yovo',
+      email: 's.dossou@portcotonou.bj',
+      phone: '+229 01 95 88 77 66',
+      country: 'Bénin',
+      arrivalTime: '14:30',
+      specialRequests: 'Chambre au calme côté jardin.',
+      vipPreferences: ['Paiement Mobile Money / Carte à l’arrivée']
+    },
+    pricing: {
+      nights: 3,
+      roomRatePerNight: 95000,
+      roomSubtotal: 285000,
+      addOnsSubtotal: 0,
+      discountAmount: 0,
+      taxesAndFees: 7500,
+      totalPrice: 292500,
+      currency: 'XOF'
+    },
+    createdAt: new Date(Date.now() - 3600000 * 48).toISOString()
   }
 ];

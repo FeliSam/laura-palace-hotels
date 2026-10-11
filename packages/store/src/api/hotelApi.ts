@@ -44,7 +44,6 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
     // Express API unreachable (e.g. hosted on GitHub Pages) -> fallback below
   }
 
-  // Fallback for static hosting (GitHub Pages)
   const url = typeof args === 'string' ? args : args.url || '';
   const method = typeof args === 'string' ? 'GET' : args.method || 'GET';
 
@@ -76,6 +75,38 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
 
   if (method === 'GET' && url === '/addons') {
     return { data: { addOns: STATIC_ADDONS } };
+  }
+
+  if (method === 'GET' && url === '/bookings') {
+    return {
+      data: {
+        bookings: [...clientBookingsStore],
+        meta: {
+          total: clientBookingsStore.length,
+          totalRevenueXof: clientBookingsStore
+            .filter((b) => b.status !== 'CANCELLED')
+            .reduce((sum, b) => sum + b.pricing.totalPrice, 0)
+        }
+      }
+    };
+  }
+
+  if (method === 'PATCH' && url.startsWith('/bookings/') && url.endsWith('/status')) {
+    const ref = decodeURIComponent(url.replace('/bookings/', '').replace('/status', ''))
+      .trim()
+      .toUpperCase();
+    const newStatus = args.body?.status as BookingRecord['status'];
+    const index = clientBookingsStore.findIndex(
+      (b) => b.referenceCode.toUpperCase() === ref || b.id === ref
+    );
+    if (index === -1) {
+      return { error: { status: 404, data: { error: 'Dossier introuvable' } } };
+    }
+    clientBookingsStore[index] = {
+      ...clientBookingsStore[index],
+      status: newStatus
+    };
+    return { data: { booking: clientBookingsStore[index] } };
   }
 
   if (method === 'POST' && url === '/bookings') {
@@ -198,6 +229,24 @@ export const hotelApi = createApi({
       query: () => '/addons',
       providesTags: ['AddOns']
     }),
+    getAllBookings: builder.query<
+      { bookings: BookingRecord[]; meta: { total: number; totalRevenueXof: number } },
+      void
+    >({
+      query: () => '/bookings',
+      providesTags: ['Bookings']
+    }),
+    updateBookingStatus: builder.mutation<
+      { booking: BookingRecord },
+      { referenceCode: string; status: BookingRecord['status'] }
+    >({
+      query: ({ referenceCode, status }) => ({
+        url: `/bookings/${encodeURIComponent(referenceCode)}/status`,
+        method: 'PATCH',
+        body: { status }
+      }),
+      invalidatesTags: ['Bookings', 'Rooms']
+    }),
     createBooking: builder.mutation<
       { booking: BookingRecord; message: string },
       CreateBookingPayload
@@ -220,6 +269,8 @@ export const {
   useGetRoomsQuery,
   useGetRoomBySlugQuery,
   useGetAddOnsQuery,
+  useGetAllBookingsQuery,
+  useUpdateBookingStatusMutation,
   useCreateBookingMutation,
   useGetBookingByReferenceQuery,
   useLazyGetBookingByReferenceQuery

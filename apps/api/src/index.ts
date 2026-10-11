@@ -243,6 +243,38 @@ app.get('/api/addons', (_req: Request, res: Response) => {
   res.json({ addOns: INITIAL_ADDONS });
 });
 
+app.get('/api/bookings', (_req: Request, res: Response) => {
+  const totalRevenueXof = memoryBookings
+    .filter((b) => b.status !== 'CANCELLED')
+    .reduce((sum, b) => sum + b.pricing.totalPrice, 0);
+
+  res.json({
+    bookings: memoryBookings,
+    meta: {
+      total: memoryBookings.length,
+      totalRevenueXof
+    }
+  });
+});
+
+app.patch('/api/bookings/:reference/status', (req: Request, res: Response) => {
+  const ref = String(req.params.reference || '').trim().toUpperCase();
+  const status = req.body?.status as BookingRecord['status'];
+  const idx = memoryBookings.findIndex((b) => b.referenceCode.toUpperCase() === ref || b.id === ref);
+
+  if (idx === -1) {
+    res.status(404).json({ error: 'Dossier introuvable' });
+    return;
+  }
+
+  memoryBookings[idx] = {
+    ...memoryBookings[idx],
+    status
+  };
+
+  res.json({ booking: memoryBookings[idx] });
+});
+
 app.post('/api/bookings', async (req: Request, res: Response) => {
   const parsed = CreateBookingSchema.safeParse(req.body);
   if (!parsed.success) {
