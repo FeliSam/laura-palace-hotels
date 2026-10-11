@@ -32,12 +32,12 @@ import {
 } from 'lucide-react';
 
 const VIP_PREFERENCES_OPTIONS = [
-  'Accueil Tarmac Privé',
-  'Oreillers en Soie Naturelle',
-  'Champagne Millésimé à 9°C',
-  'Suite Hypoallergénique',
-  'Presse Financière Internationale',
-  'Majordome Francophone / Anglophone'
+  'Navette Aéroport Cotonou',
+  'Chambre Étage Élevé Vue Mer',
+  'Paiement Mobile Money / Carte à l’arrivée',
+  'Lit King Size Supplémentaire',
+  'Corbeille de Fruits Tropicaux',
+  'Check-in Prioritaire Dès 12h00'
 ];
 
 export function BookingCheckoutDrawer() {
@@ -352,14 +352,14 @@ export function BookingCheckoutDrawer() {
               <div className="p-4 bg-luxury-surface border border-luxury-border space-y-2">
                 <label className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-luxury-gold font-semibold">
                   <Tag className="w-3.5 h-3.5" />
-                  Code Privilège / Invitation (ex: PALACE10 ou ROYALVIP)
+                  Code Promo / Entreprise (ex: BENIN10 ou MARINA15)
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={promoInput}
                     onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                    placeholder="Entrez PALACE10 (-10%)"
+                    placeholder="Entrez BENIN10 (-10%)"
                     className="flex-1 px-3.5 py-2 bg-luxury-card border border-luxury-border text-xs uppercase tracking-widest text-luxury-text"
                   />
                   <button

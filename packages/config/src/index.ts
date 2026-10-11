@@ -43,9 +43,9 @@ export interface HotelWhiteLabelConfig {
   };
   pricing: {
     baseCurrency: CurrencyCode;
-    taxRatePercent: number; // e.g. 10%
-    cityTaxPerNight: number;
-    currencies: Record<CurrencyCode, { symbol: string; rateFromEur: number; label: string }>;
+    taxRatePercent: number;
+    cityTaxPerNight: number; // Taxe de séjour touristique au Bénin en FCFA
+    currencies: Record<CurrencyCode, { symbol: string; rateFromBase: number; label: string }>;
     promoCodes: Record<string, { discountPercent: number; description: string }>;
   };
   themes: Record<PresetThemeId, ThemePalette>;
@@ -63,74 +63,74 @@ export interface HotelWhiteLabelConfig {
 }
 
 /**
- * FICHIER CENTRAL DE PERSONNALISATION (WHITE-LABEL)
- * Modifiez cet objet unique pour adapter instantanément le site Web (Next.js),
- * l'application Mobile (React Native) et les règles tarifaires de l'API.
+ * CONFIGURATION WHITE-LABEL — STANDARD HÔTELIER DU BÉNIN (COTONOU / OUIDAH)
+ * Tarification native en Franc CFA (FCFA - XOF).
  */
 export const HOTEL_CONFIG: HotelWhiteLabelConfig = {
   brand: {
-    name: "L'AURA PALACE",
-    subtitle: 'PARIS • PLACE VENDÔME & CÔTE D’AZUR',
-    monogram: 'A',
-    establishedYear: 1928,
+    name: 'LE MÉRIDIEN & MARINA',
+    subtitle: 'COTONOU • BOULEVARD DE LA MARINA',
+    monogram: 'M',
+    establishedYear: 2024,
     stars: 5,
-    distinction: 'Distinction Palace • Relais & Châteaux',
-    tagline: "L'Art du Silence, de la Lumière et de la Haute Hospitalité.",
-    storyTitle: 'Un Sanctuaire Intemporel façonné pour les Épicuriens',
+    distinction: 'Hôtellerie Internationale 5★ • Boulevard de la Marina, Cotonou',
+    tagline: "L'Élégance Contemporaine et l'Hospitalité Béninoise face à l'Océan Atlantique.",
+    storyTitle: 'Votre Référence Hôtelière au Cœur de Cotonou',
     storyDescription:
-      "Chaque suite, chaque jardin suspendu et chaque attention de notre Majordome privé ont été orchestrés pour transformer votre séjour en une œuvre d'art vivante."
+      'Idéalement situé sur le Boulevard de la Marina à proximité du Palais des Congrès et de la Route des Pêches, notre établissement allie confort international, chambres climatisées grand standing, piscine lagon et gastronomie raffinée.'
   },
   contact: {
-    address: '22 Place Vendôme',
-    city: 'Paris',
-    country: 'France',
-    phone: '+33 1 42 68 90 00',
-    conciergeEmail: 'conciergerie@laura-palace.com',
-    coordinates: { lat: 48.8675, lng: 2.3294 },
-    checkInTime: '15:00',
+    address: 'Boulevard de la Marina, face plage de Fidjrossè',
+    city: 'Cotonou',
+    country: 'Bénin',
+    phone: '+229 01 21 30 04 00',
+    conciergeEmail: 'reservation@marina-hotel-benin.bj',
+    coordinates: { lat: 6.3541, lng: 2.4183 },
+    checkInTime: '14:00',
     checkOutTime: '12:00'
   },
   pricing: {
-    baseCurrency: 'EUR',
-    taxRatePercent: 10,
-    cityTaxPerNight: 15,
+    baseCurrency: 'XOF',
+    taxRatePercent: 18, // TVA standard UEMOA / Bénin (incluse ou détaillée)
+    cityTaxPerNight: 2500, // Taxe de nuitée touristique au Bénin (2 500 FCFA / nuit)
     currencies: {
-      EUR: { symbol: '€', rateFromEur: 1, label: 'EUR (€)' },
-      USD: { symbol: '$', rateFromEur: 1.09, label: 'USD ($)' },
-      CHF: { symbol: 'CHF ', rateFromEur: 0.96, label: 'CHF (Fr.)' }
+      XOF: { symbol: 'FCFA', rateFromBase: 1, label: 'FCFA (XOF)' },
+      EUR: { symbol: '€', rateFromBase: 1 / 655.957, label: 'EUR (€)' },
+      USD: { symbol: '$', rateFromBase: 1 / 605, label: 'USD ($)' }
     },
     promoCodes: {
-      PALACE10: { discountPercent: 10, description: 'Privilège Membre Cercle Aura (-10%)' },
-      ROYALVIP: { discountPercent: 15, description: 'Invitation Ambassadeur (-15%)' }
+      BENIN10: { discountPercent: 10, description: 'Remise Séjour & Affaires (-10%)' },
+      MARINA15: { discountPercent: 15, description: 'Offre Privilège Week-end Cotonou (-15%)' },
+      PALACE10: { discountPercent: 10, description: 'Privilège Client Fidèle (-10%)' }
     }
   },
   defaultTheme: 'palace-parisien',
   themes: {
     'palace-parisien': {
       id: 'palace-parisien',
-      label: 'Palace Parisien (Or & Obsidienne)',
-      tagline: "L'Art du Silence et de la Haute Couture Hôtelière au cœur de Paris.",
-      hotelNameOverride: "L'AURA PALACE PARIS",
-      locationOverride: '22 Place Vendôme • Paris Ier',
+      label: 'Grand Hôtel Marina Cotonou (Style Novotel / Sofitel)',
+      tagline: "Confort International, Piscine Panoramique & Affaires sur le Boulevard de la Marina.",
+      hotelNameOverride: 'MARINA PALACE COTONOU',
+      locationOverride: 'Boulevard de la Marina • Cotonou, Bénin',
       colors: {
-        backgroundPrimary: '#08080A',
-        backgroundSecondary: '#111116',
-        surfaceCard: '#16161D',
-        textPrimary: '#FAF7F2',
-        textSecondary: '#A9A49A',
-        accentPrimary: '#C9A45C',
-        accentSecondary: '#E5C98B',
-        borderSubtle: 'rgba(201, 164, 92, 0.22)'
+        backgroundPrimary: '#0B0B0D',
+        backgroundSecondary: '#141418',
+        surfaceCard: '#1A1A20',
+        textPrimary: '#F5F2EB',
+        textSecondary: '#A6A096',
+        accentPrimary: '#C8A25A',
+        accentSecondary: '#E2C383',
+        borderSubtle: 'rgba(200, 162, 90, 0.22)'
       },
       heroImage:
-        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=2000&q=85'
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=85'
     },
     'riviera-azur': {
       id: 'riviera-azur',
-      label: 'Riviera Méditerranée (Sable & Azur)',
-      tagline: 'Villas suspendues entre pinède centenaire et horizon azuréen.',
-      hotelNameOverride: 'VILLA AURA CAP-FERRAT',
-      locationOverride: 'Pointe Saint-Hospice • Saint-Jean-Cap-Ferrat',
+      label: 'Resort Route des Pêches & Ouidah (Plage & Cocoteraie)',
+      tagline: 'Villas et Suites face à l’Océan sur la Route des Pêches entre Cotonou et Ouidah.',
+      hotelNameOverride: 'OCÉAN LODGE OUIDAH',
+      locationOverride: 'Route des Pêches • Avlékété - Ouidah, Bénin',
       colors: {
         backgroundPrimary: '#07131A',
         backgroundSecondary: '#0C1E28',
@@ -146,10 +146,10 @@ export const HOTEL_CONFIG: HotelWhiteLabelConfig = {
     },
     'alpine-sanctuary': {
       id: 'alpine-sanctuary',
-      label: 'Sanctuaire Alpin (Ambre & Ardoise)',
-      tagline: 'Refuge privé au pied des cimes éternelles et thermalisme minéral.',
-      hotelNameOverride: 'AURA COURCHEVEL 1850',
-      locationOverride: 'Jardin Alpin • Courchevel 1850',
+      label: 'Royal Safari & Parc de la Pendjari (Terre & Savane)',
+      tagline: 'Éco-Lodge de prestige aux portes de la réserve biosphère de la Pendjari.',
+      hotelNameOverride: 'PENDJARI ROYAL LODGE',
+      locationOverride: 'Réserve de la Pendjari • Nord-Bénin',
       colors: {
         backgroundPrimary: '#0B0A09',
         backgroundSecondary: '#161311',
@@ -161,58 +161,65 @@ export const HOTEL_CONFIG: HotelWhiteLabelConfig = {
         borderSubtle: 'rgba(208, 139, 91, 0.24)'
       },
       heroImage:
-        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=2000&q=85'
+        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=2000&q=85'
     }
   },
   stats: [
-    { value: '28', label: 'Suites & Villas Privées' },
-    { value: '3★', label: 'Table Gastronomique Michelin' },
-    { value: '1 800 m²', label: 'Spa Holistique & Thermes' },
-    { value: '24/7', label: 'Majordome & Flotte Privée' }
+    { value: '110', label: 'Chambres, Suites & Bungalows' },
+    { value: '10 min', label: 'Aéroport Cardinal Bernardin Gantin' },
+    { value: '25 m', label: 'Piscine Extérieure & Lounge Bar' },
+    { value: '24h/24', label: 'Navette Aéroport & Sécurité' }
   ],
   experiencesShowcase: [
     {
       id: 'exp-gastronomy',
-      kicker: 'HAUTE GASTRONOMIE • 3 ÉTOILES MICHELIN',
-      title: 'L’Orangerie Céleste par le Chef Édouard Valmont',
+      kicker: 'GASTRONOMIE BÉNINOISE & INTERNATIONALE',
+      title: 'Restaurant L’Orangerie de la Marina & Grill au Bord de l’Eau',
       description:
-        'Un voyage sensoriel en neuf séquences célébrant les terroirs rares, accompagné d’une cave secrète de plus de 14 000 flacons.',
-      schedule: 'Dîner : 19h30 – 22h30 • Table du Chef sur réservation',
+        'Savourez une cuisine raffinée mêlant poissons frais de l’Atlantique, langoustes grillées, spécialités du terroir béninois revisitées et grands classiques internationaux.',
+      schedule: 'Petit-déjeuner buffet dès 06h30 • Déjeuner & Dîner : 12h00 – 23h00',
       image:
         'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=85',
-      highlight: 'Cave Privée & Sommelier Dédié'
+      highlight: 'Buffet International & Poissons de l’Atlantique'
     },
     {
       id: 'exp-spa',
-      kicker: 'SANCTUAIRE HOLISTIQUE • 1 800 M²',
-      title: 'Thermes de Marbre Blanc & Rituels Cellulaires Suisses',
+      kicker: 'PISCINE LAGON, FITNESS & BIEN-ÊTRE',
+      title: 'Bassin Panoramique, Spa au Beurre de Karité & Hammam',
       description:
-        'Piscine minérale chauffée de 25 mètres, suites de soin en duo avec hammam privé, cryothérapie et protocoles longévité sur-mesure.',
-      schedule: 'Ouvert tous les jours : 07h00 – 22h00 • Privatisation nocturne possible',
+        'Détendez-vous au bord de notre grande piscine entourée de palmiers avec bar lounge, salle de fitness climatisée Technogym et soins relaxants aux huiles naturelles du Bénin.',
+      schedule: 'Ouvert tous les jours : 07h00 – 21h30 • Accès libre aux résidents',
       image:
         'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=85',
-      highlight: 'Bassin Minéral & Suites Spa Privatives'
+      highlight: 'Piscine Extérieure & Soins Karité Pur'
     },
     {
       id: 'exp-concierge',
-      kicker: 'CONCIERGERIE CLEFS D’OR & MOBILITÉ',
-      title: 'Transferts en Hélicoptère, Yachting & Accès Privés',
+      kicker: 'AFFAIRES, SÉMINAIRES & EXCURSIONS',
+      title: 'Navette Aéroport Cotonou, Salles de Conférence & Découverte',
       description:
-        'De votre tarmac privé jusqu’à votre suite, nos Clefs d’Or organisent vos visites privées de musées après fermeture et vos escapades en mer.',
-      schedule: 'Service Majordome & Chauffeur Rolls-Royce Phantom 24h/24',
+        'Accueil personnalisé à l’Aéroport International de Cotonou, location de véhicules avec chauffeur, salles de réunion fibrées et excursions vers Ganvié et Ouidah.',
+      schedule: 'Service Conciergerie, Paiement Mobile Money (MTN / Moov) & Cartes Visa',
       image:
         'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1400&q=85',
-      highlight: 'Flotte Rolls-Royce & Héliport Privé'
+      highlight: 'Navette Aéroport & Excursions Ganvié / Ouidah'
     }
   ]
 };
 
-export function formatCurrencyAmount(amountInEur: number, currency: CurrencyCode = 'EUR'): string {
-  const currencyConfig = HOTEL_CONFIG.pricing.currencies[currency] || HOTEL_CONFIG.pricing.currencies.EUR;
-  const converted = Math.round(amountInEur * currencyConfig.rateFromEur);
+export function formatCurrencyAmount(amountInXof: number, currency: CurrencyCode = 'XOF'): string {
+  const currencyConfig =
+    HOTEL_CONFIG.pricing.currencies[currency] || HOTEL_CONFIG.pricing.currencies.XOF;
+  const converted = Math.round(amountInXof * currencyConfig.rateFromBase);
   const formattedNumber = new Intl.NumberFormat('fr-FR').format(converted);
-  return currency === 'EUR' ? `${formattedNumber} €` : `${currencyConfig.symbol}${formattedNumber}`;
+
+  if (currency === 'XOF') {
+    return `${formattedNumber} FCFA`;
+  }
+  if (currency === 'EUR') {
+    return `${formattedNumber} €`;
+  }
+  return `${currencyConfig.symbol}${formattedNumber}`;
 }
 
 export * from './catalog';
-

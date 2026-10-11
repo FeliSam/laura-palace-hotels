@@ -5,7 +5,7 @@ import { z } from 'zod';
 // ==========================================
 export type SuiteCategory = 'ALL' | 'SIGNATURE_SUITE' | 'ROYAL_PENTHOUSE' | 'PRIVATE_VILLA';
 export type ViewType = 'OCEAN_PANORAMA' | 'IMPERIAL_GARDEN' | 'EIFFEL_SKYLINE' | 'PRIVATE_LAGOON';
-export type CurrencyCode = 'EUR' | 'USD' | 'CHF';
+export type CurrencyCode = 'XOF' | 'EUR' | 'USD';
 export type PresetThemeId = 'palace-parisien' | 'riviera-azur' | 'alpine-sanctuary';
 
 // ==========================================

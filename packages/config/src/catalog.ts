@@ -2,134 +2,20 @@ import { Room, ExperienceAddOn, BookingRecord } from '@hotel/types';
 
 export const STATIC_SUITES: Room[] = [
   {
-    id: 'suite-vendome-imperiale',
-    slug: 'suite-vendome-imperiale',
-    name: 'Suite Impériale Vendôme',
-    subtitle: 'Terrasse Panoramique & Salon Privé Classé',
-    category: 'ROYAL_PENTHOUSE',
-    description:
-      'Joyau architectural du 5ème étage avec boiseries XVIIIe dorées à la feuille d’or, piano à queue Steinway, salle à manger pour dix convives et terrasse privative surplombant la Colonne Vendôme.',
-    pricePerNight: 4200,
-    sizeSqm: 245,
-    maxGuests: 4,
-    bedConfiguration: '2 Chambres Master King Size (Literie Haute Couture Treca)',
-    floorLevel: '5ème Étage Noble • Ascenseur Privé',
-    viewType: 'EIFFEL_SKYLINE',
-    viewLabel: 'Vue Place Vendôme & Tour Eiffel',
-    heroImage:
-      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85',
-    gallery: [
-      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85'
-    ],
-    amenities: [
-      { id: 'butler', label: 'Majordome Dédié 24h/24', icon: 'Crown', premium: true },
-      { id: 'hammam', label: 'Hammam & Sauna en Marbre de Carrare', icon: 'Sparkles', premium: true },
-      { id: 'transfer', label: 'Transfert Aéroport en Rolls-Royce Inclus', icon: 'Car', premium: true },
-      { id: 'bar', label: 'Cave à Grands Crus & Champagne Dom Pérignon', icon: 'Wine' },
-      { id: 'sound', label: 'Acoustique Devialet Phantom Or', icon: 'Volume2' },
-      { id: 'terrace', label: 'Terrasse Chauffée de 65 m²', icon: 'Sun' }
-    ],
-    highlights: [
-      'Transfert aller-retour aéroport en Rolls-Royce Phantom inclus',
-      'Petit-déjeuner gastronomique servi en suite ou à L’Orangerie',
-      'Accès privatif au Spa Nocturne sur demande'
-    ],
-    isFeatured: true,
-    availableCount: 1,
-    isAvailableForDates: true
-  },
-  {
-    id: 'penthouse-celeste-eiffel',
-    slug: 'penthouse-celeste-eiffel',
-    name: 'Penthouse Céleste & Jardin Suspendu',
-    subtitle: 'Duplex sous Verrière & Bassin de Nage Chauffé',
-    category: 'ROYAL_PENTHOUSE',
-    description:
-      'Perché sur les toits avec une vue à 360 degrés, ce duplex contemporain marie marbre Calacatta, cheminée traversante au bioéthanol et jardin sur le toit doté d’un bassin chauffé à débordement.',
-    pricePerNight: 5800,
-    sizeSqm: 310,
-    maxGuests: 6,
-    bedConfiguration: '3 Suites Master King avec Dressings Walk-in',
-    floorLevel: '6ème & 7ème Étages (Toit-Terrasse Exclusif)',
-    viewType: 'EIFFEL_SKYLINE',
-    viewLabel: 'Panorama 360° Toits de Paris & Tour Eiffel',
-    heroImage:
-      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1600&q=85',
-    gallery: [
-      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=1400&q=85'
-    ],
-    amenities: [
-      { id: 'pool', label: 'Piscine Privée Chauffée sur le Toit', icon: 'Waves', premium: true },
-      { id: 'chef', label: 'Cuisine de Chef & Cave Privée', icon: 'Utensils', premium: true },
-      { id: 'butler', label: 'Majordome & Sécurité Privée', icon: 'ShieldCheck', premium: true },
-      { id: 'spa-room', label: 'Cabine de Massage Duo Privée', icon: 'HeartHandshake' },
-      { id: 'cinema', label: 'Salle de Projection Privée 4K Dolby Atmos', icon: 'Film' }
-    ],
-    highlights: [
-      'Bassin privé chauffé à 32°C face à la Tour Eiffel scintillante',
-      'Chef privé disponible pour un dîner sur-mesure en terrasse',
-      'Check-in et Check-out flexibles garantis'
-    ],
-    isFeatured: true,
-    availableCount: 1,
-    isAvailableForDates: true
-  },
-  {
-    id: 'villa-emeraude-lagon',
-    slug: 'villa-emeraude-lagon',
-    name: 'Villa Émeraude & Cour Intérieure',
-    subtitle: 'Sanctuaire Botanique Privé & Piscine Miroir',
-    category: 'PRIVATE_VILLA',
-    description:
-      'Une résidence totalement indépendante nichée au cœur du jardin secret du Palace. Entrée privée discrète, patio arboré d’oliviers centenaires, piscine miroir intérieure-extérieure et pavillon bien-être.',
-    pricePerNight: 3600,
-    sizeSqm: 220,
-    maxGuests: 4,
-    bedConfiguration: '2 Chambres King Size + Salon Bibliothèque',
-    floorLevel: 'Rez-de-Jardin Privatif • Entrée Indépendante',
-    viewType: 'PRIVATE_LAGOON',
-    viewLabel: 'Patio Privé & Bassin Miroir',
-    heroImage:
-      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1600&q=85',
-    gallery: [
-      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1400&q=85',
-      'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1400&q=85'
-    ],
-    amenities: [
-      { id: 'lagoon', label: 'Bassin Miroir Privé Chauffé', icon: 'Waves', premium: true },
-      { id: 'garden', label: 'Jardin Botanique Clos de 120 m²', icon: 'Trees', premium: true },
-      { id: 'butler', label: 'Service Majordome 24h/24', icon: 'Crown' },
-      { id: 'fireplace', label: 'Cheminée en Pierre de Bourgogne', icon: 'Flame' }
-    ],
-    highlights: [
-      'Confidentialité absolue avec accès souterrain direct au limousine lounge',
-      'Rituel de bienvenue au Spa Holistique (90 min pour 2 personnes)',
-      'Dressing sur-mesure avec service de pressing haute couture'
-    ],
-    isFeatured: true,
-    availableCount: 2,
-    isAvailableForDates: true
-  },
-  {
-    id: 'suite-signature-orangerie',
-    slug: 'suite-signature-orangerie',
-    name: 'Suite Signature L’Orangerie',
-    subtitle: 'Lumière Traversante & Balcon sur les Jardins',
+    id: 'chambre-superieure-marina',
+    slug: 'chambre-superieure-marina',
+    name: 'Chambre Supérieure Vue Jardin & Piscine',
+    subtitle: 'Standard International • Climatisation & Wi-Fi Haut Débit',
     category: 'SIGNATURE_SUITE',
     description:
-      'Baignée de lumière naturelle grâce à ses quatre doubles portes-fenêtres, cette suite allie mobilier signé d’artisans français, étoffes Loro Piana et salle de bain monumentale en onyx miel.',
-    pricePerNight: 1850,
-    sizeSqm: 115,
-    maxGuests: 3,
-    bedConfiguration: '1 Lit King Size Majestueux + Méridienne Salon',
-    floorLevel: '3ème Étage • Aile des Jardins',
+      'Idéale pour vos séjours d’affaires ou de détente à Cotonou. Chambre spacieuse et lumineuse dotée d’un lit King Size grand confort, bureau ergonomique, fibre optique dédiée, télévision Smart 55" et balcon donnant sur les jardins et la piscine.',
+    pricePerNight: 95000,
+    sizeSqm: 34,
+    maxGuests: 2,
+    bedConfiguration: '1 Grand Lit King Size (ou 2 Lits Twin sur demande)',
+    floorLevel: '2ème & 3ème Étages • Aile Marina',
     viewType: 'IMPERIAL_GARDEN',
-    viewLabel: 'Vue Cour d’Honneur & Jardins à la Française',
+    viewLabel: 'Vue Jardins Tropicaux & Piscine',
     heroImage:
       'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=85',
     gallery: [
@@ -137,35 +23,35 @@ export const STATIC_SUITES: Room[] = [
       'https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=1400&q=85'
     ],
     amenities: [
-      { id: 'onyx-bath', label: 'Salle de Bain en Onyx Miel & Douche Vapeur', icon: 'Sparkles', premium: true },
-      { id: 'balcony', label: 'Balcon Filant en Fer Forgé', icon: 'Sun' },
-      { id: 'bar', label: 'Bar à Spiritueux Rares & Machine Expresso Artisanale', icon: 'Coffee' },
-      { id: 'sound', label: 'Système Audio Bang & Olufsen', icon: 'Volume2' }
+      { id: 'wifi', label: 'Wi-Fi Fibre Haut Débit Gratuit', icon: 'Wifi', premium: true },
+      { id: 'breakfast', label: 'Petit-Déjeuner Buffet Inclus', icon: 'Coffee', premium: true },
+      { id: 'ac', label: 'Climatisation Individuelle Silencieuse', icon: 'Wind' },
+      { id: 'pool', label: 'Accès Libre Piscine & Salle de Sport', icon: 'Waves' }
     ],
     highlights: [
-      'Petit-déjeuner américain ou détox inclus chaque matin',
-      'Accueil Champagne Millésimé & Pâtisseries du Chef Pâtissier',
-      'Accès illimité aux Thermes & Piscine Minérale de 25m'
+      'Petit-déjeuner buffet complet inclus dès 06h30',
+      'Accès gratuit à la piscine extérieure et au studio fitness',
+      'Espace de travail avec prises internationales et coffre-fort'
     ],
-    isFeatured: false,
-    availableCount: 4,
+    isFeatured: true,
+    availableCount: 8,
     isAvailableForDates: true
   },
   {
-    id: 'suite-horizon-azur',
-    slug: 'suite-horizon-azur',
-    name: 'Suite Horizon Grand Siècle',
-    subtitle: 'Rotonde d’Angle & Salon de Musique',
+    id: 'chambre-executive-ocean',
+    slug: 'chambre-executive-ocean',
+    name: 'Chambre Exécutive Vue Océan Atlantique',
+    subtitle: 'Étage Exécutif • Accès Salon VIP & Vue Mer',
     category: 'SIGNATURE_SUITE',
     description:
-      'Située dans la rotonde historique de l’établissement, cette suite offre un salon circulaire spectaculaire, une bibliothèque d’œuvres d’art et un espace bureau gainé de cuir pleine fleur.',
-    pricePerNight: 2350,
-    sizeSqm: 145,
+      'Située dans les étages supérieurs avec une vue dégagée sur l’Océan Atlantique et la côte de Fidjrossè. Comprend une machine expresso, un plateau de courtoisie béninois, une douche à effet pluie et l’accès au Salon Exécutif.',
+    pricePerNight: 135000,
+    sizeSqm: 42,
     maxGuests: 3,
-    bedConfiguration: '1 Lit Emperor King Size + Salon Rotonde',
-    floorLevel: '4ème Étage • Rotonde Principale',
+    bedConfiguration: '1 Lit King Size Premium + Fauteuil Méridienne',
+    floorLevel: '4ème Étage Exécutif • Vue Mer',
     viewType: 'OCEAN_PANORAMA',
-    viewLabel: 'Perspective Royale & Horizon Dégagé',
+    viewLabel: 'Vue Panoramique Océan Atlantique',
     heroImage:
       'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1600&q=85',
     gallery: [
@@ -173,112 +59,218 @@ export const STATIC_SUITES: Room[] = [
       'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85'
     ],
     amenities: [
-      { id: 'rotunda', label: 'Salon Rotonde Panoramique', icon: 'Compass', premium: true },
-      { id: 'butler', label: 'Service Majordome Dédié', icon: 'Crown', premium: true },
-      { id: 'bar', label: 'Cave à Vins Tempérée Privée', icon: 'Wine' }
+      { id: 'shuttle', label: 'Navette Aéroport Cotonou Gratuite', icon: 'Car', premium: true },
+      { id: 'lounge', label: 'Accès Salon VIP & Rafraîchissements', icon: 'Crown', premium: true },
+      { id: 'coffee', label: 'Machine Nespresso & Mini-Bar', icon: 'Coffee' }
     ],
     highlights: [
-      'Déballage et pliage de vos effets personnels par votre Majordome',
-      'Accès prioritaire à la Table 3 étoiles Michelin L’Orangerie Céleste'
+      'Transfert Aéroport International de Cotonou aller-retour offert',
+      'Check-in prioritaire et départ tardif selon disponibilité (14h00)',
+      'Petit-déjeuner continental ou buffet servi au restaurant'
     ],
-    isFeatured: false,
+    isFeatured: true,
+    availableCount: 6,
+    isAvailableForDates: true
+  },
+  {
+    id: 'suite-junior-diplomatique',
+    slug: 'suite-junior-diplomatique',
+    name: 'Suite Junior Diplomatique Marina',
+    subtitle: 'Salon Séparé & Terrasse sur le Boulevard de la Marina',
+    category: 'ROYAL_PENTHOUSE',
+    description:
+      'Conçue pour les dirigeants, diplomates et séjours prolongés au Bénin. Dispose d’un salon de réception indépendant pour vos rendez-vous privés, d’une grande chambre en-suite et d’une terrasse surplombant l’océan.',
+    pricePerNight: 195000,
+    sizeSqm: 68,
+    maxGuests: 3,
+    bedConfiguration: '1 Lit King Size + Salon de Réception Indépendant',
+    floorLevel: '5ème Étage • Aile Présidentielle',
+    viewType: 'OCEAN_PANORAMA',
+    viewLabel: 'Vue Mer & Boulevard de la Marina',
+    heroImage:
+      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85',
+    gallery: [
+      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1400&q=85'
+    ],
+    amenities: [
+      { id: 'salon', label: 'Salon de Réception Privé (4 pers.)', icon: 'Users', premium: true },
+      { id: 'shuttle', label: 'Accueil VIP Aéroport & Chauffeur', icon: 'Car', premium: true },
+      { id: 'pressing', label: 'Service Pressing Express Inclus', icon: 'Sparkles' },
+      { id: 'terrace', label: 'Terrasse Privée Vue Océan', icon: 'Sun' }
+    ],
+    highlights: [
+      'Accueil personnalisé à l’aéroport de Cotonou avec véhicule privé',
+      'Salon privé idéal pour vos réunions d’affaires confidentielles',
+      'Corbeille de fruits tropicaux et boissons fraîches à l’arrivée'
+    ],
+    isFeatured: true,
     availableCount: 3,
     isAvailableForDates: true
   },
   {
-    id: 'villa-royale-belvedere',
-    slug: 'villa-royale-belvedere',
-    name: 'Pavillon Royal Belvédère',
-    subtitle: 'Hôtel Particulier Privé sur Trois Niveaux',
+    id: 'bungalow-famille-route-des-peches',
+    slug: 'bungalow-famille-route-des-peches',
+    name: 'Villa & Bungalow Plage (Style Route des Pêches)',
+    subtitle: 'Terrasse Privée, Jardin de Cocotiers & Accès Plage',
     category: 'PRIVATE_VILLA',
     description:
-      'L’expression ultime de l’hospitalité privée : un hôtel particulier relié au Palace par une galerie secrète, doté de sa propre salle de sport Technogym Artis, cave à cigares et jardin d’hiver.',
-    pricePerNight: 7500,
-    sizeSqm: 420,
-    maxGuests: 8,
-    bedConfiguration: '4 Chambres En-Suite + Appartement Personnel Accompagnant',
-    floorLevel: 'Hôtel Particulier Indépendant (3 Niveaux + Ascenseur)',
-    viewType: 'IMPERIAL_GARDEN',
-    viewLabel: 'Jardin Privé & Cour d’Honneur',
+      'Pour les familles ou les escapades balnéaires : un pavillon indépendant niché au calme dans la cocoteraie avec terrasse ombragée, deux chambres climatisées et accès direct à la piscine lagon et à la plage.',
+    pricePerNight: 240000,
+    sizeSqm: 95,
+    maxGuests: 4,
+    bedConfiguration: '2 Chambres Climatisées (1 King + 2 Lits Simples) + Salon',
+    floorLevel: 'Rez-de-Jardin & Plage • Entrée Indépendante',
+    viewType: 'PRIVATE_LAGOON',
+    viewLabel: 'Cocoteraie & Piscine Lagon',
+    heroImage:
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1600&q=85',
+    gallery: [
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1400&q=85'
+    ],
+    amenities: [
+      { id: 'family', label: '2 Chambres & Grand Salon Familial', icon: 'Home', premium: true },
+      { id: 'terrace', label: 'Véranda Privée sous les Cocotiers', icon: 'Trees', premium: true },
+      { id: 'breakfast', label: 'Petit-Déjeuner Inclus pour 4 Personnes', icon: 'Utensils' }
+    ],
+    highlights: [
+      'Parfait pour les séjours en famille ou entre amis au Bénin',
+      'Petit-déjeuner complet inclus pour tous les occupants',
+      'Accès direct à la piscine et aux jardins sans ascenseur'
+    ],
+    isFeatured: true,
+    availableCount: 4,
+    isAvailableForDates: true
+  },
+  {
+    id: 'suite-presidentielle-amazone',
+    slug: 'suite-presidentielle-amazone',
+    name: 'Suite Présidentielle L’Amazone',
+    subtitle: 'Appartement de Prestige • Vue Panoramique Cotonou & Océan',
+    category: 'ROYAL_PENTHOUSE',
+    description:
+      'Notre suite la plus prestigieuse au dernier étage. Décorée d’œuvres d’art contemporain béninois, elle offre une salle à manger pour 8 convives, deux chambres master, un bureau présidentiel et une vaste terrasse face à l’Atlantique.',
+    pricePerNight: 380000,
+    sizeSqm: 145,
+    maxGuests: 4,
+    bedConfiguration: '2 Suites Master King Size + Salle à Manger & Salon',
+    floorLevel: 'Dernier Étage Panoramique • Accès Sécurisé',
+    viewType: 'EIFFEL_SKYLINE',
+    viewLabel: 'Panorama 180° Océan & Monument Amazone',
+    heroImage:
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1600&q=85',
+    gallery: [
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1400&q=85'
+    ],
+    amenities: [
+      { id: 'vip', label: 'Véhicule SUV Climatisé avec Chauffeur Inclus', icon: 'Car', premium: true },
+      { id: 'butler', label: 'Service Majordome & Conciergerie 24h/24', icon: 'Crown', premium: true },
+      { id: 'dining', label: 'Salle de Réunion / Dîner Privé 8 Places', icon: 'Utensils', premium: true }
+    ],
+    highlights: [
+      'Transfert VIP Salon d’Honneur Aéroport de Cotonou inclus',
+      'Service d’étage et conciergerie dédiée 24h/24',
+      'Accès illimité au Spa, Hammam et espace bien-être'
+    ],
+    isFeatured: false,
+    availableCount: 1,
+    isAvailableForDates: true
+  },
+  {
+    id: 'villa-royale-pendjari',
+    slug: 'villa-royale-pendjari',
+    name: 'Villa Résidentielle Privée avec Piscine',
+    subtitle: 'Résidence Haut Standing Indépendante pour Délégations & Familles',
+    category: 'PRIVATE_VILLA',
+    description:
+      'Une villa contemporaine entièrement privatisée au sein du domaine hôtelier, dotée de 3 chambres avec salles de bain privatives, piscine privée, salon cathédrale et service hôtelier complet.',
+    pricePerNight: 450000,
+    sizeSqm: 210,
+    maxGuests: 6,
+    bedConfiguration: '3 Chambres En-Suite King Size + Salon & Piscine Privée',
+    floorLevel: 'Domaine Résidentiel Sécurisé 24h/24',
+    viewType: 'PRIVATE_LAGOON',
+    viewLabel: 'Piscine Privée & Jardin Clos',
     heroImage:
       'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85',
     gallery: [
-      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1400&q=85'
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85'
     ],
     amenities: [
-      { id: 'chauffeur', label: 'Chauffeur Rolls-Royce à Disposition Continue', icon: 'Car', premium: true },
-      { id: 'chef', label: 'Brigade Culinaire & Majordome 24/7', icon: 'Utensils', premium: true },
-      { id: 'spa-priv', label: 'Spa Privé, Hammam & Studio Fitness', icon: 'Sparkles', premium: true }
+      { id: 'priv-pool', label: 'Piscine Privée & Terrasse Lounge', icon: 'Waves', premium: true },
+      { id: 'security', label: 'Sécurité & Parking Privé Devant la Villa', icon: 'ShieldCheck', premium: true },
+      { id: 'chef', label: 'Chef à Domicile sur Demande', icon: 'Utensils' }
     ],
     highlights: [
-      'Voiture avec chauffeur dédiée pendant toute la durée du séjour',
-      'Privatisation complète avec entrée sécurisée indépendante',
-      'Soins quotidiens au Spa inclus pour chaque résident'
+      'Idéal pour les familles nombreuses, artistes ou délégations officielles',
+      'Intimité totale avec tous les services 5★ de l’hôtel',
+      'Navette aéroport aller-retour incluse'
     ],
-    isFeatured: true,
-    availableCount: 1,
+    isFeatured: false,
+    availableCount: 2,
     isAvailableForDates: true
   }
 ];
 
 export const STATIC_ADDONS: ExperienceAddOn[] = [
   {
-    id: 'addon-rolls-royce',
-    code: 'VIP_ROLLS_TRANSFER',
-    title: 'Transfert Privé en Rolls-Royce Phantom VIII',
+    id: 'addon-airport-shuttle',
+    code: 'COTONOU_AIRPORT_VIP',
+    title: 'Transfert Privé Aéroport de Cotonou (SUV Climatisé)',
     category: 'VIP_TRANSFER',
     description:
-      'Accueil personnalisé au pied de l’avion (Salon VIP Tarmac) ou en gare avec chauffeur en livrée et rafraîchissements.',
-    price: 480,
+      'Accueil personnalisé avec pancarte nominative à la sortie des vols à l’Aéroport Cardinal Bernardin Gantin de Cotonou.',
+    price: 25000,
     pricingType: 'PER_STAY',
     image:
       'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=900&q=80',
-    badge: 'Le Plus Prisé'
+    badge: 'Recommandé'
   },
   {
-    id: 'addon-michelin-dinner',
-    code: 'GASTRO_9_COURSES',
-    title: 'Dîner Dégustation 9 Séquences & Accords Grands Crus',
+    id: 'addon-buffet-pension',
+    code: 'DEMI_PENSION_BUFFET',
+    title: 'Formule Demi-Pension : Grand Buffet & Grillades de la Mer',
     category: 'GASTRONOMY',
     description:
-      'Table privilégiée à L’Orangerie Céleste (3★ Michelin) avec visite privée de la cave historique par notre Chef Sommelier.',
-    price: 620,
+      'Dîner complet au restaurant principal : poissons braisés, langoustes, spécialités béninoises (Amiwo, Atassi gourmet) et buffet international.',
+    price: 28000,
     pricingType: 'PER_GUEST',
     image:
       'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80',
-    badge: '3★ Michelin'
+    badge: 'Gastronomie'
   },
   {
-    id: 'addon-spa-imperial',
-    code: 'SPA_PRIVATIZATION',
-    title: 'Rituel Impérial en Suite Spa Duo & Privatisation',
-    category: 'SPA_WELLNESS',
-    description:
-      '2h30 de soin cellulaire haute précision, suivi d’une heure de privatisation du bassin minéral avec Champagne Rosé.',
-    price: 750,
-    pricingType: 'PER_STAY',
-    image:
-      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80',
-    badge: 'Exclusivité'
-  },
-  {
-    id: 'addon-champagne-caviar',
-    code: 'ROYAL_WELCOME',
-    title: 'Rituel d’Arrivée : Caviar Beluga Impérial & Krug Grande Cuvée',
+    id: 'addon-excursion-ouidah-ganvie',
+    code: 'TOUR_GANVIE_OUIDAH',
+    title: 'Excursion Privée : Cité Lacustre de Ganvié ou Route de Ouidah',
     category: 'BESPOKE',
     description:
-      'Dressé dans votre suite à votre arrivée par votre Majordome, accompagné d’une composition florale haute couture.',
-    price: 890,
+      'Sortie d’une demi-journée avec véhicule climatisé, guide officiel et embarcation motorisée privée à Ganvié ou visite historique de Ouidah.',
+    price: 65000,
     pricingType: 'PER_STAY',
     image:
-      'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=900&q=80'
+      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=900&q=80',
+    badge: 'Découverte Bénin'
+  },
+  {
+    id: 'addon-spa-karite',
+    code: 'SPA_KARITE_MASSAGE',
+    title: 'Rituel Spa Relaxant au Beurre de Karité Pur & Huiles',
+    category: 'SPA_WELLNESS',
+    description:
+      'Séance de 90 minutes de massage relaxant aux huiles naturelles et beurre de karité du Nord-Bénin, avec accès hammam.',
+    price: 45000,
+    pricingType: 'PER_STAY',
+    image:
+      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'
   }
 ];
 
 export const STATIC_BOOKINGS: BookingRecord[] = [
   {
-    id: 'bk-demo-vendome',
+    id: 'bk-demo-cotonou',
     referenceCode: 'AURA-2026-8841',
     status: 'CONFIRMED',
     checkIn: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
@@ -287,35 +279,35 @@ export const STATIC_BOOKINGS: BookingRecord[] = [
     adults: 2,
     children: 0,
     room: {
-      id: STATIC_SUITES[0].id,
-      slug: STATIC_SUITES[0].slug,
-      name: STATIC_SUITES[0].name,
-      subtitle: STATIC_SUITES[0].subtitle,
-      heroImage: STATIC_SUITES[0].heroImage,
-      category: STATIC_SUITES[0].category,
-      sizeSqm: STATIC_SUITES[0].sizeSqm
+      id: STATIC_SUITES[1].id,
+      slug: STATIC_SUITES[1].slug,
+      name: STATIC_SUITES[1].name,
+      subtitle: STATIC_SUITES[1].subtitle,
+      heroImage: STATIC_SUITES[1].heroImage,
+      category: STATIC_SUITES[1].category,
+      sizeSqm: STATIC_SUITES[1].sizeSqm
     },
-    addOns: [STATIC_ADDONS[0], STATIC_ADDONS[2]],
+    addOns: [STATIC_ADDONS[0], STATIC_ADDONS[1]],
     guest: {
       title: 'M.',
-      firstName: 'Alexandre',
-      lastName: 'de Montmirail',
-      email: 'a.montmirail@cercle-prive.fr',
-      phone: '+33 6 14 28 99 00',
-      country: 'France',
-      arrivalTime: '16:30',
-      specialRequests: 'Champagne Krug à température de cave et oreillers en soie naturelle.',
-      vipPreferences: ['Accueil Tarmac Privé', 'Presse Internationale']
+      firstName: 'Koffi',
+      lastName: 'Soglo',
+      email: 'k.soglo@entreprise-benin.bj',
+      phone: '+229 01 97 00 11 22',
+      country: 'Bénin',
+      arrivalTime: '15:30',
+      specialRequests: 'Accueil navette à l’arrivée du vol Air France à l’aéroport de Cotonou.',
+      vipPreferences: ['Navette Aéroport Cotonou', 'Chambre Étage Élevé Vue Mer']
     },
     pricing: {
       nights: 3,
-      roomRatePerNight: 4200,
-      roomSubtotal: 12600,
-      addOnsSubtotal: 1230,
+      roomRatePerNight: 135000,
+      roomSubtotal: 405000,
+      addOnsSubtotal: 81000,
       discountAmount: 0,
-      taxesAndFees: 1473,
-      totalPrice: 15303,
-      currency: 'EUR'
+      taxesAndFees: 15000,
+      totalPrice: 501000,
+      currency: 'XOF'
     },
     createdAt: new Date().toISOString()
   }

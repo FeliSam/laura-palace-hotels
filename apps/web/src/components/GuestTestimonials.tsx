@@ -18,39 +18,39 @@ interface GuestReview {
 const VERIFIED_REVIEWS: GuestReview[] = [
   {
     id: 'rev-1',
-    guestName: 'Comtesse Hélène de Valmy',
-    guestTitle: 'Membre du Cercle Privé Aura',
-    origin: 'Genève, Suisse',
-    suiteStayed: 'Suite Impériale Vendôme (245 m²)',
+    guestName: 'M. Patrice Zinsou',
+    guestTitle: 'Directeur Régional • Séjour d’Affaires',
+    origin: 'Cotonou / Abidjan',
+    suiteStayed: 'Suite Junior Diplomatique Marina',
     stayDate: 'Septembre 2026 • 4 Nuits',
     rating: 5,
-    headline: '« Une maîtrise rare du silence et de l’attention sur-mesure »',
+    headline: '« Le meilleur standard hôtelier sur le Boulevard de la Marina »',
     comment:
-      'Dès l’accueil au pied de l’avion par le chauffeur en Rolls-Royce jusqu’au dîner privé dressé sur notre terrasse face à la Colonne Vendôme, tout respire l’élégance véritable d’une maison particulière.'
+      'Accueil irréprochable dès l’aéroport de Cotonou avec la navette climatisée. Le Wi-Fi fibre est ultra-rapide pour mes visioconférences, et le buffet du petit-déjeuner face à la piscine est digne des meilleurs 5 étoiles internationaux.'
   },
   {
     id: 'rev-2',
-    guestName: 'Lord Julian & Lady Clara Sterling',
-    guestTitle: 'Collectionneurs d’Art',
-    origin: 'Londres, Royaume-Uni',
-    suiteStayed: 'Penthouse Céleste & Jardin Suspendu (310 m²)',
+    guestName: 'Mme Claire & M. Marc Hountondji',
+    guestTitle: 'Séjour en Famille • Diaspora',
+    origin: 'Paris / Ouidah',
+    suiteStayed: 'Villa & Bungalow Plage (95 m²)',
     stayDate: 'Août 2026 • 6 Nuits',
     rating: 5,
-    headline: '« Le bassin chauffé sur les toits au crépuscule est inoubliable »',
+    headline: '« Entre le confort moderne style Novotel et le charme de la Route des Pêches »',
     comment:
-      'Nous séjournons dans les plus grands palaces européens depuis vingt ans. Le Penthouse Céleste et la discrétion absolue de notre Majordome placent cet établissement au-dessus de tout ce que nous connaissions.'
+      'Nous avons adoré le bungalow familial sous les cocotiers et les grillades de poissons frais et langoustes le soir. Le personnel est aux petits soins et l’excursion organisée vers Ganvié était parfaite.'
   },
   {
     id: 'rev-3',
-    guestName: 'M. Kenji Takahashi',
-    guestTitle: 'Architecte Principal',
-    origin: 'Tokyo, Japon',
-    suiteStayed: 'Villa Émeraude & Cour Intérieure (220 m²)',
-    stayDate: 'Octobre 2026 • 5 Nuits',
+    guestName: 'Dr. Amadou Diallo',
+    guestTitle: 'Consultant International • Conférence Palais des Congrès',
+    origin: 'Dakar, Sénégal',
+    suiteStayed: 'Chambre Exécutive Vue Océan',
+    stayDate: 'Octobre 2026 • 3 Nuits',
     rating: 5,
-    headline: '« Une harmonie architecturale et minérale d’une pureté absolue »',
+    headline: '« Emplacement idéal à 5 minutes du Palais des Congrès et de la plage »',
     comment:
-      'La lumière traversante de la Villa Émeraude, la noblesse de la pierre et la privatisation nocturne des Thermes de marbre blanc offrent une sérénité que l’on ne trouve nulle part ailleurs en plein cœur de la ville.'
+      'Chambre très calme, literie excellente et vue directe sur l’Océan Atlantique. La possibilité de régler et réserver facilement en Franc CFA avec facture immédiate facilite énormément les déplacements professionnels au Bénin.'
   }
 ];
 
@@ -68,17 +68,17 @@ export function GuestTestimonials() {
   return (
     <section className="py-24 bg-luxury-surface border-b border-luxury-border transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 space-y-14">
-        {/* Header & Global Palace Rating */}
+        {/* Header & Global Rating */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-8 border-b border-luxury-border">
           <div>
             <div className="flex items-center gap-3 mb-3">
               <span className="w-8 h-[1px] bg-luxury-gold" />
               <span className="text-[11px] uppercase tracking-[0.28em] text-luxury-gold font-semibold">
-                LIVRE D’OR & AVIS RÉSIDENTS VÉRIFIÉS
+                AVIS CLIENTS VÉRIFIÉS • COTONOU & BÉNIN
               </span>
             </div>
             <h2 className="font-serif text-3xl sm:text-5xl text-luxury-text font-normal">
-              Ce que Confient Nos Hôtes
+              L’Expérience de Nos Clients
             </h2>
           </div>
 
@@ -86,7 +86,7 @@ export function GuestTestimonials() {
           <div className="flex items-center gap-6 p-4 sm:p-5 editorial-card">
             <div>
               <div className="font-serif text-3xl sm:text-4xl text-luxury-text font-semibold leading-none">
-                4.98 <span className="text-lg text-luxury-muted font-normal">/ 5</span>
+                4.9 <span className="text-lg text-luxury-muted font-normal">/ 5</span>
               </div>
               <div className="flex items-center gap-1 mt-1.5 text-luxury-gold">
                 {[1, 2, 3, 4, 5].map((s) => (
@@ -97,16 +97,16 @@ export function GuestTestimonials() {
             <div className="h-10 w-[1px] bg-luxury-border" />
             <div className="text-xs space-y-0.5">
               <div className="font-semibold text-luxury-text uppercase tracking-wider">
-                Excellence Certifiée
+                Référence Hôtelière au Bénin
               </div>
               <div className="text-luxury-muted">
-                Basé sur 420+ séjours vérifiés • Clefs Michelin
+                Basé sur 580+ séjours d’affaires et tourisme à Cotonou
               </div>
             </div>
           </div>
         </div>
 
-        {/* Desktop 3-Column Editorial Grid */}
+        {/* Desktop 3-Column Grid */}
         <div className="hidden lg:grid lg:grid-cols-3 gap-8">
           {VERIFIED_REVIEWS.map((review) => (
             <article
@@ -153,7 +153,7 @@ export function GuestTestimonials() {
           ))}
         </div>
 
-        {/* Mobile / Tablet Interactive Review Carousel */}
+        {/* Mobile / Tablet Carousel */}
         <div className="lg:hidden space-y-4">
           {(() => {
             const review = VERIFIED_REVIEWS[activeIndex];

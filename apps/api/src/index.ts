@@ -68,7 +68,7 @@ const memoryBookings: BookingRecord[] = [
       discountAmount: 0,
       taxesAndFees: 1473,
       totalPrice: 15303,
-      currency: 'EUR'
+      currency: 'XOF'
     },
     createdAt: new Date().toISOString()
   }
@@ -128,7 +128,7 @@ function computeServerPricing(
     discountAmount,
     taxesAndFees,
     totalPrice: net + taxesAndFees,
-    currency: 'EUR'
+    currency: 'XOF'
   };
 }
 

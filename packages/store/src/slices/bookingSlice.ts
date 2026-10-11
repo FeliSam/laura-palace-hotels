@@ -40,8 +40,8 @@ const initialState: BookingState = {
     lastName: '',
     email: '',
     phone: '',
-    country: 'France',
-    arrivalTime: '15:00',
+    country: 'Bénin',
+    arrivalTime: '14:00',
     specialRequests: '',
     vipPreferences: []
   },
@@ -164,7 +164,7 @@ export const selectPriceBreakdown = createSelector(
       discountAmount,
       taxesAndFees,
       totalPrice: netBeforeTax + taxesAndFees,
-      currency: 'EUR'
+      currency: 'XOF'
     };
   }
 );

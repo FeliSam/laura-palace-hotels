@@ -137,7 +137,7 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
         discountAmount,
         taxesAndFees,
         totalPrice: net + taxesAndFees,
-        currency: 'EUR'
+        currency: 'XOF'
       },
       createdAt: new Date().toISOString()
     };

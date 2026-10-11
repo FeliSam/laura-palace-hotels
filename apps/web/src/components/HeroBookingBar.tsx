@@ -52,7 +52,7 @@ export function HeroBookingBar() {
           <div className="inline-flex items-center gap-3 px-3.5 py-1.5 bg-black/55 backdrop-blur-md border border-white/20">
             <span className="w-6 h-[1px] bg-[#D4AF6A]" />
             <span className="text-[11px] uppercase tracking-[0.28em] text-[#E5C98B] font-medium">
-              {currentTheme.locationOverride || '22 Place Vendôme • Paris Ier'}
+              {currentTheme.locationOverride || 'Boulevard de la Marina • Cotonou, Bénin'}
             </span>
           </div>
 

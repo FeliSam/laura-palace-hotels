@@ -14,7 +14,7 @@ const initialState: FilterState = {
   category: 'ALL',
   viewType: 'ALL',
   minGuests: 1,
-  maxPricePerNight: 15000,
+  maxPricePerNight: 1000000,
   sortBy: 'FEATURED',
   searchQuery: ''
 };
