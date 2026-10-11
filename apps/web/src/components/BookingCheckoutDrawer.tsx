@@ -7,8 +7,7 @@ import {
   setDrawerOpen,
   setCheckoutStep,
   setDates,
-  setGuests,
-  toggleAddOn,
+   toggleAddOn,
   setPromoCode,
   updateGuestInfo,
   toggleVipPreference,
@@ -23,8 +22,6 @@ import {
 import { HOTEL_CONFIG, formatCurrencyAmount } from '@hotel/config';
 import {
   X,
-  Calendar,
-  Sparkles,
   CheckCircle2,
   ArrowRight,
   ArrowLeft,
@@ -113,15 +110,15 @@ export function BookingCheckoutDrawer() {
       {/* Backdrop */}
       <div
         onClick={() => dispatch(setDrawerOpen(false))}
-        className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
       />
 
       {/* Drawer Content */}
-      <aside className="relative z-10 w-full max-w-2xl bg-luxury-bg border-l border-luxury-border h-full flex flex-col justify-between overflow-hidden shadow-2xl">
+      <aside className="relative z-10 w-full max-w-2xl bg-luxury-bg text-luxury-text border-l border-luxury-border h-full flex flex-col justify-between overflow-hidden shadow-2xl">
         {/* Drawer Header */}
-        <div className="p-6 border-b border-luxury-border flex items-center justify-between bg-luxury-surface/80">
+        <div className="p-6 border-b border-luxury-border flex items-center justify-between bg-luxury-surface">
           <div>
-            <span className="text-[10px] uppercase tracking-[0.25em] text-luxury-gold flex items-center gap-1.5">
+            <span className="text-[10px] uppercase tracking-[0.25em] text-luxury-gold font-semibold flex items-center gap-1.5">
               <Crown className="w-3.5 h-3.5" />
               Conciergerie & Réservation Officielle
             </span>
@@ -134,15 +131,15 @@ export function BookingCheckoutDrawer() {
 
           <button
             onClick={() => dispatch(setDrawerOpen(false))}
-            className="w-10 h-10 rounded-full bg-white/5 hover:bg-luxury-gold hover:text-black flex items-center justify-center transition-colors"
+            className="w-10 h-10 border border-luxury-border hover:border-luxury-gold text-luxury-text flex items-center justify-center transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Step Indicator (when not confirmed yet) */}
+        {/* Step Indicator */}
         {!lastConfirmedBookingRef && (
-          <div className="px-6 py-3 bg-luxury-surface/40 border-b border-white/10 grid grid-cols-3 gap-2 text-xs">
+          <div className="px-6 py-3 bg-luxury-surface/60 border-b border-luxury-border grid grid-cols-3 gap-2 text-xs">
             {[
               { step: 1, label: '1. Suite & Dates' },
               { step: 2, label: '2. Privilèges & Spa' },
@@ -151,10 +148,10 @@ export function BookingCheckoutDrawer() {
               <button
                 key={item.step}
                 onClick={() => dispatch(setCheckoutStep(item.step as 1 | 2 | 3))}
-                className={`py-2 px-3 rounded-lg font-medium text-left transition-all ${
+                className={`py-2 px-3 font-medium text-left transition-all border ${
                   checkoutStep === item.step
-                    ? 'bg-luxury-gold text-black font-semibold'
-                    : 'text-luxury-muted hover:text-luxury-text bg-white/5'
+                    ? 'bg-luxury-text text-luxury-bg border-luxury-text font-semibold'
+                    : 'text-luxury-muted hover:text-luxury-text bg-luxury-card border-luxury-border'
                 }`}
               >
                 {item.label}
@@ -167,24 +164,26 @@ export function BookingCheckoutDrawer() {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {lastConfirmedBookingRef ? (
             /* CONFIRMED STATE */
-            <div className="p-8 rounded-2xl bg-luxury-card border border-luxury-gold/50 text-center space-y-6 my-4">
-              <div className="w-16 h-16 rounded-full bg-luxury-gold/20 border border-luxury-gold flex items-center justify-center mx-auto text-luxury-gold">
+            <div className="p-8 editorial-card text-center space-y-6 my-4">
+              <div className="w-16 h-16 rounded-full bg-luxury-gold/15 border border-luxury-gold flex items-center justify-center mx-auto text-luxury-gold">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
               <div className="space-y-2">
-                <span className="text-xs uppercase tracking-[0.25em] text-luxury-gold">
+                <span className="text-xs uppercase tracking-[0.25em] text-luxury-gold font-semibold">
                   DOSSIER OFFICIEL ENREGISTRÉ
                 </span>
                 <h3 className="font-serif text-3xl text-luxury-text">
                   Merci, {guestInfo.title} {guestInfo.lastName}
                 </h3>
                 <p className="text-sm text-luxury-muted max-w-md mx-auto">
-                  Votre Majordome dédié au sein de <strong className="text-luxury-text">{customHotelName}</strong> a reçu vos préférences d’arrivée.
+                  Votre Majordome dédié au sein de{' '}
+                  <strong className="text-luxury-text">{customHotelName}</strong> a reçu vos
+                  préférences d’arrivée.
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-luxury-surface border border-luxury-border inline-block mx-auto">
+              <div className="p-5 bg-luxury-surface border border-luxury-border inline-block mx-auto">
                 <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-muted block">
                   NUMÉRO DE RÉFÉRENCE À CONSERVER
                 </span>
@@ -193,7 +192,7 @@ export function BookingCheckoutDrawer() {
                 </span>
               </div>
 
-              <div className="text-left p-5 rounded-xl bg-luxury-surface/70 border border-white/10 space-y-2 text-xs">
+              <div className="text-left p-5 bg-luxury-surface border border-luxury-border space-y-2 text-xs">
                 <div className="flex justify-between">
                   <span className="text-luxury-muted">Suite réservée :</span>
                   <span className="text-luxury-text font-semibold">{selectedRoom?.name}</span>
@@ -218,7 +217,7 @@ export function BookingCheckoutDrawer() {
                     dispatch(resetBookingFlow());
                     dispatch(setDrawerOpen(false));
                   }}
-                  className="px-6 py-3 rounded-xl bg-luxury-gold text-black font-semibold text-xs uppercase tracking-widest"
+                  className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-xs uppercase tracking-widest"
                 >
                   Terminer & Retourner au Palace
                 </button>
@@ -229,18 +228,18 @@ export function BookingCheckoutDrawer() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-luxury-gold mb-1.5">
+                  <label className="block text-[11px] uppercase tracking-widest text-luxury-gold font-semibold mb-1.5">
                     Date d’arrivée
                   </label>
                   <input
                     type="date"
                     value={checkIn}
                     onChange={(e) => dispatch(setDates({ checkIn: e.target.value, checkOut }))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-luxury-surface border border-white/15 text-sm"
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-sm text-luxury-text"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] uppercase tracking-widest text-luxury-gold mb-1.5">
+                  <label className="block text-[11px] uppercase tracking-widest text-luxury-gold font-semibold mb-1.5">
                     Date de départ ({pricing.nights} nuits)
                   </label>
                   <input
@@ -248,14 +247,14 @@ export function BookingCheckoutDrawer() {
                     value={checkOut}
                     min={checkIn}
                     onChange={(e) => dispatch(setDates({ checkIn, checkOut: e.target.value }))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-luxury-surface border border-white/15 text-sm"
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-sm text-luxury-text"
                   />
                 </div>
               </div>
 
               {/* Suite Selector */}
               <div className="space-y-3">
-                <label className="block text-[11px] uppercase tracking-widest text-luxury-gold">
+                <label className="block text-[11px] uppercase tracking-widest text-luxury-gold font-semibold">
                   Suite ou Villa Sélectionnée
                 </label>
                 <div className="space-y-3">
@@ -267,16 +266,16 @@ export function BookingCheckoutDrawer() {
                         onClick={() =>
                           dispatch(selectRoomForBooking({ room, openDrawer: true }))
                         }
-                        className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center gap-4 ${
+                        className={`p-4 border cursor-pointer transition-all flex items-center gap-4 ${
                           isSelected
                             ? 'bg-luxury-card border-luxury-gold ring-1 ring-luxury-gold'
-                            : 'bg-luxury-surface/60 border-white/10 hover:border-white/30'
+                            : 'bg-luxury-surface/60 border-luxury-border hover:border-luxury-gold'
                         }`}
                       >
                         <img
                           src={room.heroImage}
                           alt={room.name}
-                          className="w-20 h-16 rounded-lg object-cover shrink-0"
+                          className="w-20 h-16 object-cover shrink-0"
                         />
                         <div className="flex-1 min-w-0">
                           <h4 className="font-serif text-lg text-luxury-text truncate">
@@ -317,10 +316,10 @@ export function BookingCheckoutDrawer() {
                     <div
                       key={addon.id}
                       onClick={() => dispatch(toggleAddOn(addon))}
-                      className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-4 ${
+                      className={`p-4 border cursor-pointer transition-all flex items-center justify-between gap-4 ${
                         isSelected
-                          ? 'bg-luxury-card border-luxury-gold'
-                          : 'bg-luxury-surface/60 border-white/10 hover:border-white/25'
+                          ? 'bg-luxury-card border-luxury-gold ring-1 ring-luxury-gold'
+                          : 'bg-luxury-surface/60 border-luxury-border hover:border-luxury-gold'
                       }`}
                     >
                       <div className="space-y-1">
@@ -329,7 +328,7 @@ export function BookingCheckoutDrawer() {
                             {addon.title}
                           </span>
                           {addon.badge && (
-                            <span className="px-2 py-0.5 rounded-full bg-luxury-gold/20 text-luxury-gold text-[10px]">
+                            <span className="px-2 py-0.5 bg-luxury-gold/15 text-luxury-gold text-[10px] font-semibold">
                               {addon.badge}
                             </span>
                           )}
@@ -350,8 +349,8 @@ export function BookingCheckoutDrawer() {
               </div>
 
               {/* Promo / Invitation Code */}
-              <div className="p-4 rounded-xl bg-luxury-surface border border-white/10 space-y-2">
-                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-luxury-gold">
+              <div className="p-4 bg-luxury-surface border border-luxury-border space-y-2">
+                <label className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-luxury-gold font-semibold">
                   <Tag className="w-3.5 h-3.5" />
                   Code Privilège / Invitation (ex: PALACE10 ou ROYALVIP)
                 </label>
@@ -361,18 +360,18 @@ export function BookingCheckoutDrawer() {
                     value={promoInput}
                     onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
                     placeholder="Entrez PALACE10 (-10%)"
-                    className="flex-1 px-3.5 py-2 rounded-lg bg-luxury-bg border border-white/15 text-xs uppercase tracking-widest"
+                    className="flex-1 px-3.5 py-2 bg-luxury-card border border-luxury-border text-xs uppercase tracking-widest text-luxury-text"
                   />
                   <button
                     type="button"
                     onClick={() => dispatch(setPromoCode(promoInput))}
-                    className="px-4 py-2 rounded-lg bg-luxury-gold text-black text-xs font-semibold uppercase tracking-wider"
+                    className="px-4 py-2 bg-luxury-text text-luxury-bg text-xs font-semibold uppercase tracking-wider"
                   >
                     Appliquer
                   </button>
                 </div>
                 {pricing.discountAmount > 0 && (
-                  <p className="text-xs text-emerald-400">
+                  <p className="text-xs text-emerald-600 font-medium">
                     ✓ Privilège appliqué : -{formatCurrencyAmount(pricing.discountAmount, currency)}
                   </p>
                 )}
@@ -382,7 +381,7 @@ export function BookingCheckoutDrawer() {
             /* STEP 3: VIP GUEST COORDINATES */
             <form id="vip-booking-form" onSubmit={handleConfirmReservation} className="space-y-4">
               {formError && (
-                <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500/40 text-xs text-red-200">
+                <div className="p-3.5 bg-red-500/15 border border-red-500/40 text-xs text-luxury-text">
                   {formError}
                 </div>
               )}
@@ -397,7 +396,7 @@ export function BookingCheckoutDrawer() {
                     onChange={(e) =>
                       dispatch(updateGuestInfo({ title: e.target.value as any }))
                     }
-                    className="w-full px-3 py-2.5 rounded-xl bg-luxury-surface border border-white/15 text-xs"
+                    className="w-full px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   >
                     <option value="M.">M.</option>
                     <option value="Mme">Mme</option>
@@ -415,7 +414,7 @@ export function BookingCheckoutDrawer() {
                     value={guestInfo.firstName}
                     onChange={(e) => dispatch(updateGuestInfo({ firstName: e.target.value }))}
                     placeholder="Jean-Édouard"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-luxury-surface border border-white/15 text-xs"
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
               </div>
@@ -431,7 +430,7 @@ export function BookingCheckoutDrawer() {
                     value={guestInfo.lastName}
                     onChange={(e) => dispatch(updateGuestInfo({ lastName: e.target.value }))}
                     placeholder="de Rochefort"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-luxury-surface border border-white/15 text-xs"
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
                 <div>
@@ -442,7 +441,7 @@ export function BookingCheckoutDrawer() {
                     type="time"
                     value={guestInfo.arrivalTime || '15:00'}
                     onChange={(e) => dispatch(updateGuestInfo({ arrivalTime: e.target.value }))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-luxury-surface border border-white/15 text-xs"
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
               </div>
@@ -458,7 +457,7 @@ export function BookingCheckoutDrawer() {
                     value={guestInfo.email}
                     onChange={(e) => dispatch(updateGuestInfo({ email: e.target.value }))}
                     placeholder="contact@domaine.com"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-luxury-surface border border-white/15 text-xs"
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
                 <div>
@@ -471,14 +470,14 @@ export function BookingCheckoutDrawer() {
                     value={guestInfo.phone}
                     onChange={(e) => dispatch(updateGuestInfo({ phone: e.target.value }))}
                     placeholder="+33 6 00 00 00 00"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-luxury-surface border border-white/15 text-xs"
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
               </div>
 
               {/* VIP Preferences Pills */}
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-luxury-gold mb-2">
+                <label className="block text-[11px] uppercase tracking-wider text-luxury-gold font-semibold mb-2">
                   Préférences Personnalisées en Suite (Incluses)
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -489,10 +488,10 @@ export function BookingCheckoutDrawer() {
                         type="button"
                         key={pref}
                         onClick={() => dispatch(toggleVipPreference(pref))}
-                        className={`px-3 py-1.5 rounded-full text-[11px] border transition-all ${
+                        className={`px-3 py-1.5 text-[11px] border transition-all ${
                           active
-                            ? 'bg-luxury-gold text-black border-luxury-gold font-semibold'
-                            : 'bg-luxury-surface text-luxury-muted border-white/10'
+                            ? 'bg-luxury-text text-luxury-bg border-luxury-text font-semibold'
+                            : 'bg-luxury-surface text-luxury-muted border-luxury-border'
                         }`}
                       >
                         {active ? '✓ ' : '+ '}
@@ -514,7 +513,7 @@ export function BookingCheckoutDrawer() {
                     dispatch(updateGuestInfo({ specialRequests: e.target.value }))
                   }
                   placeholder="Allergies, fleurs préférées, numéro de vol privé..."
-                  className="w-full px-3.5 py-2 rounded-xl bg-luxury-surface border border-white/15 text-xs"
+                  className="w-full px-3.5 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                 />
               </div>
             </form>
@@ -539,7 +538,7 @@ export function BookingCheckoutDrawer() {
                 </div>
               )}
               {pricing.discountAmount > 0 && (
-                <div className="flex justify-between text-emerald-400">
+                <div className="flex justify-between text-emerald-600 font-medium">
                   <span>Remise Privilège ({promoCode})</span>
                   <span>-{formatCurrencyAmount(pricing.discountAmount, currency)}</span>
                 </div>
@@ -548,7 +547,7 @@ export function BookingCheckoutDrawer() {
                 <span>Taxes & Services Palace ({HOTEL_CONFIG.pricing.taxRatePercent}%)</span>
                 <span>{formatCurrencyAmount(pricing.taxesAndFees, currency)}</span>
               </div>
-              <div className="flex justify-between items-baseline pt-2 border-t border-white/10">
+              <div className="flex justify-between items-baseline pt-2 border-t border-luxury-border">
                 <span className="uppercase tracking-widest text-luxury-text font-semibold">
                   Total Séjour TTC
                 </span>
@@ -563,7 +562,7 @@ export function BookingCheckoutDrawer() {
                 <button
                   type="button"
                   onClick={() => dispatch(setCheckoutStep((checkoutStep - 1) as 1 | 2))}
-                  className="px-4 py-3 rounded-xl border border-white/15 text-xs uppercase tracking-wider flex items-center gap-1.5"
+                  className="px-4 py-3 border border-luxury-border text-xs uppercase tracking-wider text-luxury-text flex items-center gap-1.5"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   Retour
@@ -581,7 +580,7 @@ export function BookingCheckoutDrawer() {
                     }
                     dispatch(setCheckoutStep((checkoutStep + 1) as 2 | 3));
                   }}
-                  className="px-6 py-3 rounded-xl bg-luxury-gold text-black font-semibold text-xs uppercase tracking-[0.18em] flex items-center gap-2"
+                  className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-xs uppercase tracking-[0.18em] flex items-center gap-2 transition-colors"
                 >
                   <span>Continuer</span>
                   <ArrowRight className="w-4 h-4" />
@@ -591,7 +590,7 @@ export function BookingCheckoutDrawer() {
                   type="submit"
                   form="vip-booking-form"
                   disabled={isSubmitting}
-                  className="px-6 py-3 rounded-xl bg-luxury-gold text-black font-semibold text-xs uppercase tracking-[0.18em] flex items-center gap-2 disabled:opacity-50"
+                  className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-xs uppercase tracking-[0.18em] flex items-center gap-2 disabled:opacity-50 transition-colors"
                 >
                   {isSubmitting ? (
                     <>

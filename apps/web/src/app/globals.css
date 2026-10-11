@@ -4,8 +4,7 @@
 
 /* ==========================================================================
    EDITORIAL DESIGN SYSTEM — LIGHT (ALABASTER) & DARK (OBSIDIAN)
-   Crafted with authentic hospitality typography, hairline borders, and
-   tactile surface hierarchy (Aman / Cheval Blanc / Four Seasons standard).
+   Explicit contrast tokens ensuring zero white-on-light text issues.
    ========================================================================== */
 
 :root,
@@ -16,23 +15,27 @@ html[data-color-mode="light"] {
   --bg-secondary: #EFECE6;
   --surface-card: #FFFFFF;
   --text-primary: #141413;
-  --text-secondary: #5C5852;
-  --accent-primary: #9E7B42;
-  --accent-secondary: #B89456;
-  --border-subtle: rgba(20, 20, 19, 0.11);
-  --nav-glass: rgba(248, 245, 240, 0.90);
+  --text-secondary: #57534E;
+  --accent-primary: #9A7432;
+  --accent-secondary: #B89146;
+  --border-subtle: rgba(20, 20, 19, 0.12);
+  --nav-glass: rgba(248, 245, 240, 0.94);
+  color-scheme: light;
 }
 
 html[data-color-mode="dark"] {
-  --bg-primary: #0B0B0C;
-  --bg-secondary: #131316;
-  --surface-card: #19191E;
+  --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+  --font-jakarta: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --bg-primary: #0B0B0D;
+  --bg-secondary: #141418;
+  --surface-card: #1A1A20;
   --text-primary: #F5F2EB;
-  --text-secondary: #9E9990;
-  --accent-primary: #C5A059;
-  --accent-secondary: #DFC082;
-  --border-subtle: rgba(245, 242, 235, 0.11);
-  --nav-glass: rgba(11, 11, 12, 0.88);
+  --text-secondary: #A6A096;
+  --accent-primary: #C8A25A;
+  --accent-secondary: #E2C383;
+  --border-subtle: rgba(245, 242, 235, 0.13);
+  --nav-glass: rgba(11, 11, 13, 0.92);
+  color-scheme: dark;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -46,7 +49,7 @@ html {
   scroll-behavior: smooth;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  transition: background-color 0.35s ease, color 0.35s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -55,8 +58,8 @@ body {
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  /* Extra bottom padding on mobile so the Native Bottom Tab Bar never overlaps content */
   padding-bottom: 4.5rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 @media (min-width: 1024px) {
@@ -65,24 +68,24 @@ body {
   }
 }
 
-/* Editorial Hairline Utilities */
 .editorial-nav-glass {
   background: var(--nav-glass);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .luxury-glass {
   background: var(--nav-glass);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-subtle);
 }
 
 .editorial-card {
   background-color: var(--surface-card);
+  color: var(--text-primary);
   border: 1px solid var(--border-subtle);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  transition: border-color 0.25s ease, background-color 0.25s ease, color 0.25s ease;
 }
 
 .editorial-card:hover {
