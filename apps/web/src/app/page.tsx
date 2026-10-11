@@ -1,156 +1,179 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   useAppDispatch,
   useAppSelector,
-  setCustomizerOpen,
-  setLookupModalOpen,
-  setDrawerOpen
+  setCustomizerOpen
 } from '@hotel/store';
 import { HOTEL_CONFIG } from '@hotel/config';
-import { Navbar } from '@/components/Navbar';
+import { SiteShell } from '@/components/SiteShell';
 import { HeroBookingBar } from '@/components/HeroBookingBar';
 import { SuitesCatalog } from '@/components/SuitesCatalog';
-import { ExperiencesSection } from '@/components/ExperiencesSection';
-import { BookingCheckoutDrawer } from '@/components/BookingCheckoutDrawer';
-import { InteractiveModals } from '@/components/InteractiveModals';
-import { Crown, MapPin, Phone, Mail, SlidersHorizontal, Smartphone } from 'lucide-react';
+import { ArrowRight, SlidersHorizontal, SunMedium } from 'lucide-react';
 
 export default function PalaceHomePage() {
   const dispatch = useAppDispatch();
-  const { customHotelName, activeTheme } = useAppSelector((state) => state.ui);
-  const currentTheme = HOTEL_CONFIG.themes[activeTheme] || HOTEL_CONFIG.themes['palace-parisien'];
+  const { customHotelName } = useAppSelector((state) => state.ui);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between">
-      <Navbar />
+    <SiteShell>
+      {/* 1. Full-Bleed Architectural Hero & Booking Engine */}
+      <HeroBookingBar />
 
-      <main>
-        <HeroBookingBar />
-        <SuitesCatalog />
-        <ExperiencesSection />
-
-        {/* Mobile Companion App & White-Label Architecture Banner */}
-        <section className="py-20 max-w-7xl mx-auto px-4 sm:px-8">
-          <div className="rounded-3xl p-8 sm:p-12 bg-luxury-card border border-luxury-border grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8 space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-luxury-gold/15 text-luxury-gold text-[11px] uppercase tracking-[0.2em]">
-                <Smartphone className="w-3.5 h-3.5" />
-                <span>Écosystème Unifié Next.js + React Native + Redux</span>
-              </div>
-              <h2 className="font-serif text-3xl sm:text-4xl text-luxury-text">
-                Clé Digitale, Majordome Mobile & Personnalisation Instantanée
-              </h2>
-              <p className="text-sm text-luxury-muted leading-relaxed max-w-2xl">
-                Votre réservation effectuée sur le Web est immédiatement synchronisée avec notre
-                application mobile <strong>React Native</strong> grâce au store partagé{' '}
-                <code className="text-luxury-gold">@hotel/store</code> et à l’API{' '}
-                <code className="text-luxury-gold">Express + Prisma PostgreSQL</code>.
-              </p>
-              <div className="flex flex-wrap gap-3 pt-2">
-                <button
-                  onClick={() => dispatch(setCustomizerOpen(true))}
-                  className="px-5 py-3 rounded-xl bg-luxury-gold text-black font-semibold text-xs uppercase tracking-[0.16em] flex items-center gap-2"
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  <span>Tester le Studio White-Label</span>
-                </button>
-                <button
-                  onClick={() => dispatch(setLookupModalOpen(true))}
-                  className="px-5 py-3 rounded-xl border border-white/15 hover:border-luxury-gold text-xs uppercase tracking-[0.16em] text-luxury-text"
-                >
-                  Tester un Dossier Client (AURA-2026-8841)
-                </button>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 p-6 rounded-2xl bg-luxury-surface border border-white/10 space-y-3 text-xs">
-              <div className="flex items-center justify-between text-luxury-gold uppercase tracking-widest text-[10px]">
-                <span>Code Privilège Actif</span>
-                <span>-10% / -15%</span>
-              </div>
-              <p className="text-luxury-text font-serif text-xl">
-                Utilisez <strong className="text-luxury-gold">PALACE10</strong> ou{' '}
-                <strong className="text-luxury-gold">ROYALVIP</strong> dans le configurateur de
-                réservation.
-              </p>
-              <button
-                onClick={() => dispatch(setDrawerOpen(true))}
-                className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-luxury-gold hover:text-black text-luxury-text font-medium uppercase tracking-wider transition-colors"
-              >
-                Ouvrir le Configurateur
-              </button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Luxury Footer */}
-      <footer className="bg-luxury-surface border-t border-luxury-border pt-16 pb-12 text-xs text-luxury-muted">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-white/10">
-          <div className="space-y-3 md:col-span-2">
+      {/* 2. Editorial Asymmetric Manifesto ("La Maison") */}
+      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 border-b border-luxury-border">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-6 space-y-6">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full border border-luxury-gold flex items-center justify-center text-luxury-gold font-serif text-lg">
-                {HOTEL_CONFIG.brand.monogram}
-              </div>
-              <span className="font-serif text-2xl tracking-[0.18em] text-luxury-text">
-                {customHotelName}
+              <span className="w-8 h-[1px] bg-luxury-gold" />
+              <span className="text-[11px] uppercase tracking-[0.28em] text-luxury-gold font-medium">
+                PATRIMOINE & ARCHITECTURE DEPUIS {HOTEL_CONFIG.brand.establishedYear}
               </span>
             </div>
-            <p className="text-luxury-muted max-w-md leading-relaxed">
-              {currentTheme.tagline}
+
+            <h2 className="font-serif text-3xl sm:text-5xl text-luxury-text font-normal leading-[1.12]">
+              {HOTEL_CONFIG.brand.storyTitle}
+            </h2>
+
+            <p className="text-sm sm:text-base text-luxury-muted leading-relaxed">
+              Pensé comme une résidence particulière plutôt qu’un hôtel traditionnel,{' '}
+              <strong className="text-luxury-text font-medium">{customHotelName}</strong> cultive la
+              rareté du calme, la justesse des proportions et l’art du service invisible.
             </p>
-            <p className="text-[11px] text-luxury-gold uppercase tracking-[0.2em]">
-              {HOTEL_CONFIG.brand.distinction}
-            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4 border-t border-luxury-border">
+              {HOTEL_CONFIG.stats.map((stat) => (
+                <div key={stat.label}>
+                  <div className="font-serif text-3xl text-luxury-text">{stat.value}</div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-luxury-muted mt-1">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-2.5">
-            <h4 className="text-luxury-text uppercase tracking-[0.2em] font-semibold mb-3">
-              Coordonnées & Accès Privé
-            </h4>
-            <p className="flex items-center gap-2">
-              <MapPin className="w-3.5 h-3.5 text-luxury-gold shrink-0" />
-              <span>{currentTheme.locationOverride || HOTEL_CONFIG.contact.address}</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <Phone className="w-3.5 h-3.5 text-luxury-gold shrink-0" />
-              <span>{HOTEL_CONFIG.contact.phone}</span>
-            </p>
-            <p className="flex items-center gap-2">
-              <Mail className="w-3.5 h-3.5 text-luxury-gold shrink-0" />
-              <span>{HOTEL_CONFIG.contact.conciergeEmail}</span>
-            </p>
-          </div>
-
-          <div className="space-y-2.5">
-            <h4 className="text-luxury-text uppercase tracking-[0.2em] font-semibold mb-3">
-              Horaires & Services
-            </h4>
-            <p>Arrivée (Check-in) : dès {HOTEL_CONFIG.contact.checkInTime}</p>
-            <p>Départ (Check-out) : jusqu’à {HOTEL_CONFIG.contact.checkOutTime}</p>
-            <p>Conciergerie Clefs d’Or & Voiturier : 24h/24</p>
+          <div className="lg:col-span-6 grid grid-cols-12 gap-4">
+            <div className="col-span-7 overflow-hidden border border-luxury-border">
+              <img
+                src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=85"
+                alt="Salon Privé"
+                className="w-full h-96 object-cover"
+              />
+            </div>
+            <div className="col-span-5 flex flex-col justify-between gap-4">
+              <div className="overflow-hidden border border-luxury-border flex-1">
+                <img
+                  src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=85"
+                  alt="Thermes de Marbre"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="p-5 bg-luxury-surface border border-luxury-border space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-gold block">
+                  DISTINCTION PALACE
+                </span>
+                <p className="font-serif text-lg text-luxury-text leading-snug">
+                  Service Majordome dédié 24h/24 & Flotte Rolls-Royce.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>
-            © {new Date().getFullYear()} {customHotelName}. Architecture Monorepo (Next.js • React
-            Native • Express • Redux Toolkit • Prisma).
-          </p>
+      {/* 3. Featured Suites Preview + Link to Dedicated /suites Page */}
+      <div className="pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+        <div>
+          <span className="text-[11px] uppercase tracking-[0.28em] text-luxury-gold block mb-2">
+            SÉLECTION D’APPARTEMENTS PRIVÉS
+          </span>
+          <h2 className="font-serif text-3xl sm:text-5xl text-luxury-text font-normal">
+            Suites Signature, Penthouses & Villas
+          </h2>
+        </div>
+
+        <Link
+          href="/suites"
+          className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-luxury-text hover:text-luxury-gold border-b border-luxury-text pb-1 transition-colors"
+        >
+          <span>Découvrir toute la collection (6 Résidences)</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      <SuitesCatalog limit={4} />
+
+      {/* 4. Full-Bleed Atmospheric Banner for Gastronomy & Spa Page */}
+      <section className="relative py-28 overflow-hidden border-y border-luxury-border">
+        <div className="absolute inset-0 -z-10 bg-black">
+          <img
+            src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1800&q=85"
+            alt="Gastronomie Étoilée"
+            className="w-full h-full object-cover opacity-75"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30" />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 text-white">
+          <div className="max-w-2xl space-y-6">
+            <span className="text-[11px] uppercase tracking-[0.28em] text-[#E5C98B] block">
+              TABLE 3★ MICHELIN & THERMES DE 1 800 M²
+            </span>
+            <h2 className="font-serif text-4xl sm:text-5xl font-normal leading-tight">
+              L’Orangerie Céleste & Le Sanctuaire Minéral
+            </h2>
+            <p className="text-sm sm:text-base text-white/80 leading-relaxed font-light">
+              Découvrez notre table triplement étoilée par le Chef Édouard Valmont ainsi que nos
+              thermes de marbre blanc privatisables à la tombée de la nuit.
+            </p>
+            <div className="pt-2 flex flex-wrap gap-4">
+              <Link
+                href="/experiences"
+                className="px-6 py-3.5 bg-white text-black hover:bg-[#C5A059] hover:text-white text-[11px] uppercase tracking-[0.2em] font-medium transition-colors inline-flex items-center gap-2"
+              >
+                <span>Explorer la Gastronomie & le Spa</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                href="/conciergerie"
+                className="px-6 py-3.5 border border-white/40 text-white hover:border-white text-[11px] uppercase tracking-[0.2em] transition-colors"
+              >
+                Contacter la Conciergerie Clefs d’Or
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. White-Label & Light/Dark Architecture Section */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="p-8 sm:p-12 editorial-card flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+          <div className="space-y-2 max-w-2xl">
+            <span className="text-[10px] uppercase tracking-[0.26em] text-luxury-gold font-medium">
+              DIRECTION ARTISTIQUE MODULABLE • LIGHT & DARK MODE
+            </span>
+            <h3 className="font-serif text-2xl sm:text-3xl text-luxury-text">
+              Personnalisez l’identité de l’établissement en temps réel
+            </h3>
+            <p className="text-xs sm:text-sm text-luxury-muted leading-relaxed">
+              Testez le basculement entre le mode <strong>Jour (Albâtre & Lin)</strong> et le mode{' '}
+              <strong>Nuit (Obsidienne)</strong> dans la barre de navigation, ou ouvrez le Studio
+              White-Label pour adapter l’identité de votre hôtel.
+            </p>
+          </div>
+
           <button
             onClick={() => dispatch(setCustomizerOpen(true))}
-            className="text-luxury-gold hover:underline uppercase tracking-widest text-[11px]"
+            className="px-6 py-3.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-[0.2em] font-medium transition-colors flex items-center gap-2 shrink-0"
           >
-            Personnaliser le Thème White-Label
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Ouvrir le Studio White-Label</span>
           </button>
         </div>
-      </footer>
-
-      {/* Global Overlays */}
-      <BookingCheckoutDrawer />
-      <InteractiveModals />
-    </div>
+      </section>
+    </SiteShell>
   );
 }

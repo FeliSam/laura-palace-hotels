@@ -2,21 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg-primary: #08080A;
-  --bg-secondary: #111116;
-  --surface-card: #16161D;
-  --text-primary: #FAF7F2;
-  --text-secondary: #A9A49A;
-  --accent-primary: #C9A45C;
-  --accent-secondary: #E5C98B;
-  --border-subtle: rgba(201, 164, 92, 0.22);
-  --animation-reduced: none;
+/* ==========================================================================
+   EDITORIAL DESIGN SYSTEM — LIGHT (ALABASTER) & DARK (OBSIDIAN)
+   Crafted with authentic hospitality typography, hairline borders, and
+   tactile surface hierarchy (Aman / Cheval Blanc / Four Seasons standard).
+   ========================================================================== */
+
+:root,
+html[data-color-mode="light"] {
+  --bg-primary: #F8F5F0;
+  --bg-secondary: #EFECE6;
+  --surface-card: #FFFFFF;
+  --text-primary: #141413;
+  --text-secondary: #5C5852;
+  --accent-primary: #9E7B42;
+  --accent-secondary: #B89456;
+  --border-subtle: rgba(20, 20, 19, 0.11);
+  --nav-glass: rgba(248, 245, 240, 0.90);
+}
+
+html[data-color-mode="dark"] {
+  --bg-primary: #0B0B0C;
+  --bg-secondary: #131316;
+  --surface-card: #19191E;
+  --text-primary: #F5F2EB;
+  --text-secondary: #9E9990;
+  --accent-primary: #C5A059;
+  --accent-secondary: #DFC082;
+  --border-subtle: rgba(245, 242, 235, 0.11);
+  --nav-glass: rgba(11, 11, 12, 0.88);
 }
 
 @media (prefers-reduced-motion: reduce) {
   * {
-    animation: var(--animation-reduced) !important;
+    animation: none !important;
     transition-duration: 0.05s !important;
   }
 }
@@ -25,46 +44,45 @@ html {
   scroll-behavior: smooth;
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* Extra bottom padding on mobile so the Native Bottom Tab Bar never overlaps content */
+  padding-bottom: 4.5rem;
 }
 
-/* Custom Luxury Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+@media (min-width: 1024px) {
+  body {
+    padding-bottom: 0;
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(201, 164, 92, 0.35);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary);
+/* Editorial Hairline Utilities */
+.editorial-nav-glass {
+  background: var(--nav-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .luxury-glass {
-  background: rgba(17, 17, 22, 0.78);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--nav-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--border-subtle);
 }
 
-.gold-shimmer-border {
+.editorial-card {
+  background-color: var(--surface-card);
   border: 1px solid var(--border-subtle);
-  transition: border-color 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
 
-.gold-shimmer-border:hover {
+.editorial-card:hover {
   border-color: var(--accent-primary);
 }

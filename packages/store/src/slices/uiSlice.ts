@@ -2,8 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CurrencyCode, PresetThemeId, Room } from '@hotel/types';
 import { HOTEL_CONFIG } from '@hotel/config';
 
+export type ColorMode = 'light' | 'dark';
+
 export interface UiState {
   currency: CurrencyCode;
+  colorMode: ColorMode;
   activeTheme: PresetThemeId;
   customHotelName: string;
   customAccentColor: string | null;
@@ -14,6 +17,7 @@ export interface UiState {
 
 const initialState: UiState = {
   currency: HOTEL_CONFIG.pricing.baseCurrency,
+  colorMode: 'light', // Default to natural Editorial Alabaster Light mode like Aman / Cheval Blanc
   activeTheme: HOTEL_CONFIG.defaultTheme,
   customHotelName: HOTEL_CONFIG.brand.name,
   customAccentColor: null,
@@ -28,6 +32,12 @@ export const uiSlice = createSlice({
   reducers: {
     setCurrency(state, action: PayloadAction<CurrencyCode>) {
       state.currency = action.payload;
+    },
+    setColorMode(state, action: PayloadAction<ColorMode>) {
+      state.colorMode = action.payload;
+    },
+    toggleColorMode(state) {
+      state.colorMode = state.colorMode === 'light' ? 'dark' : 'light';
     },
     setActiveTheme(state, action: PayloadAction<PresetThemeId>) {
       state.activeTheme = action.payload;
@@ -57,6 +67,8 @@ export const uiSlice = createSlice({
 
 export const {
   setCurrency,
+  setColorMode,
+  toggleColorMode,
   setActiveTheme,
   setCustomHotelName,
   setCustomAccentColor,
@@ -64,3 +76,4 @@ export const {
   setLookupModalOpen,
   setInspectedRoom
 } = uiSlice.actions;
+
