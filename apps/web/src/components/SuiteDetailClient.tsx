@@ -13,7 +13,7 @@ import {
   toggleAddOn,
   selectBookingNights
 } from '@hotel/store';
-import { formatCurrencyAmount, HOTEL_CONFIG } from '@hotel/config';
+import { formatCurrencyAmount, HOTEL_CONFIG, STATIC_SUITES } from '@hotel/config';
 import {
   ArrowLeft,
   Maximize2,
@@ -32,7 +32,7 @@ import {
 
 export function SuiteDetailClient({ slug }: { slug: string }) {
   const dispatch = useAppDispatch();
-  const { data, isLoading } = useGetRoomBySlugQuery(slug);
+  const { data } = useGetRoomBySlugQuery(slug);
   const { data: addOnsData } = useGetAddOnsQuery();
   const { currency, customHotelName } = useAppSelector((state) => state.ui);
   const { checkIn, checkOut, adults, children, selectedAddOns } = useAppSelector(
@@ -42,15 +42,9 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  if (isLoading) {
-    return (
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-16 space-y-8">
-        <div className="h-[460px] bg-luxury-surface animate-pulse border border-luxury-border" />
-      </section>
-    );
-  }
-
-  const room = data;
+  const staticFallback =
+    STATIC_SUITES.find((r) => r.slug === slug || r.id === slug) || STATIC_SUITES[0];
+  const room = data || staticFallback;
   const addOns = addOnsData?.addOns || [];
 
   if (!room) {

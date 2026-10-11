@@ -4,6 +4,7 @@ const repoName = process.env.GITHUB_REPOSITORY ? process.env.GITHUB_REPOSITORY.s
 
 const nextConfig = {
   output: isGithubPages ? 'export' : undefined,
+  trailingSlash: true,
   basePath: isGithubPages && repoName ? `/${repoName}` : '',
   assetPrefix: isGithubPages && repoName ? `/${repoName}/` : undefined,
   transpilePackages: ['@hotel/store', '@hotel/config', '@hotel/types'],

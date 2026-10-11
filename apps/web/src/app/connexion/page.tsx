@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SiteShell } from '@/components/SiteShell';
@@ -10,6 +10,8 @@ import {
   loginWithCredentials,
   loginDemoRole,
   registerGuestAccount,
+  updateUserProfile,
+  updateGuestInfo,
   logoutUser,
   clearAuthError,
   useGetAllBookingsQuery,
@@ -33,8 +35,9 @@ import {
   Phone,
   Building2,
   Crown,
-  Briefcase,
-  ConciergeBell
+  ConciergeBell,
+  Edit3,
+  Save
 } from 'lucide-react';
 
 const ROLE_OPTIONS: {
@@ -83,7 +86,7 @@ export default function ConnexionPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { currentUser, authError } = useAppSelector((state) => state.auth);
-  const { currency, customHotelName } = useAppSelector((state) => state.ui);
+  const { currency } = useAppSelector((state) => state.ui);
   const { data: bookingsData } = useGetAllBookingsQuery();
 
   const [selectedRole, setSelectedRole] = useState<UserRole>('GUEST');
@@ -100,6 +103,58 @@ export default function ConnexionPage() {
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('+229 01 ');
   const [regRole, setRegRole] = useState<UserRole>('GUEST');
+
+  // Edit Personal Info fields when logged in
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editTitle, setEditTitle] = useState<'M.' | 'Mme' | 'Dr.'>('M.');
+  const [editFirstName, setEditFirstName] = useState('');
+  const [editLastName, setEditLastName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [editCountry, setEditCountry] = useState('');
+  const [editRole, setEditRole] = useState<UserRole>('GUEST');
+  const [profileSavedToast, setProfileSavedToast] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      setEditTitle(currentUser.title);
+      setEditFirstName(currentUser.firstName);
+      setEditLastName(currentUser.lastName);
+      setEditEmail(currentUser.email);
+      setEditPhone(currentUser.phone);
+      setEditCountry(currentUser.country);
+      setEditRole(currentUser.role);
+    }
+  }, [currentUser]);
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editFirstName.trim() || !editLastName.trim() || !editEmail.trim()) return;
+    dispatch(
+      updateUserProfile({
+        title: editTitle,
+        firstName: editFirstName.trim(),
+        lastName: editLastName.trim(),
+        email: editEmail.trim(),
+        phone: editPhone.trim(),
+        country: editCountry.trim() || 'Bénin',
+        role: editRole
+      })
+    );
+    dispatch(
+      updateGuestInfo({
+        title: editTitle,
+        firstName: editFirstName.trim(),
+        lastName: editLastName.trim(),
+        email: editEmail.trim(),
+        phone: editPhone.trim(),
+        country: editCountry.trim() || 'Bénin'
+      })
+    );
+    setIsEditingProfile(false);
+    setProfileSavedToast(true);
+    setTimeout(() => setProfileSavedToast(false), 3500);
+  };
 
   const handleRoleSwitch = (role: UserRole) => {
     setSelectedRole(role);
@@ -149,64 +204,208 @@ export default function ConnexionPage() {
         {currentUser ? (
           /* AUTHENTICATED VIEW (CLIENT, DIRECTEUR, ADMIN, RECEPTION) */
           <div className="space-y-10">
-            <div className="p-8 editorial-card border-2 border-luxury-gold/40 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-3 py-1 bg-luxury-gold/15 text-luxury-gold text-[10px] uppercase tracking-[0.22em] font-semibold">
-                    {currentUser.roleLabel}
-                  </span>
-                  {currentUser.loyaltyTier && (
-                    <span className="text-xs text-luxury-muted">
-                      • {currentUser.loyaltyTier}
+            <div className="p-8 editorial-card border-2 border-luxury-gold/40 space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="px-3 py-1 bg-luxury-gold/15 text-luxury-gold text-[10px] uppercase tracking-[0.22em] font-semibold">
+                      {currentUser.roleLabel}
                     </span>
-                  )}
+                    {profileSavedToast && (
+                      <span className="px-2.5 py-0.5 bg-emerald-500/15 text-emerald-600 text-[10px] font-semibold">
+                        ✓ Vos informations ont été mises à jour
+                      </span>
+                    )}
+                  </div>
+                  <h1 className="font-serif text-3xl sm:text-5xl text-luxury-text">
+                    Bienvenue, {currentUser.title} {currentUser.firstName} {currentUser.lastName}
+                  </h1>
+                  <p className="text-xs sm:text-sm text-luxury-muted flex flex-wrap items-center gap-4">
+                    <span className="flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-luxury-gold" />
+                      {currentUser.email}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Phone className="w-3.5 h-3.5 text-luxury-gold" />
+                      {currentUser.phone}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-luxury-gold" />
+                      {currentUser.country}
+                    </span>
+                  </p>
                 </div>
-                <h1 className="font-serif text-3xl sm:text-5xl text-luxury-text">
-                  Bienvenue, {currentUser.title} {currentUser.firstName} {currentUser.lastName}
-                </h1>
-                <p className="text-xs sm:text-sm text-luxury-muted flex flex-wrap items-center gap-4">
-                  <span className="flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-luxury-gold" />
-                    {currentUser.email}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5 text-luxury-gold" />
-                    {currentUser.phone}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-luxury-gold" />
-                    {currentUser.country}
-                  </span>
-                </p>
-              </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                {isStaff ? (
-                  <Link
-                    href="/admin"
-                    className="px-6 py-3.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.18em] font-semibold flex items-center gap-2 transition-colors"
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-luxury-gold" />
-                    <span>Ouvrir le Dashboard Réservations</span>
-                  </Link>
-                ) : (
+                <div className="flex flex-wrap items-center gap-2.5">
                   <button
-                    onClick={() => dispatch(setDrawerOpen(true))}
-                    className="px-6 py-3.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.18em] font-semibold flex items-center gap-2 transition-colors"
+                    type="button"
+                    onClick={() => setIsEditingProfile(!isEditingProfile)}
+                    className="px-4 py-3 border border-luxury-gold text-luxury-text hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors"
                   >
-                    <Calendar className="w-4 h-4 text-luxury-gold" />
-                    <span>Nouvelle Réservation</span>
+                    <Edit3 className="w-4 h-4 text-luxury-gold" />
+                    <span>{isEditingProfile ? 'Fermer' : 'Modifier mes Infos'}</span>
                   </button>
-                )}
 
-                <button
-                  onClick={() => dispatch(logoutUser())}
-                  className="px-5 py-3.5 border border-luxury-border hover:border-red-500/60 text-luxury-muted hover:text-red-500 text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Changer de Compte / Déconnexion</span>
-                </button>
+                  {isStaff ? (
+                    <Link
+                      href="/admin"
+                      className="px-5 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.16em] font-semibold flex items-center gap-2 transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4 text-luxury-gold" />
+                      <span>Dashboard Réservations</span>
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => dispatch(setDrawerOpen(true))}
+                      className="px-5 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.16em] font-semibold flex items-center gap-2 transition-colors"
+                    >
+                      <Calendar className="w-4 h-4 text-luxury-gold" />
+                      <span>Nouvelle Réservation</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => dispatch(logoutUser())}
+                    className="px-4 py-3 border border-luxury-border hover:border-red-500/60 text-luxury-muted hover:text-red-500 text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Déconnexion</span>
+                  </button>
+                </div>
               </div>
+
+              {/* Editable Personal Information Form */}
+              {isEditingProfile && (
+                <form
+                  onSubmit={handleSaveProfile}
+                  className="p-6 bg-luxury-surface border border-luxury-border space-y-4 pt-5"
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-serif text-xl text-luxury-text">
+                      Modifier mes Informations Personnelles & Fonction
+                    </h3>
+                    <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
+                      Mise à jour dynamique
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                        Civilité
+                      </label>
+                      <select
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value as any)}
+                        className="w-full px-3 py-2.5 bg-luxury-card border border-luxury-border text-xs text-luxury-text"
+                      >
+                        <option value="M.">M.</option>
+                        <option value="Mme">Mme</option>
+                        <option value="Dr.">Dr.</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                        Prénom *
+                      </label>
+                      <input
+                        required
+                        type="text"
+                        value={editFirstName}
+                        onChange={(e) => setEditFirstName(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-luxury-card border border-luxury-border text-xs text-luxury-text"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                        Nom de Famille *
+                      </label>
+                      <input
+                        required
+                        type="text"
+                        value={editLastName}
+                        onChange={(e) => setEditLastName(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-luxury-card border border-luxury-border text-xs text-luxury-text"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-gold font-semibold mb-1">
+                        Profil / Rôle
+                      </label>
+                      <select
+                        value={editRole}
+                        onChange={(e) => setEditRole(e.target.value as UserRole)}
+                        className="w-full px-3 py-2.5 bg-luxury-card border border-luxury-border text-xs text-luxury-text"
+                      >
+                        <option value="GUEST">Client / Résident</option>
+                        <option value="DIRECTEUR">Directeur Général</option>
+                        <option value="ADMIN">Administrateur Hôtel</option>
+                        <option value="RECEPTION">Chef de Réception</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                        Adresse Email *
+                      </label>
+                      <input
+                        required
+                        type="email"
+                        value={editEmail}
+                        onChange={(e) => setEditEmail(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-luxury-card border border-luxury-border text-xs text-luxury-text"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                        Téléphone / WhatsApp (+229) *
+                      </label>
+                      <input
+                        required
+                        type="tel"
+                        value={editPhone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-luxury-card border border-luxury-border text-xs text-luxury-text"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                        Pays / Ville
+                      </label>
+                      <input
+                        type="text"
+                        value={editCountry}
+                        onChange={(e) => setEditCountry(e.target.value)}
+                        className="w-full px-3.5 py-2.5 bg-luxury-card border border-luxury-border text-xs text-luxury-text"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingProfile(false)}
+                      className="px-4 py-2 border border-luxury-border text-xs text-luxury-muted hover:text-luxury-text"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors"
+                    >
+                      <Save className="w-3.5 h-3.5 text-luxury-gold" />
+                      <span>Enregistrer mes Informations</span>
+                    </button>
+                  </div>
+                </form>
+              )}
             </div>
 
             {/* Staff View (Directeur, Admin, Réception) */}

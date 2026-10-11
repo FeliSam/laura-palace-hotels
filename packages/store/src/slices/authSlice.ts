@@ -213,6 +213,27 @@ export const authSlice = createSlice({
       state.isAuthenticated = true;
       state.authError = null;
     },
+    updateUserProfile(
+      state,
+      action: PayloadAction<Partial<Omit<AuthUser, 'id'>>>
+    ) {
+      if (!state.currentUser) return;
+      const roleLabels: Record<UserRole, string> = {
+        GUEST: 'Client / Résident',
+        DIRECTEUR: 'Directeur Général',
+        ADMIN: 'Administrateur Hôtel',
+        RECEPTION: 'Chef de Réception'
+      };
+      const nextRole = action.payload.role || state.currentUser.role;
+      state.currentUser = {
+        ...state.currentUser,
+        ...action.payload,
+        role: nextRole,
+        roleLabel: action.payload.role
+          ? roleLabels[action.payload.role]
+          : state.currentUser.roleLabel
+      };
+    },
     clearAuthError(state) {
       state.authError = null;
     },
@@ -229,6 +250,7 @@ export const {
   loginDemoRole,
   loginWithCredentials,
   registerGuestAccount,
+  updateUserProfile,
   clearAuthError,
   logoutUser
 } = authSlice.actions;

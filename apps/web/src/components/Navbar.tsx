@@ -132,17 +132,18 @@ export function Navbar() {
           </nav>
 
           {/* 3. Right Actions: Staff Dashboard Shortcut (if staff) + Light/Dark Switch + Direct Reserve Button */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {isStaff && (
               <Link
                 href="/admin"
-                className={`px-3.5 py-2 rounded-full border text-[10px] tracking-[0.14em] uppercase font-semibold flex items-center gap-1.5 transition-all ${
+                title="Tableau de bord Direction & Réservations"
+                className={`w-9 h-9 sm:w-auto sm:px-3.5 sm:py-2 rounded-full border text-[10px] tracking-[0.14em] uppercase font-semibold flex items-center justify-center gap-1.5 transition-all ${
                   pathname?.startsWith('/admin')
                     ? 'bg-luxury-gold text-white border-luxury-gold'
                     : 'bg-luxury-surface border-luxury-gold/60 text-luxury-text hover:border-luxury-gold'
                 }`}
               >
-                <LayoutDashboard className="w-3.5 h-3.5 text-luxury-gold" />
+                <LayoutDashboard className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-luxury-gold" />
                 <span className="hidden sm:inline">Dashboard</span>
               </Link>
             )}
@@ -166,12 +167,14 @@ export function Navbar() {
 
             <button
               onClick={() => dispatch(setDrawerOpen(true))}
-              className="px-4 sm:px-5 py-2.5 rounded-full bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white transition-colors text-[11px] tracking-[0.14em] uppercase font-semibold flex items-center gap-2"
+              title="Ouvrir le menu de réservation"
+              aria-label="Réserver une chambre"
+              className="relative w-10 h-10 sm:w-auto sm:h-auto sm:px-5 sm:py-2.5 rounded-full bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white transition-colors text-[11px] tracking-[0.14em] uppercase font-semibold flex items-center justify-center gap-2"
             >
-              <Calendar className="w-3.5 h-3.5 text-luxury-gold" />
-              <span>Réserver</span>
+              <Calendar className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-luxury-gold" />
+              <span className="hidden sm:inline">Réserver</span>
               {(selectedRoom || selectedAddOns.length > 0) && (
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-luxury-gold text-white font-bold">
+                <span className="absolute -top-1 -right-1 sm:static px-1.5 py-0.2 rounded-full text-[9px] sm:text-[10px] bg-luxury-gold text-white font-bold">
                   {nights}N
                 </span>
               )}
