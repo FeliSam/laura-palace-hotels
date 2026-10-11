@@ -244,23 +244,23 @@ export function BookingCheckoutDrawer() {
   const isBusy = isSimulatingPayment || isSubmitting;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className="fixed inset-0 z-[120] flex justify-end overflow-hidden">
       {/* Backdrop */}
       <div
         onClick={() => dispatch(setDrawerOpen(false))}
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
       />
 
       {/* Drawer Content */}
-      <aside className="relative z-10 w-full max-w-2xl bg-luxury-bg text-luxury-text border-l border-luxury-border h-full flex flex-col justify-between overflow-hidden shadow-2xl">
+      <aside className="relative z-10 w-full max-w-2xl bg-luxury-bg text-luxury-text border-l border-luxury-border h-[100dvh] flex flex-col justify-between overflow-hidden overflow-x-hidden shadow-2xl">
         {/* Drawer Header */}
-        <div className="p-4 sm:p-6 border-b border-luxury-border flex items-center justify-between bg-luxury-surface">
-          <div>
-            <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-gold font-semibold flex items-center gap-1.5">
-              <Crown className="w-3.5 h-3.5" />
-              Réservation — {customHotelName}
+        <div className="p-4 sm:p-6 border-b border-luxury-border flex items-center justify-between gap-2 bg-luxury-surface shrink-0">
+          <div className="min-w-0">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-luxury-gold font-semibold flex items-center gap-1.5 truncate">
+              <Crown className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Réservation — {customHotelName}</span>
             </span>
-            <h2 className="font-serif text-xl sm:text-3xl text-luxury-text mt-0.5 line-clamp-1">
+            <h2 className="font-serif text-xl sm:text-3xl text-luxury-text mt-0.5 truncate">
               {lastConfirmedBookingRef
                 ? 'Confirmation & Reçu'
                 : chosenRoom
@@ -279,7 +279,7 @@ export function BookingCheckoutDrawer() {
 
         {/* Step Indicator */}
         {!lastConfirmedBookingRef && (
-          <div className="px-4 sm:px-6 py-2.5 bg-luxury-surface/60 border-b border-luxury-border grid grid-cols-3 gap-1.5 sm:gap-2 text-[11px] sm:text-xs">
+          <div className="px-4 sm:px-6 py-2.5 bg-luxury-surface/60 border-b border-luxury-border grid grid-cols-3 gap-1.5 sm:gap-2 text-[11px] sm:text-xs shrink-0 overflow-x-hidden">
             {[
               { step: 1, label: '1. Chambre' },
               { step: 2, label: '2. Options' },
@@ -288,7 +288,7 @@ export function BookingCheckoutDrawer() {
               <button
                 key={item.step}
                 onClick={() => dispatch(setCheckoutStep(item.step as 1 | 2 | 3))}
-                className={`py-2 px-2 sm:px-3 font-medium text-center sm:text-left transition-all border truncate ${
+                className={`py-2 px-1.5 sm:px-3 font-medium text-center sm:text-left transition-all border truncate min-w-0 ${
                   checkoutStep === item.step
                     ? 'bg-luxury-text text-luxury-bg border-luxury-text font-semibold'
                     : 'text-luxury-muted hover:text-luxury-text bg-luxury-card border-luxury-border'
@@ -300,11 +300,11 @@ export function BookingCheckoutDrawer() {
           </div>
         )}
 
-        {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+        {/* Scrollable Body (Strictly vertical scroll only, zero horizontal scroll) */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-5 max-w-full">
           {lastConfirmedBookingRef ? (
             /* CONFIRMED STATE WITH SIMULATED PAYMENT RECEIPT */
-            <div className="p-5 sm:p-8 editorial-card text-center space-y-5 my-2">
+            <div className="p-5 sm:p-8 editorial-card text-center space-y-5 my-2 overflow-hidden">
               <div className="w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500 flex items-center justify-center mx-auto text-emerald-500">
                 <CheckCircle2 className="w-7 h-7" />
               </div>
@@ -321,11 +321,11 @@ export function BookingCheckoutDrawer() {
                 </p>
               </div>
 
-              <div className="p-4 bg-luxury-surface border border-luxury-border inline-block mx-auto">
+              <div className="p-4 bg-luxury-surface border border-luxury-border inline-block mx-auto max-w-full">
                 <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-muted block">
                   N° DE DOSSIER
                 </span>
-                <span className="font-mono text-xl sm:text-2xl text-luxury-gold font-bold tracking-wider mt-1 block">
+                <span className="font-mono text-xl sm:text-2xl text-luxury-gold font-bold tracking-wider mt-1 block break-all">
                   {lastConfirmedBookingRef}
                 </span>
               </div>
@@ -351,7 +351,7 @@ export function BookingCheckoutDrawer() {
                     </div>
                     <div className="flex justify-between gap-2">
                       <span className="text-luxury-muted">Réf. Transaction :</span>
-                      <span className="font-mono text-emerald-600 font-semibold">
+                      <span className="font-mono text-emerald-600 font-semibold break-all">
                         {lastPaymentReceipt.txRef}
                       </span>
                     </div>
@@ -382,9 +382,9 @@ export function BookingCheckoutDrawer() {
             </div>
           ) : checkoutStep === 1 ? (
             /* STEP 1: ONLY THE CHOSEN ROOM + DATES */
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
+            <div className="space-y-4 overflow-x-hidden">
+              <div className="p-3.5 bg-luxury-surface border border-luxury-border grid grid-cols-1 sm:grid-cols-2 gap-3 overflow-hidden">
+                <div className="min-w-0 overflow-hidden">
                   <label className="block text-[10px] uppercase tracking-widest text-luxury-gold font-semibold mb-1">
                     Arrivée
                   </label>
@@ -392,10 +392,10 @@ export function BookingCheckoutDrawer() {
                     type="date"
                     value={checkIn}
                     onChange={(e) => dispatch(setDates({ checkIn: e.target.value, checkOut }))}
-                    className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text"
+                    className="w-full max-w-full min-w-0 px-3 py-2.5 bg-luxury-card border border-luxury-border text-sm text-luxury-text"
                   />
                 </div>
-                <div>
+                <div className="min-w-0 overflow-hidden">
                   <label className="block text-[10px] uppercase tracking-widest text-luxury-gold font-semibold mb-1">
                     Départ ({pricing.nights} nuit{pricing.nights > 1 ? 's' : ''})
                   </label>
@@ -404,13 +404,13 @@ export function BookingCheckoutDrawer() {
                     value={checkOut}
                     min={checkIn}
                     onChange={(e) => dispatch(setDates({ checkIn, checkOut: e.target.value }))}
-                    className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text"
+                    className="w-full max-w-full min-w-0 px-3 py-2.5 bg-luxury-card border border-luxury-border text-sm text-luxury-text"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div>
+                <div className="min-w-0">
                   <label className="block text-[10px] uppercase tracking-widest text-luxury-muted mb-1">
                     Adultes
                   </label>
@@ -419,7 +419,7 @@ export function BookingCheckoutDrawer() {
                     onChange={(e) =>
                       dispatch(setGuests({ adults: Number(e.target.value), children }))
                     }
-                    className="w-full px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-sm text-luxury-text"
                   >
                     {[1, 2, 3, 4, 5, 6].map((n) => (
                       <option key={n} value={n}>
@@ -428,7 +428,7 @@ export function BookingCheckoutDrawer() {
                     ))}
                   </select>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className="block text-[10px] uppercase tracking-widest text-luxury-muted mb-1">
                     Enfants
                   </label>
@@ -437,7 +437,7 @@ export function BookingCheckoutDrawer() {
                     onChange={(e) =>
                       dispatch(setGuests({ adults, children: Number(e.target.value) }))
                     }
-                    className="w-full px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-sm text-luxury-text"
                   >
                     {[0, 1, 2, 3].map((n) => (
                       <option key={n} value={n}>
@@ -481,11 +481,11 @@ export function BookingCheckoutDrawer() {
                         <span>{(chosenRoom.rating || 4.9).toFixed(1)}</span>
                       </span>
                       <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white gap-2">
-                        <div>
-                          <span className="text-[10px] uppercase tracking-widest text-amber-300 block">
+                        <div className="min-w-0">
+                          <span className="text-[10px] uppercase tracking-widest text-amber-300 block truncate">
                             {chosenRoom.viewLabel}
                           </span>
-                          <h3 className="font-serif text-lg sm:text-2xl leading-tight">
+                          <h3 className="font-serif text-lg sm:text-2xl leading-tight truncate">
                             {chosenRoom.name}
                           </h3>
                         </div>
@@ -499,13 +499,13 @@ export function BookingCheckoutDrawer() {
                     </div>
 
                     {roomGallery.length > 1 && (
-                      <div className="px-3 py-2 bg-luxury-surface border-b border-luxury-border flex items-center gap-2 overflow-x-auto">
-                        {roomGallery.map((imgUrl, idx) => (
+                      <div className="p-2 bg-luxury-surface border-b border-luxury-border grid grid-cols-5 gap-1.5">
+                        {roomGallery.slice(0, 5).map((imgUrl, idx) => (
                           <button
                             type="button"
                             key={idx}
                             onClick={() => setActivePhotoIdx(idx)}
-                            className={`w-12 h-9 shrink-0 overflow-hidden border transition-all ${
+                            className={`h-10 w-full overflow-hidden border transition-all ${
                               activePhotoIdx === idx
                                 ? 'border-luxury-gold ring-2 ring-luxury-gold'
                                 : 'border-luxury-border opacity-65 hover:opacity-100'

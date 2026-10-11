@@ -81,11 +81,11 @@ export function HeroBookingBar() {
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 w-full pb-8 sm:pb-10">
         <form
           onSubmit={handleSearchAvailability}
-          className="editorial-card shadow-2xl p-3.5 sm:p-6"
+          className="editorial-card shadow-2xl p-3.5 sm:p-6 overflow-hidden"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-end">
             {/* Check-in */}
-            <div className="lg:col-span-3 space-y-1">
+            <div className="lg:col-span-3 space-y-1 min-w-0 max-w-full overflow-hidden">
               <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-luxury-muted font-semibold">
                 <Calendar className="w-3 h-3 text-luxury-gold" />
                 Arrivée
@@ -94,12 +94,12 @@ export function HeroBookingBar() {
                 type="date"
                 value={checkIn}
                 onChange={(e) => dispatch(setDates({ checkIn: e.target.value, checkOut }))}
-                className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text focus:outline-none focus:border-luxury-gold"
+                className="w-full max-w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text focus:outline-none focus:border-luxury-gold box-border"
               />
             </div>
 
             {/* Check-out */}
-            <div className="lg:col-span-3 space-y-1">
+            <div className="lg:col-span-3 space-y-1 min-w-0 max-w-full overflow-hidden">
               <label className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-luxury-muted font-semibold">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-3 h-3 text-luxury-gold" />
@@ -114,7 +114,7 @@ export function HeroBookingBar() {
                 value={checkOut}
                 min={checkIn}
                 onChange={(e) => dispatch(setDates({ checkIn, checkOut: e.target.value }))}
-                className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text focus:outline-none focus:border-luxury-gold"
+                className="w-full max-w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text focus:outline-none focus:border-luxury-gold box-border"
               />
             </div>
 

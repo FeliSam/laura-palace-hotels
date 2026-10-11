@@ -9,6 +9,9 @@ import { UNIFIED_NAV_ITEMS } from './Navbar';
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { currentUser } = useAppSelector((state) => state.auth);
+  const { isDrawerOpen } = useAppSelector((state) => state.booking);
+
+  if (isDrawerOpen) return null;
 
   return (
     <nav

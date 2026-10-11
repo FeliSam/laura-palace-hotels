@@ -85,9 +85,34 @@ body {
   background-color: var(--surface-card);
   color: var(--text-primary);
   border: 1px solid var(--border-subtle);
+  max-width: 100%;
+  box-sizing: border-box;
   transition: border-color 0.25s ease, background-color 0.25s ease, color 0.25s ease;
 }
 
 .editorial-card:hover {
   border-color: var(--accent-primary);
+}
+
+/* Prevent date/time inputs from overflowing cards on mobile WebKit/Blink */
+input[type="date"],
+input[type="time"] {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Prevent iOS Safari & Android Chrome from zooming the page when focusing inputs */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
