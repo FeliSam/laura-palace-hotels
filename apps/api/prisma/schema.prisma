@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id               String    @id @default(cuid())
+  slug             String    @unique
+  name             String
+  subtitle         String
+  category         String    // SIGNATURE_SUITE | ROYAL_PENTHOUSE | PRIVATE_VILLA
+  description      String    @db.Text
+  pricePerNight    Int
+  sizeSqm          Int
+  maxGuests        Int
+  bedConfiguration String
+  floorLevel       String
+  viewType         String    // OCEAN_PANORAMA | IMPERIAL_GARDEN | EIFFEL_SKYLINE | PRIVATE_LAGOON
+  viewLabel        String
+  heroImage        String
+  gallery          Json      // string[]
+  amenities        Json      // RoomAmenity[]
+  highlights       Json      // string[]
+  isFeatured       Boolean   @default(false)
+  bookings         Booking[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model ExperienceAddOn {
+  id          String         @id @default(cuid())
+  code        String         @unique
+  title       String
+  category    String         // GASTRONOMY | SPA_WELLNESS | VIP_TRANSFER | BESPOKE
+  description String         @db.Text
+  price       Int
+  pricingType String         // PER_STAY | PER_NIGHT | PER_GUEST
+  image       String
+  badge       String?
+  bookings    BookingAddOn[]
+}
+
+model Guest {
+  id             String    @id @default(cuid())
+  title          String    @default("M.")
+  firstName      String
+  lastName       String
+  email          String    @unique
+  phone          String
+  country        String    @default("France")
+  vipPreferences Json?
+  bookings       Booking[]
+  createdAt      DateTime  @default(now())
+}
+
+model Booking {
+  id              String         @id @default(cuid())
+  referenceCode   String         @unique
+  status          String         @default("CONFIRMED")
+  checkIn         DateTime
+  checkOut        DateTime
+  nights          Int
+  adults          Int
+  children        Int            @default(0)
+  roomSubtotal    Int
+  addOnsSubtotal  Int
+  discountAmount  Int            @default(0)
+  taxesAndFees    Int
+  totalPrice      Int
+  promoCode       String?
+  arrivalTime     String?
+  specialRequests String?        @db.Text
+  roomId          String
+  room            Room           @relation(fields: [roomId], references: [id])
+  guestId         String
+  guest           Guest          @relation(fields: [guestId], references: [id])
+  addOns          BookingAddOn[]
+  createdAt       DateTime       @default(now())
+
+  @@index([roomId, checkIn, checkOut])
+}
+
+model BookingAddOn {
+  id        String          @id @default(cuid())
+  bookingId String
+  booking   Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  addOnId   String
+  addOn     ExperienceAddOn @relation(fields: [addOnId], references: [id])
+}

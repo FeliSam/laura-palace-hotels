@@ -1,0 +1,13 @@
+{
+  "name": "@hotel/store",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@hotel/config": "*",
+    "@hotel/types": "*",
+    "@reduxjs/toolkit": "^2.5.0",
+    "react-redux": "^9.2.0"
+  }
+}
