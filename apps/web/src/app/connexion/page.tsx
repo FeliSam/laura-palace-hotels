@@ -13,7 +13,10 @@ import {
   logoutUser,
   clearAuthError,
   useGetAllBookingsQuery,
-  setDrawerOpen
+  setDrawerOpen,
+  UserRole,
+  DEMO_USERS,
+  isStaffRole
 } from '@hotel/store';
 import { formatCurrencyAmount } from '@hotel/config';
 import {
@@ -25,13 +28,56 @@ import {
   LogOut,
   Calendar,
   LayoutDashboard,
-  CheckCircle2,
-  Clock,
   Sparkles,
   ArrowRight,
   Phone,
-  Building2
+  Building2,
+  Crown,
+  Briefcase,
+  ConciergeBell
 } from 'lucide-react';
+
+const ROLE_OPTIONS: {
+  role: UserRole;
+  shortLabel: string;
+  title: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badgeColor: string;
+}[] = [
+  {
+    role: 'GUEST',
+    shortLabel: 'Client / Résident',
+    title: 'Espace Client & Résident',
+    description: 'Consultez vos réservations, vos factures FCFA et réservez en 1 clic.',
+    icon: UserCheck,
+    badgeColor: 'text-luxury-gold border-luxury-gold/40 bg-luxury-gold/10'
+  },
+  {
+    role: 'DIRECTEUR',
+    shortLabel: 'Directeur',
+    title: 'Portail Directeur Général',
+    description: 'Supervision exécutive du chiffre d’affaires, taux d’occupation et réservations VIP.',
+    icon: Crown,
+    badgeColor: 'text-amber-500 border-amber-500/40 bg-amber-500/10'
+  },
+  {
+    role: 'ADMIN',
+    shortLabel: 'Administrateur',
+    title: 'Portail Administrateur Hôtel',
+    description: 'Gestion complète des réservations, du catalogue des chambres et de la tarification.',
+    icon: LayoutDashboard,
+    badgeColor: 'text-emerald-500 border-emerald-500/40 bg-emerald-500/10'
+  },
+  {
+    role: 'RECEPTION',
+    shortLabel: 'Réception & Concierge',
+    title: 'Portail Réception & Check-in',
+    description: 'Validation des arrivées du jour, attribution des chambres et demandes navette.',
+    icon: ConciergeBell,
+    badgeColor: 'text-sky-500 border-sky-500/40 bg-sky-500/10'
+  }
+];
 
 export default function ConnexionPage() {
   const router = useRouter();
@@ -40,12 +86,12 @@ export default function ConnexionPage() {
   const { currency, customHotelName } = useAppSelector((state) => state.ui);
   const { data: bookingsData } = useGetAllBookingsQuery();
 
-  const [portalMode, setPortalMode] = useState<'GUEST' | 'ADMIN'>('GUEST');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('GUEST');
   const [isRegistering, setIsRegistering] = useState(false);
 
   // Login fields
-  const [email, setEmail] = useState('k.soglo@entreprise-benin.bj');
-  const [password, setPassword] = useState('client2026');
+  const [email, setEmail] = useState(DEMO_USERS.GUEST.email);
+  const [password, setPassword] = useState(DEMO_USERS.GUEST.passwordHint);
 
   // Registration fields
   const [regTitle, setRegTitle] = useState<'M.' | 'Mme' | 'Dr.'>('M.');
@@ -53,23 +99,20 @@ export default function ConnexionPage() {
   const [regLastName, setRegLastName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('+229 01 ');
+  const [regRole, setRegRole] = useState<UserRole>('GUEST');
 
-  const handlePortalSwitch = (role: 'GUEST' | 'ADMIN') => {
-    setPortalMode(role);
+  const handleRoleSwitch = (role: UserRole) => {
+    setSelectedRole(role);
     setIsRegistering(false);
     dispatch(clearAuthError());
-    if (role === 'ADMIN') {
-      setEmail('direction@marina-hotel-benin.bj');
-      setPassword('admin2026');
-    } else {
-      setEmail('k.soglo@entreprise-benin.bj');
-      setPassword('client2026');
-    }
+    const demoUser = DEMO_USERS[role];
+    setEmail(demoUser.email);
+    setPassword(demoUser.passwordHint);
   };
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(loginWithCredentials({ email, password }));
+    dispatch(loginWithCredentials({ email, password, role: selectedRole }));
   };
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -81,7 +124,8 @@ export default function ConnexionPage() {
         firstName: regFirstName,
         lastName: regLastName,
         email: regEmail,
-        phone: regPhone
+        phone: regPhone,
+        role: regRole
       })
     );
   };
@@ -95,20 +139,27 @@ export default function ConnexionPage() {
       )
     : [];
 
+  const isStaff = isStaffRole(currentUser?.role);
+  const activeRoleMeta =
+    ROLE_OPTIONS.find((r) => r.role === selectedRole) || ROLE_OPTIONS[0];
+
   return (
     <SiteShell>
       <section className="py-12 sm:py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-10">
         {currentUser ? (
-          /* AUTHENTICATED VIEW (CLIENT OR ADMIN) */
+          /* AUTHENTICATED VIEW (CLIENT, DIRECTEUR, ADMIN, RECEPTION) */
           <div className="space-y-10">
             <div className="p-8 editorial-card border-2 border-luxury-gold/40 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="px-3 py-1 bg-luxury-gold/15 text-luxury-gold text-[10px] uppercase tracking-[0.22em] font-semibold">
-                    {currentUser.role === 'ADMIN'
-                      ? 'PORTAIL DIRECTION & RÉCEPTION'
-                      : `ESPACE RÉSIDENT • ${currentUser.loyaltyTier || 'MEMBRE PRIVILÈGE'}`}
+                    {currentUser.roleLabel}
                   </span>
+                  {currentUser.loyaltyTier && (
+                    <span className="text-xs text-luxury-muted">
+                      • {currentUser.loyaltyTier}
+                    </span>
+                  )}
                 </div>
                 <h1 className="font-serif text-3xl sm:text-5xl text-luxury-text">
                   Bienvenue, {currentUser.title} {currentUser.firstName} {currentUser.lastName}
@@ -130,13 +181,13 @@ export default function ConnexionPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                {currentUser.role === 'ADMIN' ? (
+                {isStaff ? (
                   <Link
                     href="/admin"
                     className="px-6 py-3.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.18em] font-semibold flex items-center gap-2 transition-colors"
                   >
                     <LayoutDashboard className="w-4 h-4 text-luxury-gold" />
-                    <span>Ouvrir le Dashboard Admin</span>
+                    <span>Ouvrir le Dashboard Réservations</span>
                   </Link>
                 ) : (
                   <button
@@ -153,44 +204,49 @@ export default function ConnexionPage() {
                   className="px-5 py-3.5 border border-luxury-border hover:border-red-500/60 text-luxury-muted hover:text-red-500 text-xs uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>Déconnexion</span>
+                  <span>Changer de Compte / Déconnexion</span>
                 </button>
               </div>
             </div>
 
-            {/* Role-specific Dashboard Content */}
-            {currentUser.role === 'ADMIN' ? (
+            {/* Staff View (Directeur, Admin, Réception) */}
+            {isStaff ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-6 editorial-card space-y-2">
+                <div className="p-6 editorial-card space-y-2 border-l-2 border-l-luxury-gold">
                   <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
-                    Accès Complet Activé
+                    {currentUser.role === 'DIRECTEUR'
+                      ? 'Supervision Direction Générale'
+                      : currentUser.role === 'ADMIN'
+                      ? 'Administration Système'
+                      : 'Accueil & Check-in'}
                   </span>
                   <h3 className="font-serif text-2xl text-luxury-text">
-                    Supervision des Réservations
+                    Tableau de Bord des Réservations
                   </h3>
                   <p className="text-xs text-luxury-muted leading-relaxed">
-                    Vous disposez des droits complets pour valider, modifier ou annuler les
-                    dossiers de réservation des clients de {customHotelName}.
+                    En tant que <strong>{currentUser.roleLabel}</strong>, vous pouvez inspecter,
+                    confirmer ou annuler l’ensemble des dossiers clients et suivre les règlements
+                    MTN Mobile Money & Carte Bancaire.
                   </p>
                   <Link
                     href="/admin"
                     className="inline-flex items-center gap-1.5 text-xs text-luxury-gold font-semibold pt-2 hover:underline"
                   >
-                    <span>Accéder à la liste des {allBookings.length} réservations</span>
+                    <span>Gérer les {allBookings.length} réservations</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
 
                 <div className="p-6 editorial-card space-y-2">
                   <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
-                    Catalogue Hôtelier
+                    Catalogue & Fiches Chambres
                   </span>
                   <h3 className="font-serif text-2xl text-luxury-text">
                     6 Chambres & Suites Bénin
                   </h3>
                   <p className="text-xs text-luxury-muted leading-relaxed">
-                    Toutes les chambres sont configurées en Franc CFA (FCFA) avec galeries multi-photos
-                    et fiches techniques détaillées.
+                    Toutes les chambres sont configurées en Franc CFA (FCFA) avec galeries de 5
+                    photos haute résolution et fiches techniques dédiées.
                   </p>
                   <Link
                     href="/suites"
@@ -209,8 +265,8 @@ export default function ConnexionPage() {
                     Gastronomie Béninoise
                   </h3>
                   <p className="text-xs text-luxury-muted leading-relaxed">
-                    Carte des mets africains (Amiwo, Agoun & Sauce Arachide, Wassawassa, Grillades
-                    de Cotonou) active.
+                    Carte des mets africains (Amiwo Royal, Agoun & Sauce Arachide, Wassawassa,
+                    Grillades de Cotonou) en service continu.
                   </p>
                   <Link
                     href="/experiences"
@@ -322,108 +378,101 @@ export default function ConnexionPage() {
             )}
           </div>
         ) : (
-          /* LOGIN / REGISTER FORM VIEW */
+          /* MULTI-ROLE LOGIN / REGISTER VIEW */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* Left 5 Columns: Quick 1-Click Demo Access & Role Selector */}
+            {/* Left 5 Columns: 4 Role Profiles with 1-Click Instant Access */}
             <div className="lg:col-span-5 space-y-6">
               <div>
                 <span className="text-xs uppercase tracking-[0.26em] text-luxury-gold font-semibold block mb-2">
-                  AUTHENTIFICATION & ESPACE PERSONNEL
+                  PORTAIL MULTI-PROFILS • BÉNIN
                 </span>
                 <h1 className="font-serif text-3xl sm:text-5xl text-luxury-text font-normal leading-tight">
-                  Connexion Client & Administration
+                  Connexion Clients, Direction & Équipes
                 </h1>
                 <p className="text-xs sm:text-sm text-luxury-muted mt-3 leading-relaxed">
-                  Connectez-vous à votre espace résident pour retrouver vos réservations et
-                  pré-remplir vos coordonnées, ou accédez au portail Direction pour gérer
-                  l’établissement.
+                  Sélectionnez votre profil pour accéder à votre espace personnel (Client/Résident)
+                  ou aux outils de gestion de l’établissement (Directeur Général, Administrateur,
+                  Réception).
                 </p>
               </div>
 
-              {/* 1-Click Instant Demo Login Cards */}
+              {/* 1-Click Demo Cards for all 4 Roles */}
               <div className="p-6 editorial-card border-l-2 border-l-luxury-gold space-y-4">
                 <div className="flex items-center gap-2 text-luxury-gold text-xs uppercase tracking-widest font-semibold">
                   <Sparkles className="w-4 h-4" />
-                  <span>Accès Rapide Démo (1 Clic)</span>
+                  <span>Connexion Rapide Démo (1 Clic)</span>
                 </div>
                 <p className="text-xs text-luxury-muted">
-                  Testez immédiatement l’expérience dynamique côté Client ou côté Administrateur :
+                  Cliquez sur l’un des 4 profils ci-dessous pour tester immédiatement ses droits :
                 </p>
 
-                <div className="space-y-3">
-                  <button
-                    type="button"
-                    onClick={() => dispatch(loginDemoRole('GUEST'))}
-                    className="w-full p-4 bg-luxury-surface hover:bg-luxury-card border border-luxury-border hover:border-luxury-gold text-left transition-all flex items-center justify-between group"
-                  >
-                    <div>
-                      <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold block">
-                        Compte Client / Résident
-                      </span>
-                      <span className="font-serif text-lg text-luxury-text block">
-                        M. Koffi Soglo (Cotonou)
-                      </span>
-                      <span className="text-[11px] text-luxury-muted">
-                        k.soglo@entreprise-benin.bj • Mot de passe : client2026
-                      </span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-luxury-gold group-hover:translate-x-1 transition-transform" />
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      dispatch(loginDemoRole('ADMIN'));
-                      router.push('/admin');
-                    }}
-                    className="w-full p-4 bg-luxury-surface hover:bg-luxury-card border border-luxury-border hover:border-luxury-gold text-left transition-all flex items-center justify-between group"
-                  >
-                    <div>
-                      <span className="text-[10px] uppercase tracking-widest text-emerald-600 font-semibold block">
-                        Compte Direction / Administrateur
-                      </span>
-                      <span className="font-serif text-lg text-luxury-text block">
-                        M. Stanislas Adjavon (Directeur)
-                      </span>
-                      <span className="text-[11px] text-luxury-muted">
-                        direction@marina-hotel-benin.bj • Mot de passe : admin2026
-                      </span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-luxury-gold group-hover:translate-x-1 transition-transform" />
-                  </button>
+                <div className="space-y-2.5">
+                  {ROLE_OPTIONS.map((item) => {
+                    const demo = DEMO_USERS[item.role];
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        type="button"
+                        key={item.role}
+                        onClick={() => {
+                          dispatch(loginDemoRole(item.role));
+                          if (isStaffRole(item.role)) {
+                            router.push('/admin');
+                          }
+                        }}
+                        className="w-full p-3.5 bg-luxury-surface hover:bg-luxury-card border border-luxury-border hover:border-luxury-gold text-left transition-all flex items-center justify-between group"
+                      >
+                        <div className="space-y-0.5 pr-2">
+                          <div className="flex items-center gap-1.5">
+                            <Icon className="w-3.5 h-3.5 text-luxury-gold" />
+                            <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
+                              {item.shortLabel}
+                            </span>
+                          </div>
+                          <span className="font-serif text-base text-luxury-text block">
+                            {demo.title} {demo.firstName} {demo.lastName}
+                          </span>
+                          <span className="text-[11px] text-luxury-muted block">
+                            {demo.email}
+                          </span>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-luxury-gold shrink-0 group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
-            {/* Right 7 Columns: Interactive Login / Registration Card */}
+            {/* Right 7 Columns: Role Selector + Login / Registration Form */}
             <div className="lg:col-span-7">
               <div className="p-6 sm:p-10 editorial-card space-y-6">
-                {/* Role Switch Tabs */}
-                <div className="grid grid-cols-2 gap-2 p-1 bg-luxury-surface border border-luxury-border">
-                  <button
-                    type="button"
-                    onClick={() => handlePortalSwitch('GUEST')}
-                    className={`py-3 px-4 text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 transition-all ${
-                      portalMode === 'GUEST'
-                        ? 'bg-luxury-text text-luxury-bg shadow-sm'
-                        : 'text-luxury-muted hover:text-luxury-text'
-                    }`}
-                  >
-                    <UserCheck className="w-4 h-4 text-luxury-gold" />
-                    <span>Espace Client</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handlePortalSwitch('ADMIN')}
-                    className={`py-3 px-4 text-xs uppercase tracking-widest font-semibold flex items-center justify-center gap-2 transition-all ${
-                      portalMode === 'ADMIN'
-                        ? 'bg-luxury-text text-luxury-bg shadow-sm'
-                        : 'text-luxury-muted hover:text-luxury-text'
-                    }`}
-                  >
-                    <LayoutDashboard className="w-4 h-4 text-luxury-gold" />
-                    <span>Portail Admin</span>
-                  </button>
+                {/* 4 Role Tabs */}
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-luxury-muted mb-2">
+                    Choisissez votre profil de connexion
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-luxury-surface border border-luxury-border">
+                    {ROLE_OPTIONS.map((item) => {
+                      const Icon = item.icon;
+                      const active = selectedRole === item.role;
+                      return (
+                        <button
+                          type="button"
+                          key={item.role}
+                          onClick={() => handleRoleSwitch(item.role)}
+                          className={`py-2.5 px-2 text-[10px] uppercase tracking-wider font-semibold flex flex-col items-center justify-center gap-1 transition-all ${
+                            active
+                              ? 'bg-luxury-text text-luxury-bg shadow-sm'
+                              : 'text-luxury-muted hover:text-luxury-text'
+                          }`}
+                        >
+                          <Icon className="w-4 h-4 text-luxury-gold" />
+                          <span className="truncate max-w-full">{item.shortLabel}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {authError && (
@@ -436,21 +485,20 @@ export default function ConnexionPage() {
                 {!isRegistering ? (
                   <form onSubmit={handleLoginSubmit} className="space-y-5">
                     <div>
-                      <h2 className="font-serif text-2xl text-luxury-text">
-                        {portalMode === 'ADMIN'
-                          ? 'Connexion Direction & Réception'
-                          : 'Connexion à votre Compte Client'}
+                      <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
+                        PROFIL SÉLECTIONNÉ : {activeRoleMeta.shortLabel}
+                      </span>
+                      <h2 className="font-serif text-2xl text-luxury-text mt-0.5">
+                        {activeRoleMeta.title}
                       </h2>
                       <p className="text-xs text-luxury-muted mt-1">
-                        {portalMode === 'ADMIN'
-                          ? 'Accès réservé au personnel habilité pour la gestion des réservations.'
-                          : 'Retrouvez vos séjours au Bénin et réservez en 1 clic.'}
+                        {activeRoleMeta.description}
                       </p>
                     </div>
 
                     <div>
                       <label className="block text-[11px] uppercase tracking-widest text-luxury-muted mb-1.5">
-                        Adresse Email
+                        Adresse Email Professionnelle ou Personnelle
                       </label>
                       <div className="relative">
                         <Mail className="w-4 h-4 text-luxury-gold absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -485,35 +533,46 @@ export default function ConnexionPage() {
                       className="w-full py-4 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.2em] font-semibold flex items-center justify-center gap-2 transition-colors"
                     >
                       <Lock className="w-4 h-4 text-luxury-gold" />
-                      <span>
-                        {portalMode === 'ADMIN'
-                          ? 'Se Connecter au Portail Admin'
-                          : 'Se Connecter à mon Espace Client'}
-                      </span>
+                      <span>Se Connecter ({activeRoleMeta.shortLabel})</span>
                     </button>
 
-                    {portalMode === 'GUEST' && (
-                      <div className="pt-4 border-t border-luxury-border text-center">
-                        <button
-                          type="button"
-                          onClick={() => setIsRegistering(true)}
-                          className="text-xs text-luxury-gold hover:underline font-medium"
-                        >
-                          Nouveau client ? Créer un compte résident en 30 secondes →
-                        </button>
-                      </div>
-                    )}
+                    <div className="pt-4 border-t border-luxury-border text-center">
+                      <button
+                        type="button"
+                        onClick={() => setIsRegistering(true)}
+                        className="text-xs text-luxury-gold hover:underline font-medium"
+                      >
+                        Créer un nouveau compte utilisateur (Client, Directeur, Admin ou Réception) →
+                      </button>
+                    </div>
                   </form>
                 ) : (
-                  /* NEW CLIENT REGISTRATION FORM */
+                  /* NEW ACCOUNT REGISTRATION FORM (ANY ROLE) */
                   <form onSubmit={handleRegisterSubmit} className="space-y-4">
                     <div>
                       <h2 className="font-serif text-2xl text-luxury-text">
-                        Créer votre Compte Client Bénin
+                        Créer un Nouveau Compte Utilisateur
                       </h2>
                       <p className="text-xs text-luxury-muted mt-1">
-                        Vos informations seront automatiquement utilisées lors de vos réservations.
+                        Choisissez votre rôle (Client, Directeur, Administrateur ou Réception) et
+                        vos coordonnées.
                       </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-luxury-gold font-semibold mb-1">
+                        Type de Compte / Fonction
+                      </label>
+                      <select
+                        value={regRole}
+                        onChange={(e) => setRegRole(e.target.value as UserRole)}
+                        className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                      >
+                        <option value="GUEST">Client / Résident de l’Hôtel</option>
+                        <option value="DIRECTEUR">Directeur Général / Direction</option>
+                        <option value="ADMIN">Administrateur Hôtel</option>
+                        <option value="RECEPTION">Chef de Réception & Conciergerie</option>
+                      </select>
                     </div>
 
                     <div className="grid grid-cols-4 gap-3">
@@ -592,7 +651,7 @@ export default function ConnexionPage() {
                       type="submit"
                       className="w-full py-4 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.2em] font-semibold transition-colors"
                     >
-                      Créer mon Compte & Accéder à mon Espace
+                      Créer mon Compte & Accéder au Portail
                     </button>
 
                     <div className="pt-2 text-center">

@@ -8,18 +8,19 @@ import {
   useAppSelector,
   toggleColorMode,
   setDrawerOpen,
-  selectBookingNights
+  selectBookingNights,
+  isStaffRole
 } from '@hotel/store';
 import {
   Home,
   BedDouble,
   Utensils,
   Compass,
+  User,
   LayoutDashboard,
   Sun,
   Moon,
-  Calendar,
-  User
+  Calendar
 } from 'lucide-react';
 
 export const UNIFIED_NAV_ITEMS = [
@@ -27,7 +28,7 @@ export const UNIFIED_NAV_ITEMS = [
   { href: '/suites', label: 'Chambres', icon: BedDouble },
   { href: '/experiences', label: 'Restauration', icon: Utensils },
   { href: '/conciergerie', label: 'Concierge', icon: Compass },
-  { href: '/admin', label: 'Admin', icon: LayoutDashboard }
+  { href: '/connexion', label: 'Connexion', icon: User }
 ];
 
 export function Navbar() {
@@ -62,21 +63,21 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isConnexionActive = pathname?.startsWith('/connexion');
+  const isStaff = isStaffRole(currentUser?.role);
 
   return (
     <>
-      <div className="h-[72px]" />
+      <div className="h-[76px]" />
 
       <header
         className={`fixed top-0 left-0 right-0 z-40 editorial-nav-glass border-b border-luxury-border transition-transform duration-300 ease-out ${
           isVisible ? 'translate-y-0' : '-translate-y-full'
-        } ${isScrolled ? 'shadow-sm' : ''}`}
+        } ${isScrolled ? 'shadow-md' : ''}`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-[72px] flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-[76px] flex items-center justify-between gap-4">
           {/* 1. Brand Logo */}
-          <Link href="/" className="shrink-0">
-            <span className="block font-serif text-base sm:text-xl tracking-[0.16em] text-luxury-text font-semibold leading-none">
+          <Link href="/" className="shrink-0 group">
+            <span className="block font-serif text-lg sm:text-xl tracking-[0.16em] text-luxury-text font-semibold leading-none group-hover:text-luxury-gold transition-colors">
               {customHotelName}
             </span>
             <span className="block text-[9px] tracking-[0.26em] uppercase text-luxury-gold mt-1">
@@ -85,19 +86,33 @@ export function Navbar() {
           </Link>
 
           {/* 2. Unified Navigation Pill Bar (Matches Mobile Bottom Nav 1:1) */}
-          <nav className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-luxury-surface/90 border border-luxury-border">
+          <nav className="hidden lg:flex items-center gap-1.5 p-1.5 rounded-full bg-luxury-surface/95 border border-luxury-border shadow-inner">
             {UNIFIED_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
+              const isConnexionItem = item.href === '/connexion';
               const isActive =
                 item.href === '/'
                   ? pathname === '/' || pathname === ''
                   : pathname?.startsWith(item.href);
 
+              const dynamicLabel =
+                isConnexionItem && currentUser
+                  ? `${currentUser.firstName} (${
+                      currentUser.role === 'DIRECTEUR'
+                        ? 'Dir.'
+                        : currentUser.role === 'ADMIN'
+                        ? 'Admin'
+                        : currentUser.role === 'RECEPTION'
+                        ? 'Récep.'
+                        : 'Client'
+                    })`
+                  : item.label;
+
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] tracking-[0.12em] uppercase transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-[11px] tracking-[0.12em] uppercase transition-all ${
                     isActive
                       ? 'bg-luxury-text text-luxury-bg font-semibold shadow-sm'
                       : 'text-luxury-muted hover:text-luxury-text'
@@ -105,34 +120,32 @@ export function Navbar() {
                 >
                   <Icon
                     className={`w-3.5 h-3.5 ${
-                      isActive ? 'text-luxury-gold' : 'text-luxury-muted'
+                      isActive || (isConnexionItem && currentUser)
+                        ? 'text-luxury-gold'
+                        : 'text-luxury-muted'
                     }`}
                   />
-                  <span>{item.label}</span>
+                  <span>{dynamicLabel}</span>
                 </Link>
               );
             })}
           </nav>
 
-          {/* 3. Right Actions: Login/Account + Light/Dark Switch + Direct Reserve Button */}
-          <div className="flex items-center gap-2">
-            <Link
-              href="/connexion"
-              className={`px-3.5 py-2 rounded-full border text-[11px] tracking-[0.12em] uppercase font-medium flex items-center gap-1.5 transition-all ${
-                isConnexionActive || currentUser
-                  ? 'bg-luxury-surface border-luxury-gold text-luxury-text'
-                  : 'bg-luxury-surface border-luxury-border text-luxury-muted hover:text-luxury-text hover:border-luxury-gold'
-              }`}
-            >
-              <User className="w-3.5 h-3.5 text-luxury-gold" />
-              <span className="hidden sm:inline">
-                {currentUser
-                  ? `${currentUser.firstName} ${
-                      currentUser.role === 'ADMIN' ? '(Admin)' : ''
-                    }`
-                  : 'Connexion'}
-              </span>
-            </Link>
+          {/* 3. Right Actions: Staff Dashboard Shortcut (if staff) + Light/Dark Switch + Direct Reserve Button */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            {isStaff && (
+              <Link
+                href="/admin"
+                className={`px-3.5 py-2 rounded-full border text-[10px] tracking-[0.14em] uppercase font-semibold flex items-center gap-1.5 transition-all ${
+                  pathname?.startsWith('/admin')
+                    ? 'bg-luxury-gold text-white border-luxury-gold'
+                    : 'bg-luxury-surface border-luxury-gold/60 text-luxury-text hover:border-luxury-gold'
+                }`}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-luxury-gold" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Link>
+            )}
 
             <button
               onClick={() => dispatch(toggleColorMode())}

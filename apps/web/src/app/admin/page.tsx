@@ -10,7 +10,8 @@ import {
   useUpdateBookingStatusMutation,
   setDrawerOpen,
   loginDemoRole,
-  logoutUser
+  logoutUser,
+  isStaffRole
 } from '@hotel/store';
 import { formatCurrencyAmount } from '@hotel/config';
 import { BookingRecord } from '@hotel/types';
@@ -93,11 +94,11 @@ export default function AdminDashboardPage() {
       <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 space-y-8">
         {/* Session Status Banner */}
         <div className="p-4 bg-luxury-surface border border-luxury-border flex flex-wrap items-center justify-between gap-4 text-xs">
-          {currentUser?.role === 'ADMIN' ? (
+          {isStaffRole(currentUser?.role) && currentUser ? (
             <div className="flex items-center gap-2 text-emerald-600 font-medium">
               <CheckCircle2 className="w-4 h-4" />
               <span>
-                Session Administrateur Active :{' '}
+                Session Active ({currentUser.roleLabel}) :{' '}
                 <strong className="text-luxury-text">
                   {currentUser.title} {currentUser.firstName} {currentUser.lastName}
                 </strong>{' '}
@@ -108,32 +109,52 @@ export default function AdminDashboardPage() {
             <div className="flex items-center gap-2 text-luxury-muted">
               <Lock className="w-4 h-4 text-luxury-gold" />
               <span>
-                Mode Aperçu Direction — Connectez-vous en tant qu’Administrateur pour une session
-                complète.
+                Portail Direction, Administration & Réception — Connectez-vous avec votre profil
+                habilité.
               </span>
             </div>
           )}
 
-          <div className="flex items-center gap-2">
-            {currentUser?.role === 'ADMIN' ? (
-              <button
-                onClick={() => dispatch(logoutUser())}
-                className="px-3 py-1.5 border border-luxury-border hover:border-red-500/50 text-luxury-muted hover:text-red-500 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1.5"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Déconnexion Admin</span>
-              </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {isStaffRole(currentUser?.role) ? (
+              <>
+                <Link
+                  href="/connexion"
+                  className="px-3 py-1.5 border border-luxury-border hover:border-luxury-gold text-luxury-text uppercase tracking-wider text-[10px] font-semibold"
+                >
+                  Mon Profil
+                </Link>
+                <button
+                  onClick={() => dispatch(logoutUser())}
+                  className="px-3 py-1.5 border border-luxury-border hover:border-red-500/50 text-luxury-muted hover:text-red-500 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1.5"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Déconnexion</span>
+                </button>
+              </>
             ) : (
               <>
                 <button
-                  onClick={() => dispatch(loginDemoRole('ADMIN'))}
-                  className="px-3.5 py-1.5 bg-luxury-gold text-white uppercase tracking-wider text-[10px] font-semibold"
+                  onClick={() => dispatch(loginDemoRole('DIRECTEUR'))}
+                  className="px-3 py-1.5 bg-luxury-gold text-white uppercase tracking-wider text-[10px] font-semibold"
                 >
-                  Connexion Admin Démo (1 Clic)
+                  Démo Directeur
+                </button>
+                <button
+                  onClick={() => dispatch(loginDemoRole('ADMIN'))}
+                  className="px-3 py-1.5 bg-luxury-text text-luxury-bg uppercase tracking-wider text-[10px] font-semibold"
+                >
+                  Démo Admin
+                </button>
+                <button
+                  onClick={() => dispatch(loginDemoRole('RECEPTION'))}
+                  className="px-3 py-1.5 border border-luxury-border hover:border-luxury-gold text-luxury-text uppercase tracking-wider text-[10px] font-semibold"
+                >
+                  Démo Réception
                 </button>
                 <Link
                   href="/connexion"
-                  className="px-3.5 py-1.5 border border-luxury-border hover:border-luxury-gold text-luxury-text uppercase tracking-wider text-[10px] font-semibold"
+                  className="px-3 py-1.5 border border-luxury-border hover:border-luxury-gold text-luxury-gold uppercase tracking-wider text-[10px] font-semibold"
                 >
                   Page Connexion →
                 </Link>

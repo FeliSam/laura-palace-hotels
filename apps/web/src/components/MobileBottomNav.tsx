@@ -3,10 +3,12 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAppSelector } from '@hotel/store';
 import { UNIFIED_NAV_ITEMS } from './Navbar';
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const { currentUser } = useAppSelector((state) => state.auth);
 
   return (
     <nav
@@ -16,10 +18,14 @@ export function MobileBottomNav() {
       <div className="max-w-md mx-auto pointer-events-auto editorial-nav-glass border border-luxury-border rounded-full p-1 shadow-2xl grid grid-cols-5 items-center gap-1">
         {UNIFIED_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
+          const isConnexionItem = item.href === '/connexion';
           const isActive =
             item.href === '/'
               ? pathname === '/' || pathname === ''
               : pathname?.startsWith(item.href);
+
+          const label =
+            isConnexionItem && currentUser ? currentUser.firstName : item.label;
 
           return (
             <Link
@@ -33,12 +39,14 @@ export function MobileBottomNav() {
             >
               <Icon
                 className={`w-4 h-4 ${
-                  isActive ? 'text-luxury-gold' : 'text-luxury-muted'
+                  isActive || (isConnexionItem && currentUser)
+                    ? 'text-luxury-gold'
+                    : 'text-luxury-muted'
                 }`}
                 strokeWidth={isActive ? 2.2 : 1.7}
               />
               <span className="text-[9px] tracking-wider uppercase mt-0.5 truncate max-w-full">
-                {item.label}
+                {label}
               </span>
             </Link>
           );

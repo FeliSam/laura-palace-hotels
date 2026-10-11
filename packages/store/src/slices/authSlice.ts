@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type UserRole = 'GUEST' | 'ADMIN';
+export type UserRole = 'GUEST' | 'DIRECTEUR' | 'ADMIN' | 'RECEPTION';
 
 export interface AuthUser {
   id: string;
@@ -11,6 +11,7 @@ export interface AuthUser {
   phone: string;
   country: string;
   role: UserRole;
+  roleLabel: string;
   loyaltyTier?: string;
 }
 
@@ -20,7 +21,7 @@ export interface AuthState {
   authError: string | null;
 }
 
-export const DEMO_USERS: Record<'GUEST' | 'ADMIN', AuthUser & { passwordHint: string }> = {
+export const DEMO_USERS: Record<UserRole, AuthUser & { passwordHint: string }> = {
   GUEST: {
     id: 'usr-guest-koffi',
     title: 'M.',
@@ -30,22 +31,53 @@ export const DEMO_USERS: Record<'GUEST' | 'ADMIN', AuthUser & { passwordHint: st
     phone: '+229 01 97 00 11 22',
     country: 'Bénin',
     role: 'GUEST',
+    roleLabel: 'Client / Résident',
     loyaltyTier: 'Membre Privilège Marina',
     passwordHint: 'client2026'
   },
-  ADMIN: {
-    id: 'usr-admin-direction',
+  DIRECTEUR: {
+    id: 'usr-dir-adjavon',
     title: 'M.',
     firstName: 'Stanislas',
     lastName: 'Adjavon',
-    email: 'direction@marina-hotel-benin.bj',
+    email: 'directeur@marina-hotel-benin.bj',
     phone: '+229 01 21 30 04 00',
     country: 'Bénin',
+    role: 'DIRECTEUR',
+    roleLabel: 'Directeur Général',
+    loyaltyTier: 'Direction Générale • Accès Exécutif',
+    passwordHint: 'directeur2026'
+  },
+  ADMIN: {
+    id: 'usr-admin-houngbedji',
+    title: 'Mme',
+    firstName: 'Nadège',
+    lastName: 'Houngbédji',
+    email: 'admin@marina-hotel-benin.bj',
+    phone: '+229 01 96 45 12 80',
+    country: 'Bénin',
     role: 'ADMIN',
-    loyaltyTier: 'Direction Générale • Administrateur',
+    roleLabel: 'Administratrice Hôtel',
+    loyaltyTier: 'Administration & Tarification',
     passwordHint: 'admin2026'
+  },
+  RECEPTION: {
+    id: 'usr-rec-dossou',
+    title: 'M.',
+    firstName: 'Ulrich',
+    lastName: 'Dossou',
+    email: 'reception@marina-hotel-benin.bj',
+    phone: '+229 01 95 88 33 10',
+    country: 'Bénin',
+    role: 'RECEPTION',
+    roleLabel: 'Chef de Réception & Conciergerie',
+    loyaltyTier: 'Accueil & Check-in Résidents',
+    passwordHint: 'reception2026'
   }
 };
+
+export const isStaffRole = (role?: UserRole | null): boolean =>
+  role === 'DIRECTEUR' || role === 'ADMIN' || role === 'RECEPTION';
 
 const initialState: AuthState = {
   currentUser: null,
@@ -62,7 +94,7 @@ export const authSlice = createSlice({
       state.isAuthenticated = true;
       state.authError = null;
     },
-    loginDemoRole(state, action: PayloadAction<'GUEST' | 'ADMIN'>) {
+    loginDemoRole(state, action: PayloadAction<UserRole>) {
       const demo = DEMO_USERS[action.payload];
       state.currentUser = {
         id: demo.id,
@@ -73,6 +105,7 @@ export const authSlice = createSlice({
         phone: demo.phone,
         country: demo.country,
         role: demo.role,
+        roleLabel: demo.roleLabel,
         loyaltyTier: demo.loyaltyTier
       };
       state.isAuthenticated = true;
@@ -80,28 +113,28 @@ export const authSlice = createSlice({
     },
     loginWithCredentials(
       state,
-      action: PayloadAction<{ email: string; password: string }>
+      action: PayloadAction<{ email: string; password: string; role?: UserRole }>
     ) {
-      const { email, password } = action.payload;
+      const { email, password, role } = action.payload;
       const cleanEmail = email.trim().toLowerCase();
 
-      if (
-        (cleanEmail === DEMO_USERS.ADMIN.email.toLowerCase() ||
-          cleanEmail.includes('admin') ||
-          cleanEmail.includes('direction')) &&
-        (password === DEMO_USERS.ADMIN.passwordHint || password.length >= 4)
-      ) {
-        const admin = DEMO_USERS.ADMIN;
+      // Match against demo accounts first
+      const matchedDemo = (Object.values(DEMO_USERS) as (AuthUser & { passwordHint: string })[]).find(
+        (u) => u.email.toLowerCase() === cleanEmail
+      );
+
+      if (matchedDemo && (password === matchedDemo.passwordHint || password.length >= 4)) {
         state.currentUser = {
-          id: admin.id,
-          title: admin.title,
-          firstName: admin.firstName,
-          lastName: admin.lastName,
-          email: admin.email,
-          phone: admin.phone,
-          country: admin.country,
-          role: 'ADMIN',
-          loyaltyTier: admin.loyaltyTier
+          id: matchedDemo.id,
+          title: matchedDemo.title,
+          firstName: matchedDemo.firstName,
+          lastName: matchedDemo.lastName,
+          email: matchedDemo.email,
+          phone: matchedDemo.phone,
+          country: matchedDemo.country,
+          role: matchedDemo.role,
+          roleLabel: matchedDemo.roleLabel,
+          loyaltyTier: matchedDemo.loyaltyTier
         };
         state.isAuthenticated = true;
         state.authError = null;
@@ -109,36 +142,41 @@ export const authSlice = createSlice({
       }
 
       if (password.length >= 4) {
-        const isDefaultGuest = cleanEmail === DEMO_USERS.GUEST.email.toLowerCase();
-        const guest = DEMO_USERS.GUEST;
-        state.currentUser = isDefaultGuest
-          ? {
-              id: guest.id,
-              title: guest.title,
-              firstName: guest.firstName,
-              lastName: guest.lastName,
-              email: guest.email,
-              phone: guest.phone,
-              country: guest.country,
-              role: 'GUEST',
-              loyaltyTier: guest.loyaltyTier
-            }
-          : {
-              id: `usr-${Date.now()}`,
-              title: 'M.',
-              firstName: cleanEmail.split('@')[0] || 'Client',
-              lastName: 'Résident',
-              email: email.trim(),
-              phone: '+229 01 97 00 00 00',
-              country: 'Bénin',
-              role: 'GUEST',
-              loyaltyTier: 'Membre Privilège Marina'
-            };
+        const assignedRole: UserRole =
+          role ||
+          (cleanEmail.includes('directeur')
+            ? 'DIRECTEUR'
+            : cleanEmail.includes('admin')
+            ? 'ADMIN'
+            : cleanEmail.includes('reception')
+            ? 'RECEPTION'
+            : 'GUEST');
+
+        const roleLabels: Record<UserRole, string> = {
+          GUEST: 'Client / Résident',
+          DIRECTEUR: 'Directeur Général',
+          ADMIN: 'Administrateur Hôtel',
+          RECEPTION: 'Chef de Réception'
+        };
+
+        state.currentUser = {
+          id: `usr-${Date.now()}`,
+          title: 'M.',
+          firstName: cleanEmail.split('@')[0] || 'Utilisateur',
+          lastName: assignedRole === 'GUEST' ? 'Résident' : 'Marina Palace',
+          email: email.trim(),
+          phone: '+229 01 97 00 00 00',
+          country: 'Bénin',
+          role: assignedRole,
+          roleLabel: roleLabels[assignedRole],
+          loyaltyTier:
+            assignedRole === 'GUEST' ? 'Membre Privilège Marina' : roleLabels[assignedRole]
+        };
         state.isAuthenticated = true;
         state.authError = null;
       } else {
         state.authError =
-          'Identifiants invalides. Utilisez les comptes démo ou un mot de passe d’au moins 4 caractères.';
+          'Identifiants invalides. Choisissez un profil démo ou saisissez un mot de passe (min. 4 caractères).';
       }
     },
     registerGuestAccount(
@@ -149,8 +187,16 @@ export const authSlice = createSlice({
         lastName: string;
         email: string;
         phone: string;
+        role?: UserRole;
       }>
     ) {
+      const assignedRole = action.payload.role || 'GUEST';
+      const roleLabels: Record<UserRole, string> = {
+        GUEST: 'Client / Résident',
+        DIRECTEUR: 'Directeur Général',
+        ADMIN: 'Administrateur Hôtel',
+        RECEPTION: 'Chef de Réception'
+      };
       state.currentUser = {
         id: `usr-${Date.now()}`,
         title: action.payload.title,
@@ -159,8 +205,10 @@ export const authSlice = createSlice({
         email: action.payload.email,
         phone: action.payload.phone,
         country: 'Bénin',
-        role: 'GUEST',
-        loyaltyTier: 'Membre Privilège Marina'
+        role: assignedRole,
+        roleLabel: roleLabels[assignedRole],
+        loyaltyTier:
+          assignedRole === 'GUEST' ? 'Membre Privilège Marina' : roleLabels[assignedRole]
       };
       state.isAuthenticated = true;
       state.authError = null;

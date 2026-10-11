@@ -35,13 +35,19 @@ import {
   Users,
   BedDouble,
   RefreshCw,
-  Eye
+  Eye,
+  Smartphone,
+  CreditCard,
+  Building2,
+  Lock
 } from 'lucide-react';
+
+type SimulatedPaymentMethod = 'MTN_MOMO' | 'BANK_CARD' | 'ON_SITE';
 
 const VIP_PREFERENCES_OPTIONS = [
   'Navette Aéroport Cotonou',
   'Chambre Étage Élevé Vue Mer',
-  'Paiement Mobile Money / Carte à l’arrivée',
+  'Facture Proforma Entreprise (IFU)',
   'Lit King Size Supplémentaire',
   'Corbeille de Fruits Tropicaux',
   'Check-in Prioritaire Dès 12h00'
@@ -74,6 +80,20 @@ export function BookingCheckoutDrawer() {
   const [formError, setFormError] = useState<string | null>(null);
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
 
+  // Simulated Payment State (MTN MoMo / Carte Bancaire / Sur place)
+  const [paymentMethod, setPaymentMethod] = useState<SimulatedPaymentMethod>('MTN_MOMO');
+  const [momoNumber, setMomoNumber] = useState('+229 01 97 45 88 20');
+  const [cardNumber, setCardNumber] = useState('4532 •••• •••• 8841');
+  const [cardExpiry, setCardExpiry] = useState('08/28');
+  const [cardCvv, setCardCvv] = useState('842');
+  const [cardHolder, setCardHolder] = useState('KOFFI SOGLO');
+  const [isSimulatingPayment, setIsSimulatingPayment] = useState(false);
+  const [lastPaymentReceipt, setLastPaymentReceipt] = useState<{
+    methodLabel: string;
+    txRef: string;
+    statusLabel: string;
+  } | null>(null);
+
   const availableRooms = roomsData?.rooms || [];
   const availableAddOns = addOnsData?.addOns || [];
   const chosenRoom = selectedRoom || availableRooms[0] || null;
@@ -103,6 +123,8 @@ export function BookingCheckoutDrawer() {
           country: currentUser.country
         })
       );
+      setMomoNumber(currentUser.phone || '+229 01 97 00 11 22');
+      setCardHolder(`${currentUser.firstName} ${currentUser.lastName}`.toUpperCase());
     }
   }, [currentUser, guestInfo.email, dispatch]);
 
@@ -129,7 +151,46 @@ export function BookingCheckoutDrawer() {
       return;
     }
 
+    if (paymentMethod === 'MTN_MOMO' && momoNumber.trim().length < 8) {
+      setFormError('Veuillez saisir un numéro MTN Mobile Money valide (+229...).');
+      return;
+    }
+
+    if (paymentMethod === 'BANK_CARD' && cardNumber.trim().length < 8) {
+      setFormError('Veuillez vérifier les informations de votre carte bancaire.');
+      return;
+    }
+
     try {
+      // Simulate realistic payment gateway authorization (1.2s)
+      setIsSimulatingPayment(true);
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      const randomTx = Math.floor(100000 + Math.random() * 900000);
+      const receipt =
+        paymentMethod === 'MTN_MOMO'
+          ? {
+              methodLabel: `MTN Mobile Money Bénin (${momoNumber})`,
+              txRef: `MOMO-BJ-${randomTx}`,
+              statusLabel: 'Payé par MTN MoMo (Simulation)'
+            }
+          : paymentMethod === 'BANK_CARD'
+          ? {
+              methodLabel: `Carte Bancaire Visa / Mastercard (${cardNumber.slice(-4)})`,
+              txRef: `CB-3DS-${randomTx}`,
+              statusLabel: 'Payé par Carte Bancaire (Simulation)'
+            }
+          : {
+              methodLabel: 'Règlement sur place à la Réception',
+              txRef: `GARANTIE-${randomTx}`,
+              statusLabel: 'Garanti — À régler au Check-in'
+            };
+
+      const paymentNote = `[${receipt.statusLabel} • Réf: ${receipt.txRef}]`;
+      const combinedNotes = guestInfo.specialRequests
+        ? `${guestInfo.specialRequests} | ${paymentNote}`
+        : paymentNote;
+
       const result = await createBooking({
         roomId: chosenRoom.id,
         checkIn,
@@ -138,16 +199,24 @@ export function BookingCheckoutDrawer() {
         children,
         addOnIds: selectedAddOns.map((a) => a.id),
         promoCode: promoCode || undefined,
-        guest: guestInfo
+        guest: {
+          ...guestInfo,
+          specialRequests: combinedNotes
+        }
       }).unwrap();
 
+      setLastPaymentReceipt(receipt);
+      setIsSimulatingPayment(false);
       dispatch(setConfirmedBookingRef(result.booking.referenceCode));
     } catch (err: any) {
+      setIsSimulatingPayment(false);
       setFormError(
         err?.data?.error || 'Une erreur est survenue lors de la validation de votre réservation.'
       );
     }
   };
+
+  const isBusy = isSimulatingPayment || isSubmitting;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -164,11 +233,11 @@ export function BookingCheckoutDrawer() {
           <div>
             <span className="text-[10px] uppercase tracking-[0.25em] text-luxury-gold font-semibold flex items-center gap-1.5">
               <Crown className="w-3.5 h-3.5" />
-              Réservation Directe — {customHotelName}
+              Réservation & Paiement — {customHotelName}
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl text-luxury-text mt-0.5">
               {lastConfirmedBookingRef
-                ? 'Confirmation de Votre Séjour'
+                ? 'Confirmation & Reçu de Paiement'
                 : chosenRoom
                 ? chosenRoom.name
                 : 'Votre Réservation'}
@@ -189,7 +258,7 @@ export function BookingCheckoutDrawer() {
             {[
               { step: 1, label: '1. Chambre Choisie' },
               { step: 2, label: '2. Options & Restauration' },
-              { step: 3, label: '3. Coordonnées Client' }
+              { step: 3, label: '3. Client & Paiement' }
             ].map((item) => (
               <button
                 key={item.step}
@@ -209,49 +278,72 @@ export function BookingCheckoutDrawer() {
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {lastConfirmedBookingRef ? (
-            /* CONFIRMED STATE */
-            <div className="p-8 editorial-card text-center space-y-6 my-4">
-              <div className="w-16 h-16 rounded-full bg-luxury-gold/15 border border-luxury-gold flex items-center justify-center mx-auto text-luxury-gold">
+            /* CONFIRMED STATE WITH SIMULATED PAYMENT RECEIPT */
+            <div className="p-8 editorial-card text-center space-y-6 my-2">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500 flex items-center justify-center mx-auto text-emerald-500">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
               <div className="space-y-2">
-                <span className="text-xs uppercase tracking-[0.25em] text-luxury-gold font-semibold">
-                  DOSSIER OFFICIEL ENREGISTRÉ
+                <span className="text-xs uppercase tracking-[0.25em] text-emerald-500 font-semibold">
+                  RÉSERVATION & PAIEMENT SIMULÉ VALIDÉS
                 </span>
                 <h3 className="font-serif text-3xl text-luxury-text">
                   Merci, {guestInfo.title} {guestInfo.lastName}
                 </h3>
                 <p className="text-sm text-luxury-muted max-w-md mx-auto">
-                  La Réception de{' '}
-                  <strong className="text-luxury-text">{customHotelName}</strong> a enregistré votre
-                  réservation et prépare votre accueil à Cotonou.
+                  Votre réservation au sein de{' '}
+                  <strong className="text-luxury-text">{customHotelName}</strong> est confirmée.
                 </p>
               </div>
 
               <div className="p-5 bg-luxury-surface border border-luxury-border inline-block mx-auto">
                 <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-muted block">
-                  NUMÉRO DE RÉFÉRENCE À CONSERVER
+                  NUMÉRO DE DOSSIER HÔTEL
                 </span>
                 <span className="font-mono text-2xl text-luxury-gold font-bold tracking-wider mt-1 block">
                   {lastConfirmedBookingRef}
                 </span>
               </div>
 
-              <div className="text-left p-5 bg-luxury-surface border border-luxury-border space-y-2 text-xs">
+              <div className="text-left p-5 bg-luxury-surface border border-luxury-border space-y-2.5 text-xs">
                 <div className="flex justify-between">
                   <span className="text-luxury-muted">Chambre réservée :</span>
                   <span className="text-luxury-text font-semibold">{chosenRoom?.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-luxury-muted">Dates :</span>
+                  <span className="text-luxury-muted">Dates du séjour :</span>
                   <span className="text-luxury-text">
                     Du {checkIn} au {checkOut} ({pricing.nights} nuits)
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-luxury-muted">Total TTC confirmé :</span>
-                  <span className="text-luxury-gold font-semibold text-sm">
+                {lastPaymentReceipt && (
+                  <>
+                    <div className="flex justify-between pt-2 border-t border-luxury-border">
+                      <span className="text-luxury-muted">Moyen de paiement :</span>
+                      <span className="text-luxury-text font-medium">
+                        {lastPaymentReceipt.methodLabel}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-luxury-muted">Réf. Transaction (Simulée) :</span>
+                      <span className="font-mono text-emerald-600 font-semibold">
+                        {lastPaymentReceipt.txRef}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-luxury-muted">Statut du règlement :</span>
+                      <span className="text-emerald-600 font-semibold">
+                        ✓ {lastPaymentReceipt.statusLabel}
+                      </span>
+                    </div>
+                  </>
+                )}
+                <div className="flex justify-between pt-2 border-t border-luxury-border">
+                  <span className="text-luxury-text font-semibold uppercase tracking-wider">
+                    Total TTC :
+                  </span>
+                  <span className="text-luxury-gold font-semibold text-base font-serif">
                     {formatCurrencyAmount(pricing.totalPrice, currency)}
                   </span>
                 </div>
@@ -260,6 +352,7 @@ export function BookingCheckoutDrawer() {
               <div className="flex flex-wrap justify-center gap-3 pt-2">
                 <button
                   onClick={() => {
+                    setLastPaymentReceipt(null);
                     dispatch(resetBookingFlow());
                     dispatch(setDrawerOpen(false));
                   }}
@@ -272,7 +365,6 @@ export function BookingCheckoutDrawer() {
           ) : checkoutStep === 1 ? (
             /* STEP 1: ONLY THE CHOSEN ROOM + DATES */
             <div className="space-y-6">
-              {/* Dates & Guests */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[11px] uppercase tracking-widest text-luxury-gold font-semibold mb-1.5">
@@ -356,7 +448,6 @@ export function BookingCheckoutDrawer() {
                   </div>
 
                   <div className="editorial-card border-2 border-luxury-gold/50 overflow-hidden">
-                    {/* Chosen Room Multi-Image Preview */}
                     <div className="relative h-52 bg-black overflow-hidden">
                       <img
                         src={roomGallery[activePhotoIdx] || chosenRoom.heroImage}
@@ -383,7 +474,6 @@ export function BookingCheckoutDrawer() {
                       </div>
                     </div>
 
-                    {/* Thumbnail switcher for the chosen room */}
                     {roomGallery.length > 1 && (
                       <div className="px-4 py-2.5 bg-luxury-surface border-b border-luxury-border flex items-center gap-2 overflow-x-auto">
                         {roomGallery.map((imgUrl, idx) => (
@@ -403,7 +493,6 @@ export function BookingCheckoutDrawer() {
                       </div>
                     )}
 
-                    {/* Room details & link to full page */}
                     <div className="p-4 space-y-3">
                       <div className="flex flex-wrap items-center gap-4 text-xs text-luxury-muted">
                         <span className="flex items-center gap-1.5">
@@ -527,15 +616,16 @@ export function BookingCheckoutDrawer() {
               </div>
             </div>
           ) : (
-            /* STEP 3: VIP GUEST COORDINATES */
-            <form id="vip-booking-form" onSubmit={handleConfirmReservation} className="space-y-4">
+            /* STEP 3: VIP GUEST COORDINATES + SIMULATED PAYMENT (MTN MOMO / CARTE BANCAIRE) */
+            <form id="vip-booking-form" onSubmit={handleConfirmReservation} className="space-y-5">
               {currentUser && (
                 <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-xs text-luxury-text flex items-center justify-between">
                   <span>
-                    Connecté en tant que{' '}
+                    Connecté :{' '}
                     <strong>
                       {currentUser.title} {currentUser.firstName} {currentUser.lastName}
-                    </strong>
+                    </strong>{' '}
+                    ({currentUser.roleLabel})
                   </span>
                   <span className="text-[10px] uppercase tracking-wider text-emerald-600 font-semibold">
                     Coordonnées pré-remplies
@@ -549,93 +639,287 @@ export function BookingCheckoutDrawer() {
                 </div>
               )}
 
-              <div className="grid grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                    Civilité
-                  </label>
-                  <select
-                    value={guestInfo.title}
-                    onChange={(e) =>
-                      dispatch(updateGuestInfo({ title: e.target.value as any }))
-                    }
-                    className="w-full px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+              {/* Section 1: Coordonnées du Résident */}
+              <div className="space-y-3">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-luxury-gold font-semibold">
+                  1. Coordonnées du Client / Résident
+                </h3>
+
+                <div className="grid grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                      Civilité
+                    </label>
+                    <select
+                      value={guestInfo.title}
+                      onChange={(e) =>
+                        dispatch(updateGuestInfo({ title: e.target.value as any }))
+                      }
+                      className="w-full px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    >
+                      <option value="M.">M.</option>
+                      <option value="Mme">Mme</option>
+                      <option value="Dr.">Dr.</option>
+                      <option value="S.A.R.">S.A.R.</option>
+                    </select>
+                  </div>
+                  <div className="col-span-3">
+                    <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                      Prénom *
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      value={guestInfo.firstName}
+                      onChange={(e) => dispatch(updateGuestInfo({ firstName: e.target.value }))}
+                      placeholder="Koffi"
+                      className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                      Nom de Famille *
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      value={guestInfo.lastName}
+                      onChange={(e) => dispatch(updateGuestInfo({ lastName: e.target.value }))}
+                      placeholder="Soglo"
+                      className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                      Heure d’arrivée estimée
+                    </label>
+                    <input
+                      type="time"
+                      value={guestInfo.arrivalTime || '14:00'}
+                      onChange={(e) => dispatch(updateGuestInfo({ arrivalTime: e.target.value }))}
+                      className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                      Email *
+                    </label>
+                    <input
+                      required
+                      type="email"
+                      value={guestInfo.email}
+                      onChange={(e) => dispatch(updateGuestInfo({ email: e.target.value }))}
+                      placeholder="client@entreprise-benin.bj"
+                      className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                      Téléphone / WhatsApp (+229) *
+                    </label>
+                    <input
+                      required
+                      type="tel"
+                      value={guestInfo.phone}
+                      onChange={(e) => dispatch(updateGuestInfo({ phone: e.target.value }))}
+                      placeholder="+229 01 97 00 00 00"
+                      className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 2: SIMULATED PAYMENT MODULE (MTN Mobile Money / Carte Bancaire / Sur place) */}
+              <div className="pt-3 border-t border-luxury-border space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs uppercase tracking-[0.2em] text-luxury-gold font-semibold flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>2. Mode de Paiement (Simulation Sécurisée)</span>
+                  </h3>
+                  <span className="text-[10px] px-2 py-0.5 bg-luxury-gold/15 text-luxury-gold font-semibold uppercase tracking-wider">
+                    Mode Démo Actif
+                  </span>
+                </div>
+
+                {/* Payment Method Selector Tabs */}
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('MTN_MOMO')}
+                    className={`p-3 border text-left transition-all flex flex-col justify-between gap-1.5 ${
+                      paymentMethod === 'MTN_MOMO'
+                        ? 'bg-amber-500/15 border-amber-500 ring-1 ring-amber-500'
+                        : 'bg-luxury-surface border-luxury-border hover:border-luxury-gold'
+                    }`}
                   >
-                    <option value="M.">M.</option>
-                    <option value="Mme">Mme</option>
-                    <option value="Dr.">Dr.</option>
-                    <option value="S.A.R.">S.A.R.</option>
-                  </select>
-                </div>
-                <div className="col-span-3">
-                  <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                    Prénom *
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    value={guestInfo.firstName}
-                    onChange={(e) => dispatch(updateGuestInfo({ firstName: e.target.value }))}
-                    placeholder="Koffi"
-                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
-                  />
-                </div>
-              </div>
+                    <div className="flex items-center justify-between">
+                      <Smartphone className="w-4 h-4 text-amber-500" />
+                      <span className="px-1.5 py-0.5 bg-amber-400 text-black font-bold text-[9px] uppercase">
+                        MTN MoMo
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold text-luxury-text block">
+                      MTN Mobile Money
+                    </span>
+                    <span className="text-[10px] text-luxury-muted">Push USSD *880# Bénin</span>
+                  </button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                    Nom de Famille *
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    value={guestInfo.lastName}
-                    onChange={(e) => dispatch(updateGuestInfo({ lastName: e.target.value }))}
-                    placeholder="Soglo"
-                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                    Heure d’arrivée estimée
-                  </label>
-                  <input
-                    type="time"
-                    value={guestInfo.arrivalTime || '14:00'}
-                    onChange={(e) => dispatch(updateGuestInfo({ arrivalTime: e.target.value }))}
-                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
-                  />
-                </div>
-              </div>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('BANK_CARD')}
+                    className={`p-3 border text-left transition-all flex flex-col justify-between gap-1.5 ${
+                      paymentMethod === 'BANK_CARD'
+                        ? 'bg-luxury-card border-luxury-gold ring-1 ring-luxury-gold'
+                        : 'bg-luxury-surface border-luxury-border hover:border-luxury-gold'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <CreditCard className="w-4 h-4 text-luxury-gold" />
+                      <span className="text-[9px] uppercase tracking-wider text-luxury-gold font-bold">
+                        VISA / MC
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold text-luxury-text block">
+                      Carte Bancaire
+                    </span>
+                    <span className="text-[10px] text-luxury-muted">Visa, Mastercard, GIM</span>
+                  </button>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                    Email *
-                  </label>
-                  <input
-                    required
-                    type="email"
-                    value={guestInfo.email}
-                    onChange={(e) => dispatch(updateGuestInfo({ email: e.target.value }))}
-                    placeholder="client@entreprise-benin.bj"
-                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
-                  />
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('ON_SITE')}
+                    className={`p-3 border text-left transition-all flex flex-col justify-between gap-1.5 ${
+                      paymentMethod === 'ON_SITE'
+                        ? 'bg-luxury-card border-luxury-gold ring-1 ring-luxury-gold'
+                        : 'bg-luxury-surface border-luxury-border hover:border-luxury-gold'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <Building2 className="w-4 h-4 text-luxury-gold" />
+                      <span className="text-[9px] uppercase tracking-wider text-luxury-muted font-semibold">
+                        HÔTEL
+                      </span>
+                    </div>
+                    <span className="text-xs font-semibold text-luxury-text block">
+                      Sur Place
+                    </span>
+                    <span className="text-[10px] text-luxury-muted">Au Check-in à Cotonou</span>
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                    Téléphone / WhatsApp (+229) *
-                  </label>
-                  <input
-                    required
-                    type="tel"
-                    value={guestInfo.phone}
-                    onChange={(e) => dispatch(updateGuestInfo({ phone: e.target.value }))}
-                    placeholder="+229 01 97 00 00 00"
-                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
-                  />
-                </div>
+
+                {/* Conditional Inputs for Selected Simulated Payment Method */}
+                {paymentMethod === 'MTN_MOMO' && (
+                  <div className="p-4 bg-luxury-surface border border-amber-500/40 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-luxury-text flex items-center gap-2">
+                        <span className="px-2 py-0.5 bg-amber-400 text-black font-bold text-[10px]">
+                          MTN MoMo
+                        </span>
+                        <span>Paiement Mobile Money Bénin (Simulé)</span>
+                      </span>
+                      <span className="text-xs font-serif text-luxury-gold font-semibold">
+                        {formatCurrencyAmount(pricing.totalPrice, currency)}
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                        Numéro de téléphone MTN Bénin à débiter (Simulation)
+                      </label>
+                      <input
+                        type="tel"
+                        value={momoNumber}
+                        onChange={(e) => setMomoNumber(e.target.value)}
+                        placeholder="+229 01 97 00 00 00"
+                        className="w-full px-3.5 py-2 bg-luxury-card border border-luxury-border text-xs font-mono text-luxury-text"
+                      />
+                    </div>
+
+                    <p className="text-[11px] text-luxury-muted">
+                      En cliquant sur <strong>Payer & Confirmer</strong>, une validation MTN Mobile
+                      Money (*880#) sera simulée automatiquement sans aucun débit réel.
+                    </p>
+                  </div>
+                )}
+
+                {paymentMethod === 'BANK_CARD' && (
+                  <div className="p-4 bg-luxury-surface border border-luxury-gold/40 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-luxury-text">
+                        Carte Bancaire Visa / Mastercard (Simulation 3D-Secure)
+                      </span>
+                      <span className="text-xs font-serif text-luxury-gold font-semibold">
+                        {formatCurrencyAmount(pricing.totalPrice, currency)}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                          Numéro de Carte (Démo)
+                        </label>
+                        <input
+                          type="text"
+                          value={cardNumber}
+                          onChange={(e) => setCardNumber(e.target.value)}
+                          className="w-full px-3 py-2 bg-luxury-card border border-luxury-border text-xs font-mono text-luxury-text"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                          Titulaire de la Carte
+                        </label>
+                        <input
+                          type="text"
+                          value={cardHolder}
+                          onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
+                          className="w-full px-3 py-2 bg-luxury-card border border-luxury-border text-xs uppercase text-luxury-text"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                          Expiration (MM/AA)
+                        </label>
+                        <input
+                          type="text"
+                          value={cardExpiry}
+                          onChange={(e) => setCardExpiry(e.target.value)}
+                          className="w-full px-3 py-2 bg-luxury-card border border-luxury-border text-xs font-mono text-luxury-text"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                          Cryptogramme (CVV)
+                        </label>
+                        <input
+                          type="text"
+                          value={cardCvv}
+                          onChange={(e) => setCardCvv(e.target.value)}
+                          className="w-full px-3 py-2 bg-luxury-card border border-luxury-border text-xs font-mono text-luxury-text"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {paymentMethod === 'ON_SITE' && (
+                  <div className="p-4 bg-luxury-surface border border-luxury-border text-xs text-luxury-muted">
+                    Votre chambre est bloquée immédiatement. Vous réglerez le montant de{' '}
+                    <strong className="text-luxury-gold">
+                      {formatCurrencyAmount(pricing.totalPrice, currency)}
+                    </strong>{' '}
+                    lors de votre arrivée à la Réception (Espèces FCFA, TPE ou Mobile Money).
+                  </div>
+                )}
               </div>
 
               {/* VIP Preferences Pills */}
@@ -664,21 +948,6 @@ export function BookingCheckoutDrawer() {
                   })}
                 </div>
               </div>
-
-              <div>
-                <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                  Instructions Particulières pour la Réception
-                </label>
-                <textarea
-                  rows={2}
-                  value={guestInfo.specialRequests}
-                  onChange={(e) =>
-                    dispatch(updateGuestInfo({ specialRequests: e.target.value }))
-                  }
-                  placeholder="Navette aéroport, allergies alimentaires, arrivée tardive..."
-                  className="w-full px-3.5 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
-                />
-              </div>
             </form>
           )}
         </div>
@@ -686,6 +955,19 @@ export function BookingCheckoutDrawer() {
         {/* Sticky Price Summary & Navigation Footer */}
         {!lastConfirmedBookingRef && (
           <div className="p-6 bg-luxury-surface border-t border-luxury-border space-y-4">
+            {isSimulatingPayment && (
+              <div className="p-3 bg-amber-500/15 border border-amber-500/40 text-xs text-luxury-text flex items-center gap-2.5">
+                <Loader2 className="w-4 h-4 text-amber-500 animate-spin shrink-0" />
+                <span>
+                  {paymentMethod === 'MTN_MOMO'
+                    ? `Simulation MTN Mobile Money : Validation du push USSD sur ${momoNumber}...`
+                    : paymentMethod === 'BANK_CARD'
+                    ? 'Simulation Carte Bancaire : Autorisation 3D-Secure Visa/Mastercard en cours...'
+                    : 'Enregistrement de la garantie hôtel...'}
+                </span>
+              </div>
+            )}
+
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between text-luxury-muted">
                 <span>
@@ -724,6 +1006,7 @@ export function BookingCheckoutDrawer() {
               {checkoutStep > 1 ? (
                 <button
                   type="button"
+                  disabled={isBusy}
                   onClick={() => dispatch(setCheckoutStep((checkoutStep - 1) as 1 | 2))}
                   className="px-4 py-3 border border-luxury-border text-xs uppercase tracking-wider text-luxury-text flex items-center gap-1.5"
                 >
@@ -752,18 +1035,24 @@ export function BookingCheckoutDrawer() {
                 <button
                   type="submit"
                   form="vip-booking-form"
-                  disabled={isSubmitting}
-                  className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-xs uppercase tracking-[0.18em] flex items-center gap-2 disabled:opacity-50 transition-colors"
+                  disabled={isBusy}
+                  className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-xs uppercase tracking-[0.16em] flex items-center gap-2 disabled:opacity-50 transition-colors"
                 >
-                  {isSubmitting ? (
+                  {isBusy ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Validation...</span>
+                      <span>Traitement du paiement...</span>
                     </>
                   ) : (
                     <>
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Confirmer la Réservation</span>
+                      <ShieldCheck className="w-4 h-4 text-luxury-gold" />
+                      <span>
+                        {paymentMethod === 'MTN_MOMO'
+                          ? 'Payer par MTN MoMo & Confirmer'
+                          : paymentMethod === 'BANK_CARD'
+                          ? 'Payer par Carte & Confirmer'
+                          : 'Confirmer la Réservation'}
+                      </span>
                     </>
                   )}
                 </button>
