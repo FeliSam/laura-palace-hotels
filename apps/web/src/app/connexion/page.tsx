@@ -15,12 +15,16 @@ import {
   logoutUser,
   clearAuthError,
   useGetAllBookingsQuery,
+  useGetRoomsQuery,
+  useGetReviewsQuery,
+  useAddRoomReviewMutation,
   setDrawerOpen,
   UserRole,
   DEMO_USERS,
   isStaffRole
 } from '@hotel/store';
 import { formatCurrencyAmount } from '@hotel/config';
+import { BookingRecord } from '@hotel/types';
 import {
   UserCheck,
   ShieldAlert,
@@ -37,7 +41,13 @@ import {
   Crown,
   ConciergeBell,
   Edit3,
-  Save
+  Save,
+  Star,
+  Camera,
+  Upload,
+  X,
+  CheckCircle2,
+  BedDouble
 } from 'lucide-react';
 
 const ROLE_OPTIONS: {
@@ -52,7 +62,7 @@ const ROLE_OPTIONS: {
     role: 'GUEST',
     shortLabel: 'Client / Résident',
     title: 'Espace Client & Résident',
-    description: 'Consultez vos réservations, vos factures FCFA et réservez en 1 clic.',
+    description: 'Consultez vos réservations, laissez vos avis avec photos et réservez en 1 clic.',
     icon: UserCheck,
     badgeColor: 'text-luxury-gold border-luxury-gold/40 bg-luxury-gold/10'
   },
@@ -60,7 +70,7 @@ const ROLE_OPTIONS: {
     role: 'DIRECTEUR',
     shortLabel: 'Directeur',
     title: 'Portail Directeur Général',
-    description: 'Supervision exécutive du chiffre d’affaires, taux d’occupation et réservations VIP.',
+    description: 'Supervision exécutive du chiffre d’affaires, catalogue chambres et réservations VIP.',
     icon: Crown,
     badgeColor: 'text-amber-500 border-amber-500/40 bg-amber-500/10'
   },
@@ -68,7 +78,7 @@ const ROLE_OPTIONS: {
     role: 'ADMIN',
     shortLabel: 'Administrateur',
     title: 'Portail Administrateur Hôtel',
-    description: 'Gestion complète des réservations, du catalogue des chambres et de la tarification.',
+    description: 'Gestion complète des réservations, ajout/édition des chambres et tarification.',
     icon: LayoutDashboard,
     badgeColor: 'text-emerald-500 border-emerald-500/40 bg-emerald-500/10'
   },
@@ -88,6 +98,9 @@ export default function ConnexionPage() {
   const { currentUser, authError } = useAppSelector((state) => state.auth);
   const { currency } = useAppSelector((state) => state.ui);
   const { data: bookingsData } = useGetAllBookingsQuery();
+  const { data: roomsData } = useGetRoomsQuery();
+  const { data: reviewsData } = useGetReviewsQuery();
+  const [addRoomReview, { isLoading: isSubmittingReview }] = useAddRoomReviewMutation();
 
   const [selectedRole, setSelectedRole] = useState<UserRole>('GUEST');
   const [isRegistering, setIsRegistering] = useState(false);
@@ -114,6 +127,14 @@ export default function ConnexionPage() {
   const [editCountry, setEditCountry] = useState('');
   const [editRole, setEditRole] = useState<UserRole>('GUEST');
   const [profileSavedToast, setProfileSavedToast] = useState(false);
+
+  // Rented Room Review & Photo Upload Modal State
+  const [reviewingBooking, setReviewingBooking] = useState<BookingRecord | null>(null);
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewPhotos, setReviewPhotos] = useState<string[]>([]);
+  const [reviewPhotoUrlInput, setReviewPhotoUrlInput] = useState('');
+  const [reviewSuccessToast, setReviewSuccessToast] = useState<string | null>(null);
 
   useEffect(() => {
     if (currentUser) {
@@ -185,7 +206,61 @@ export default function ConnexionPage() {
     );
   };
 
+  const handleReviewPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setReviewPhotos((prev) => [...prev, reader.result as string]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  };
+
+  const handleAddReviewPhotoUrl = () => {
+    const trimmed = reviewPhotoUrlInput.trim();
+    if (!trimmed) return;
+    setReviewPhotos((prev) => [...prev, trimmed]);
+    setReviewPhotoUrlInput('');
+  };
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewingBooking || !currentUser || !reviewComment.trim()) return;
+
+    await addRoomReview({
+      roomId: reviewingBooking.room.id,
+      roomSlug: reviewingBooking.room.slug,
+      roomName: reviewingBooking.room.name,
+      authorName: `${currentUser.title} ${currentUser.firstName} ${currentUser.lastName}`,
+      authorEmail: currentUser.email,
+      authorBadge: `Séjour Vérifié • Réf ${reviewingBooking.referenceCode}`,
+      rating: reviewRating,
+      comment: reviewComment.trim(),
+      photos: reviewPhotos,
+      stayDate: `Séjour du ${reviewingBooking.checkIn}`
+    }).unwrap();
+
+    const roomTitle = reviewingBooking.room.name;
+    setReviewingBooking(null);
+    setReviewComment('');
+    setReviewPhotos([]);
+    setReviewRating(5);
+    setReviewSuccessToast(
+      `✓ Merci ! Votre avis (${reviewRating}/5 ★) sur « ${roomTitle} » a été publié.`
+    );
+    setTimeout(() => setReviewSuccessToast(null), 5000);
+  };
+
   const allBookings = bookingsData?.bookings || [];
+  const allRooms = roomsData?.rooms || [];
+  const allReviews = reviewsData?.reviews || [];
+
   const userBookings = currentUser
     ? allBookings.filter(
         (b) =>
@@ -214,6 +289,11 @@ export default function ConnexionPage() {
                     {profileSavedToast && (
                       <span className="px-2.5 py-0.5 bg-emerald-500/15 text-emerald-600 text-[10px] font-semibold">
                         ✓ Vos informations ont été mises à jour
+                      </span>
+                    )}
+                    {reviewSuccessToast && (
+                      <span className="px-2.5 py-0.5 bg-emerald-500/15 text-emerald-600 text-[10px] font-semibold">
+                        {reviewSuccessToast}
                       </span>
                     )}
                   </div>
@@ -252,7 +332,7 @@ export default function ConnexionPage() {
                       className="px-5 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.16em] font-semibold flex items-center gap-2 transition-colors"
                     >
                       <LayoutDashboard className="w-4 h-4 text-luxury-gold" />
-                      <span>Dashboard Réservations</span>
+                      <span>Dashboard & Gestion Chambres</span>
                     </Link>
                   ) : (
                     <button
@@ -408,8 +488,8 @@ export default function ConnexionPage() {
               )}
             </div>
 
-            {/* Staff View (Directeur, Admin, Réception) */}
-            {isStaff ? (
+            {/* Staff Quick Actions (Directeur, Admin, Réception) */}
+            {isStaff && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="p-6 editorial-card space-y-2 border-l-2 border-l-luxury-gold">
                   <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
@@ -436,99 +516,122 @@ export default function ConnexionPage() {
                   </Link>
                 </div>
 
-                <div className="p-6 editorial-card space-y-2">
-                  <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
-                    Catalogue & Fiches Chambres
+                <div className="p-6 editorial-card space-y-2 border-l-2 border-l-emerald-500">
+                  <span className="text-[10px] uppercase tracking-widest text-emerald-500 font-semibold">
+                    Catalogue & Édition des Chambres
                   </span>
                   <h3 className="font-serif text-2xl text-luxury-text">
-                    6 Chambres & Suites Bénin
+                    Ajouter / Modifier les {allRooms.length} Chambres
                   </h3>
                   <p className="text-xs text-luxury-muted leading-relaxed">
-                    Toutes les chambres sont configurées en Franc CFA (FCFA) avec galeries de 5
-                    photos haute résolution et fiches techniques dédiées.
+                    Ajoutez de nouvelles chambres ou éditez les informations, tarifs en FCFA, notes
+                    d’étoiles (★) et galeries multi-photos depuis le Dashboard Admin.
                   </p>
                   <Link
-                    href="/suites"
+                    href="/admin"
                     className="inline-flex items-center gap-1.5 text-xs text-luxury-gold font-semibold pt-2 hover:underline"
                   >
-                    <span>Inspecter les chambres</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <BedDouble className="w-3.5 h-3.5" />
+                    <span>Ajouter ou Éditer une Chambre →</span>
                   </Link>
                 </div>
 
                 <div className="p-6 editorial-card space-y-2">
                   <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
-                    Restauration & Carte
+                    Avis Clients & Photos ({allReviews.length})
                   </span>
                   <h3 className="font-serif text-2xl text-luxury-text">
-                    Gastronomie Béninoise
+                    Notes d’Étoiles par Chambre
                   </h3>
                   <p className="text-xs text-luxury-muted leading-relaxed">
-                    Carte des mets africains (Amiwo Royal, Agoun & Sauce Arachide, Wassawassa,
-                    Grillades de Cotonou) en service continu.
+                    Consultez les avis étoilés et les photos publiées par les résidents sur les
+                    chambres qu’ils ont louées.
                   </p>
                   <Link
-                    href="/experiences"
+                    href="/suites"
                     className="inline-flex items-center gap-1.5 text-xs text-luxury-gold font-semibold pt-2 hover:underline"
                   >
-                    <span>Voir la carte culinaire</span>
+                    <span>Voir le catalogue étoilé</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
-            ) : (
-              /* CLIENT PERSONAL BOOKINGS LIST */
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-gold font-semibold block">
-                      HISTORIQUE & SÉJOURS À VENIR
-                    </span>
-                    <h2 className="font-serif text-2xl sm:text-3xl text-luxury-text">
-                      Mes Réservations ({userBookings.length})
-                    </h2>
-                  </div>
+            )}
+
+            {/* RENTED ROOMS / BOOKINGS LIST WITH "LEAVE REVIEW & PHOTOS" */}
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-gold font-semibold block">
+                    CHAMBRES LOUÉES • AVIS & PHOTOS DE SÉJOUR
+                  </span>
+                  <h2 className="font-serif text-2xl sm:text-3xl text-luxury-text">
+                    Mes Chambres Réservées ({userBookings.length})
+                  </h2>
+                  <p className="text-xs text-luxury-muted mt-0.5">
+                    Chaque chambre réservée affiche son nombre d’étoiles. Vous pouvez noter votre
+                    séjour (1 à 5 ★) et partager vos photos.
+                  </p>
+                </div>
+                <Link
+                  href="/suites"
+                  className="text-xs uppercase tracking-widest text-luxury-gold hover:underline font-semibold"
+                >
+                  Parcourir les Chambres →
+                </Link>
+              </div>
+
+              {userBookings.length === 0 ? (
+                <div className="p-10 editorial-card text-center space-y-4">
+                  <p className="text-sm text-luxury-muted">
+                    Vous n’avez pas encore de réservation enregistrée sous cet email (
+                    {currentUser.email}).
+                  </p>
                   <Link
                     href="/suites"
-                    className="text-xs uppercase tracking-widest text-luxury-gold hover:underline font-semibold"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-luxury-text text-luxury-bg text-xs uppercase tracking-widest font-semibold"
                   >
-                    Parcourir les Chambres →
+                    <span>Choisir une Chambre</span>
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {userBookings.map((booking) => {
+                    const liveRoom =
+                      allRooms.find((r) => r.id === booking.room.id) || booking.room;
+                    const roomStars = liveRoom.rating || 4.9;
+                    const roomReviewsCount = liveRoom.reviewsCount || 6;
 
-                {userBookings.length === 0 ? (
-                  <div className="p-10 editorial-card text-center space-y-4">
-                    <p className="text-sm text-luxury-muted">
-                      Vous n’avez pas encore de réservation enregistrée sous cet email (
-                      {currentUser.email}).
-                    </p>
-                    <Link
-                      href="/suites"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-luxury-text text-luxury-bg text-xs uppercase tracking-widest font-semibold"
-                    >
-                      <span>Choisir une Chambre</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {userBookings.map((booking) => (
-                      <div key={booking.id} className="editorial-card overflow-hidden flex flex-col">
-                        <div className="relative h-44 bg-black">
+                    return (
+                      <div
+                        key={booking.id}
+                        className="editorial-card overflow-hidden flex flex-col"
+                      >
+                        <div className="relative h-48 bg-black">
                           <img
-                            src={booking.room.heroImage}
-                            alt={booking.room.name}
+                            src={liveRoom.heroImage}
+                            alt={liveRoom.name}
                             className="w-full h-full object-cover"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/25" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/25" />
                           <span className="absolute top-3 left-3 px-2.5 py-1 bg-black/75 text-amber-300 font-mono text-xs font-bold">
                             Réf: {booking.referenceCode}
                           </span>
-                          <span className="absolute top-3 right-3 px-2.5 py-1 bg-emerald-600 text-white text-[10px] uppercase tracking-wider font-semibold">
-                            {booking.status === 'CONFIRMED' ? 'Confirmée' : 'En Attente'}
-                          </span>
+                          <div className="absolute top-3 right-3 flex items-center gap-1.5">
+                            <span className="px-2.5 py-1 bg-black/80 text-amber-300 text-xs font-semibold flex items-center gap-1 border border-amber-400/30">
+                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                              <span>{roomStars.toFixed(1)}</span>
+                              <span className="text-[10px] text-stone-300">
+                                ({roomReviewsCount})
+                              </span>
+                            </span>
+                            <span className="px-2.5 py-1 bg-emerald-600 text-white text-[10px] uppercase tracking-wider font-semibold">
+                              {booking.status === 'CONFIRMED' ? 'Confirmée' : 'En Attente'}
+                            </span>
+                          </div>
                           <div className="absolute bottom-3 left-3 right-3 text-white">
-                            <h3 className="font-serif text-xl">{booking.room.name}</h3>
+                            <h3 className="font-serif text-xl">{liveRoom.name}</h3>
                             <p className="text-xs text-stone-200">
                               Du {booking.checkIn} au {booking.checkOut} ({booking.nights} nuits)
                             </p>
@@ -537,17 +640,29 @@ export default function ConnexionPage() {
 
                         <div className="p-5 flex-1 flex flex-col justify-between space-y-4 text-xs">
                           <div className="space-y-1.5 text-luxury-muted">
+                            <div className="flex justify-between items-center">
+                              <span>Note de la chambre :</span>
+                              <span className="flex items-center gap-1 text-amber-500 font-semibold">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star
+                                    key={i}
+                                    className={`w-3.5 h-3.5 ${
+                                      i < Math.round(roomStars)
+                                        ? 'fill-amber-400 text-amber-400'
+                                        : 'text-luxury-border'
+                                    }`}
+                                  />
+                                ))}
+                                <span className="ml-1 text-luxury-text">
+                                  {roomStars.toFixed(1)}/5 ({roomReviewsCount} avis)
+                                </span>
+                              </span>
+                            </div>
                             <div className="flex justify-between">
                               <span>Occupants :</span>
                               <span className="text-luxury-text font-medium">
                                 {booking.adults} Adulte(s)
                                 {booking.children > 0 ? `, ${booking.children} Enfant(s)` : ''}
-                              </span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Heure d’arrivée prévue :</span>
-                              <span className="text-luxury-text font-medium">
-                                {booking.guest.arrivalTime || '14:00'}
                               </span>
                             </div>
                             <div className="flex justify-between pt-2 border-t border-luxury-border">
@@ -560,21 +675,35 @@ export default function ConnexionPage() {
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between pt-2">
-                            <Link
-                              href={`/suites/${booking.room.slug}`}
-                              className="text-luxury-gold hover:underline font-medium"
+                          <div className="pt-2 border-t border-luxury-border flex flex-wrap items-center justify-between gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setReviewingBooking(booking);
+                                setReviewRating(5);
+                                setReviewComment('');
+                                setReviewPhotos([]);
+                              }}
+                              className="px-4 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-colors"
                             >
-                              Revoir les détails de la chambre →
+                              <Camera className="w-3.5 h-3.5 text-luxury-gold" />
+                              <span>★ Laisser un Avis & Photos</span>
+                            </button>
+
+                            <Link
+                              href={`/suites/${liveRoom.slug}#avis-clients`}
+                              className="text-luxury-gold hover:underline font-medium text-[11px]"
+                            >
+                              Voir la chambre & les avis →
                             </Link>
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           /* MULTI-ROLE LOGIN / REGISTER VIEW */
@@ -869,6 +998,160 @@ export default function ConnexionPage() {
           </div>
         )}
       </section>
+
+      {/* Modal: Leave Review & Upload Stay Photos for a Rented Room */}
+      {reviewingBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            onClick={() => setReviewingBooking(null)}
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm"
+          />
+          <div className="relative z-10 w-full max-w-xl editorial-card p-6 sm:p-8 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-luxury-border">
+              <div>
+                <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-gold font-semibold">
+                  AVIS CLIENT & PHOTOS DE SÉJOUR • RÉF {reviewingBooking.referenceCode}
+                </span>
+                <h3 className="font-serif text-2xl text-luxury-text mt-0.5">
+                  Noter « {reviewingBooking.room.name} »
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReviewingBooking(null)}
+                className="w-9 h-9 border border-luxury-border flex items-center justify-center text-luxury-text"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitReview} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-luxury-gold font-semibold mb-2">
+                  Votre Note Globale (Nombre d’étoiles) *
+                </label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      onClick={() => setReviewRating(star)}
+                      className={`px-3 py-2 border flex items-center gap-1 transition-all ${
+                        reviewRating >= star
+                          ? 'bg-amber-500/15 border-amber-500 text-amber-500 font-bold'
+                          : 'bg-luxury-surface border-luxury-border text-luxury-muted'
+                      }`}
+                    >
+                      <Star
+                        className={`w-4 h-4 ${
+                          reviewRating >= star ? 'fill-amber-400 text-amber-400' : ''
+                        }`}
+                      />
+                      <span>{star}</span>
+                    </button>
+                  ))}
+                  <span className="ml-2 font-semibold text-luxury-text">
+                    {reviewRating} / 5 Étoiles
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                  Votre Commentaire sur la Chambre & le Service *
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Partagez votre expérience concernant le confort de la chambre, la propreté, la vue et l'accueil..."
+                  className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-luxury-text"
+                />
+              </div>
+
+              {/* Upload Photos from Device or URL */}
+              <div className="p-4 bg-luxury-surface border border-luxury-border space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[10px] uppercase tracking-wider text-luxury-gold font-semibold flex items-center gap-1.5">
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>Ajouter des Photos de la Chambre ({reviewPhotos.length})</span>
+                  </span>
+
+                  <label className="cursor-pointer px-3 py-1.5 bg-luxury-card hover:bg-luxury-gold hover:text-white border border-luxury-gold text-luxury-text text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors">
+                    <Upload className="w-3.5 h-3.5 text-luxury-gold" />
+                    <span>Choisir des Photos sur mon appareil</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleReviewPhotoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={reviewPhotoUrlInput}
+                    onChange={(e) => setReviewPhotoUrlInput(e.target.value)}
+                    placeholder="Ou ajouter un lien photo (https://...)"
+                    className="flex-1 px-3 py-2 bg-luxury-card border border-luxury-border text-xs text-luxury-text"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddReviewPhotoUrl}
+                    className="px-3.5 py-2 bg-luxury-text text-luxury-bg text-[11px] uppercase tracking-wider font-semibold"
+                  >
+                    + Ajouter
+                  </button>
+                </div>
+
+                {reviewPhotos.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 pt-1">
+                    {reviewPhotos.map((photo, idx) => (
+                      <div
+                        key={idx}
+                        className="relative h-20 border border-luxury-border overflow-hidden group"
+                      >
+                        <img src={photo} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setReviewPhotos((prev) => prev.filter((_, i) => i !== idx))
+                          }
+                          className="absolute top-1 right-1 p-1 bg-red-600 text-white"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setReviewingBooking(null)}
+                  className="px-4 py-2.5 border border-luxury-border text-luxury-muted hover:text-luxury-text uppercase tracking-wider"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingReview}
+                  className="px-6 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white uppercase tracking-wider font-semibold flex items-center gap-2 transition-colors"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-luxury-gold" />
+                  <span>Publier mon Avis & mes Photos</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </SiteShell>
   );
 }

@@ -7,6 +7,8 @@ import {
   useAppSelector,
   useGetRoomBySlugQuery,
   useGetAddOnsQuery,
+  useGetReviewsQuery,
+  useAddRoomReviewMutation,
   selectRoomForBooking,
   setDates,
   setGuests,
@@ -19,7 +21,6 @@ import {
   Maximize2,
   Users,
   BedDouble,
-  Building2,
   Eye,
   CheckCircle2,
   Sparkles,
@@ -27,14 +28,23 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  MapPin
+  MapPin,
+  Star,
+  Camera,
+  Plus,
+  X,
+  Send
 } from 'lucide-react';
 
 export function SuiteDetailClient({ slug }: { slug: string }) {
   const dispatch = useAppDispatch();
   const { data } = useGetRoomBySlugQuery(slug);
   const { data: addOnsData } = useGetAddOnsQuery();
+  const { data: reviewsData } = useGetReviewsQuery(slug);
+  const [addRoomReview, { isLoading: isSubmittingReview }] = useAddRoomReviewMutation();
+
   const { currency, customHotelName } = useAppSelector((state) => state.ui);
+  const { currentUser } = useAppSelector((state) => state.auth);
   const { checkIn, checkOut, adults, children, selectedAddOns } = useAppSelector(
     (state) => state.booking
   );
@@ -42,18 +52,24 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
+  // Review Form State
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [reviewAuthor, setReviewAuthor] = useState('');
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewPhotos, setReviewPhotos] = useState<string[]>([]);
+  const [photoUrlInput, setPhotoUrlInput] = useState('');
+  const [reviewSuccessMsg, setReviewSuccessMsg] = useState(false);
+
   const staticFallback =
     STATIC_SUITES.find((r) => r.slug === slug || r.id === slug) || STATIC_SUITES[0];
   const room = data || staticFallback;
   const addOns = addOnsData?.addOns || [];
+  const roomReviews = reviewsData?.reviews || [];
 
   if (!room) {
     return (
       <section className="max-w-4xl mx-auto px-4 py-24 text-center space-y-6">
         <h1 className="font-serif text-4xl text-luxury-text">Chambre ou Suite introuvable</h1>
-        <p className="text-sm text-luxury-muted">
-          Cette référence d’hébergement n’est plus disponible au catalogue.
-        </p>
         <Link
           href="/suites"
           className="inline-flex items-center gap-2 px-6 py-3 bg-luxury-text text-luxury-bg text-xs uppercase tracking-widest font-semibold"
@@ -75,8 +91,65 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
   );
   const estimatedTotal = roomSubtotal + addOnsTotal + taxes;
 
+  const avgRating =
+    roomReviews.length > 0
+      ? Math.round(
+          (roomReviews.reduce((acc, r) => acc + r.rating, 0) / roomReviews.length) * 10
+        ) / 10
+      : room.rating || 4.9;
+
   const handleBookThisRoom = () => {
     dispatch(selectRoomForBooking({ room, openDrawer: true }));
+  };
+
+  // Handle local image file upload (converts to Base64 data URL so it displays immediately)
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const result = ev.target?.result;
+        if (typeof result === 'string') {
+          setReviewPhotos((prev) => [...prev, result]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleAddPhotoUrl = () => {
+    if (!photoUrlInput.trim()) return;
+    setReviewPhotos((prev) => [...prev, photoUrlInput.trim()]);
+    setPhotoUrlInput('');
+  };
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const authorName =
+      currentUser
+        ? `${currentUser.title} ${currentUser.firstName} ${currentUser.lastName}`
+        : reviewAuthor.trim() || 'Client Résident';
+
+    if (!reviewComment.trim()) return;
+
+    await addRoomReview({
+      roomId: room.id,
+      roomSlug: room.slug,
+      roomName: room.name,
+      authorName,
+      authorEmail: currentUser?.email,
+      authorBadge: currentUser ? `Compte Vérifié • ${currentUser.roleLabel}` : 'Séjour Vérifié',
+      rating: reviewRating,
+      comment: reviewComment.trim(),
+      photos: reviewPhotos,
+      stayDate: 'Octobre 2026'
+    });
+
+    setReviewComment('');
+    setReviewPhotos([]);
+    setReviewSuccessMsg(true);
+    setTimeout(() => setReviewSuccessMsg(false), 4000);
   };
 
   return (
@@ -99,13 +172,23 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
         </div>
       </div>
 
-      {/* Main Title & Price Header */}
+      {/* Main Title, Star Rating & Price Header */}
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 pt-10 pb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
         <div className="space-y-3 max-w-3xl">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="px-3 py-1 bg-luxury-gold/15 border border-luxury-gold/40 text-luxury-gold text-[10px] uppercase tracking-[0.22em] font-semibold">
               {room.category}
             </span>
+            <a
+              href="#avis-clients"
+              className="px-3 py-1 bg-amber-500/15 border border-amber-500/40 text-amber-500 text-xs font-semibold flex items-center gap-1.5"
+            >
+              <span>★★★★★</span>
+              <span>{avgRating.toFixed(1)} / 5</span>
+              <span className="text-[11px] text-luxury-muted">
+                ({roomReviews.length || room.reviewsCount || 6} avis résidents)
+              </span>
+            </a>
             <span className="text-xs text-luxury-muted uppercase tracking-widest">
               {room.floorLevel} • {room.viewLabel}
             </span>
@@ -136,10 +219,9 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
         </div>
       </header>
 
-      {/* Multi-Image Interactive Gallery (Hero + Bento Previews + Thumbnails) */}
+      {/* Multi-Image Interactive Gallery */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 mb-14 space-y-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Active Large Image Viewer */}
           <div className="lg:col-span-8 relative h-[360px] sm:h-[480px] overflow-hidden bg-black border border-luxury-border group">
             <img
               src={currentImg}
@@ -148,7 +230,6 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/25 pointer-events-none" />
 
-            {/* Prev / Next Controls */}
             <button
               type="button"
               onClick={() =>
@@ -173,12 +254,11 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
                 Photo {activeImageIndex + 1} sur {images.length} — {room.name}
               </span>
               <span className="hidden sm:inline-block px-3 py-1 bg-black/70 backdrop-blur-md text-[11px] text-amber-300">
-                Cliquez sur les vignettes pour inspecter chaque angle
+                ★ Note Résidents : {avgRating.toFixed(1)}/5
               </span>
             </div>
           </div>
 
-          {/* Side Grid of 4 Auxiliary Views */}
           <div className="lg:col-span-4 grid grid-cols-2 gap-3 h-full">
             {images.slice(0, 4).map((imgUrl, idx) => {
               const isCurrent = activeImageIndex === idx;
@@ -207,7 +287,6 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
           </div>
         </div>
 
-        {/* Complete Horizontal Thumbnail Strip (All 5+ Photos) */}
         <div className="flex items-center gap-3 overflow-x-auto pb-2">
           {images.map((imgUrl, idx) => (
             <button
@@ -232,8 +311,8 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
 
       {/* Two-Column Detailed Specs & Dedicated Room Configurator */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* Left 7 Columns: Architectural Specs, Description, Amenities */}
-        <div className="lg:col-span-7 space-y-10">
+        {/* Left 7 Columns: Architectural Specs, Description, Amenities & Guest Reviews */}
+        <div className="lg:col-span-7 space-y-12">
           {/* Key Architectural Metrics Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-luxury-surface border border-luxury-border">
             <div className="space-y-1">
@@ -285,12 +364,6 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
             <p className="text-sm sm:text-base text-luxury-muted leading-relaxed">
               {room.description}
             </p>
-            <p className="text-sm text-luxury-muted leading-relaxed">
-              Conçue selon les standards internationaux 5 étoiles du Bénin (Boulevard de la
-              Marina & Route des Pêches), cette unité dispose d’une insonorisation acoustique
-              renforcée, d’une climatisation individuelle silencieuse et d’un service d’étage
-              disponible 24h/24.
-            </p>
           </div>
 
           {/* Signature Highlights */}
@@ -331,12 +404,239 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
               ))}
               <div className="p-3.5 bg-luxury-surface border border-luxury-border flex items-center gap-3 text-xs text-luxury-text">
                 <CheckCircle2 className="w-4 h-4 text-luxury-gold shrink-0" />
-                <span>Paiement Mobile Money, Visa, Mastercard ou Espèces CFA</span>
+                <span>Paiement MTN Mobile Money, Visa, Mastercard ou Espèces CFA</span>
               </div>
               <div className="p-3.5 bg-luxury-surface border border-luxury-border flex items-center gap-3 text-xs text-luxury-text">
                 <CheckCircle2 className="w-4 h-4 text-luxury-gold shrink-0" />
                 <span>Petit-déjeuner buffet continental & béninois disponible</span>
               </div>
+            </div>
+          </div>
+
+          {/* GUEST REVIEWS & STAY PHOTOS SECTION */}
+          <div id="avis-clients" className="pt-8 border-t border-luxury-border space-y-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] uppercase tracking-[0.24em] text-luxury-gold font-semibold block">
+                  EXPÉRIENCES VÉCUES PAR NOS RÉSIDENTS
+                </span>
+                <h3 className="font-serif text-2xl sm:text-3xl text-luxury-text">
+                  Avis Clients & Photos de Séjour ({roomReviews.length})
+                </h3>
+              </div>
+
+              <div className="p-4 bg-luxury-surface border border-luxury-border flex items-center gap-3">
+                <span className="font-serif text-3xl text-amber-500 font-bold">
+                  {avgRating.toFixed(1)}
+                </span>
+                <div className="text-xs">
+                  <div className="text-amber-500 tracking-widest">★★★★★</div>
+                  <span className="text-luxury-muted">Sur 5 étoiles</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Interactive Form to Leave a Review & Upload Photos */}
+            <form
+              onSubmit={handleReviewSubmit}
+              className="p-6 editorial-card border-l-2 border-l-luxury-gold space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <h4 className="font-serif text-xl text-luxury-text">
+                  Vous avez séjourné dans cette chambre ? Laissez votre avis & vos photos
+                </h4>
+                {reviewSuccessMsg && (
+                  <span className="px-3 py-1 bg-emerald-500/15 text-emerald-600 text-xs font-semibold">
+                    ✓ Merci ! Votre avis et vos photos ont été publiés.
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                {/* Star Selector (1 to 5 Stars) */}
+                <div>
+                  <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1.5">
+                    Votre Note en Étoiles *
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        type="button"
+                        key={star}
+                        onClick={() => setReviewRating(star)}
+                        className={`px-3 py-1.5 border text-sm transition-all flex items-center gap-1 ${
+                          reviewRating >= star
+                            ? 'bg-amber-500/15 border-amber-500 text-amber-500 font-bold'
+                            : 'bg-luxury-surface border-luxury-border text-luxury-muted'
+                        }`}
+                      >
+                        <span>★</span>
+                        <span className="text-xs">{star}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Author Name (if not connected) */}
+                {!currentUser ? (
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1.5">
+                      Votre Nom & Prénom *
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      value={reviewAuthor}
+                      onChange={(e) => setReviewAuthor(e.target.value)}
+                      placeholder="Ex: M. Koffi Soglo"
+                      className="w-full px-3.5 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    />
+                  </div>
+                ) : (
+                  <div className="text-xs text-luxury-muted">
+                    Publication en tant que{' '}
+                    <strong className="text-luxury-text">
+                      {currentUser.title} {currentUser.firstName} {currentUser.lastName}
+                    </strong>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                  Votre Commentaire sur la Chambre *
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Partagez votre expérience : confort du lit, vue, propreté, accueil..."
+                  className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                />
+              </div>
+
+              {/* Photo Upload (Local Files or URL) */}
+              <div className="space-y-2.5">
+                <label className="block text-[10px] uppercase tracking-wider text-luxury-gold font-semibold">
+                  Ajouter des Photos de votre Séjour (Depuis votre téléphone/PC ou par lien)
+                </label>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <label className="cursor-pointer px-4 py-2 bg-luxury-surface border border-luxury-gold/60 hover:border-luxury-gold text-xs text-luxury-text flex items-center gap-2 transition-colors">
+                    <Camera className="w-4 h-4 text-luxury-gold" />
+                    <span>Importer des Photos (Fichier)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleFileUpload}
+                      className="hidden"
+                    />
+                  </label>
+
+                  <div className="flex-1 min-w-[220px] flex gap-1.5">
+                    <input
+                      type="url"
+                      value={photoUrlInput}
+                      onChange={(e) => setPhotoUrlInput(e.target.value)}
+                      placeholder="Ou coller l’URL d’une photo (https://...)"
+                      className="flex-1 px-3 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddPhotoUrl}
+                      className="px-3 py-2 bg-luxury-surface border border-luxury-border hover:border-luxury-gold text-xs text-luxury-text flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5 text-luxury-gold" />
+                      <span>Ajouter</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preview Uploaded Review Photos */}
+                {reviewPhotos.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 pt-2">
+                    {reviewPhotos.map((photo, idx) => (
+                      <div
+                        key={idx}
+                        className="relative w-20 h-16 border border-luxury-gold overflow-hidden group"
+                      >
+                        <img src={photo} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setReviewPhotos((prev) => prev.filter((_, i) => i !== idx))
+                          }
+                          className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/80 text-white flex items-center justify-center"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmittingReview}
+                className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-widest font-semibold flex items-center gap-2 transition-colors"
+              >
+                <Send className="w-3.5 h-3.5 text-luxury-gold" />
+                <span>Publier mon Avis & mes Photos ({reviewRating} ★)</span>
+              </button>
+            </form>
+
+            {/* Existing Reviews List */}
+            <div className="space-y-4">
+              {roomReviews.length === 0 ? (
+                <p className="text-xs text-luxury-muted italic">
+                  Soyez le premier résident à publier un avis avec photo sur cette chambre.
+                </p>
+              ) : (
+                roomReviews.map((rev) => (
+                  <div
+                    key={rev.id}
+                    className="p-6 bg-luxury-surface border border-luxury-border space-y-3"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-luxury-border">
+                      <div>
+                        <span className="font-serif text-lg text-luxury-text font-semibold block">
+                          {rev.authorName}
+                        </span>
+                        <span className="text-[11px] text-luxury-gold">
+                          {rev.authorBadge || 'Séjour Vérifié'} • {rev.stayDate || '2026'}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1 text-amber-500 text-sm font-bold">
+                        <span>{'★'.repeat(rev.rating)}</span>
+                        <span className="text-luxury-muted text-xs font-normal">
+                          ({rev.rating}/5)
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-luxury-text leading-relaxed">
+                      « {rev.comment} »
+                    </p>
+
+                    {rev.photos && rev.photos.length > 0 && (
+                      <div className="flex flex-wrap gap-2.5 pt-2">
+                        {rev.photos.map((photoUrl, idx) => (
+                          <img
+                            key={idx}
+                            src={photoUrl}
+                            alt={`Photo client ${idx + 1}`}
+                            className="w-28 h-20 object-cover border border-luxury-border hover:border-luxury-gold transition-all"
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -351,8 +651,8 @@ export function SuiteDetailClient({ slug }: { slug: string }) {
                 </span>
                 <h3 className="font-serif text-2xl text-luxury-text mt-0.5">{room.name}</h3>
               </div>
-              <span className="px-2.5 py-1 bg-emerald-500/15 text-emerald-600 text-[10px] font-semibold uppercase tracking-wider">
-                Disponible
+              <span className="px-2.5 py-1 bg-amber-500/15 text-amber-500 text-xs font-bold">
+                ★ {avgRating.toFixed(1)}
               </span>
             </div>
 

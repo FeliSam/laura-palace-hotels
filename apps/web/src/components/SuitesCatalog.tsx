@@ -131,9 +131,18 @@ function RoomCardWithGallery({
           </div>
 
           <div className="absolute bottom-4 left-6 right-6 text-white">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-[#E5C98B]">
-              {room.viewLabel}
-            </p>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-[#E5C98B]">
+                {room.viewLabel}
+              </p>
+              <span className="px-2.5 py-0.5 bg-black/75 border border-amber-400/40 rounded-full text-[11px] text-amber-300 font-semibold flex items-center gap-1">
+                <span>★</span>
+                <span>{(room.rating || 4.9).toFixed(1)}</span>
+                <span className="text-[10px] text-stone-300 font-normal">
+                  ({room.reviewsCount || 8} avis)
+                </span>
+              </span>
+            </div>
             <Link
               href={`/suites/${room.slug}`}
               className="font-serif text-2xl sm:text-3xl font-normal mt-0.5 hover:underline block"
@@ -163,18 +172,25 @@ function RoomCardWithGallery({
 
         {/* Editorial Details */}
         <div className="p-6 sm:p-8 space-y-5">
-          <div className="flex flex-wrap items-center gap-4 text-xs text-luxury-muted pb-4 border-b border-luxury-border">
-            <span className="flex items-center gap-1.5 text-luxury-text font-medium">
-              <Maximize2 className="w-3.5 h-3.5 text-luxury-gold" />
-              {room.sizeSqm} m²
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5 text-luxury-text font-medium">
-              <Users className="w-3.5 h-3.5 text-luxury-gold" />
-              Jusqu’à {room.maxGuests} résidents
-            </span>
-            <span>•</span>
-            <span>{room.floorLevel}</span>
+          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-luxury-muted pb-4 border-b border-luxury-border">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="flex items-center gap-1.5 text-luxury-text font-medium">
+                <Maximize2 className="w-3.5 h-3.5 text-luxury-gold" />
+                {room.sizeSqm} m²
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5 text-luxury-text font-medium">
+                <Users className="w-3.5 h-3.5 text-luxury-gold" />
+                Jusqu’à {room.maxGuests} résidents
+              </span>
+            </div>
+            <Link
+              href={`/suites/${room.slug}#avis-clients`}
+              className="text-amber-500 font-semibold hover:underline flex items-center gap-1"
+            >
+              <span>★★★★★</span>
+              <span className="text-luxury-text">{(room.rating || 4.9).toFixed(1)}/5</span>
+            </Link>
           </div>
 
           <p className="text-sm text-luxury-muted leading-relaxed line-clamp-3">

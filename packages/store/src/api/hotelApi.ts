@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react';
 import {
   Room,
+  RoomReview,
   ExperienceAddOn,
   CreateBookingPayload,
   BookingRecord,
@@ -11,7 +12,8 @@ import {
   HOTEL_CONFIG,
   STATIC_SUITES,
   STATIC_ADDONS,
-  STATIC_BOOKINGS
+  STATIC_BOOKINGS,
+  STATIC_REVIEWS
 } from '@hotel/config';
 
 export interface GetRoomsQueryParams {
@@ -29,31 +31,165 @@ const getApiBaseUrl = () => {
   return 'http://localhost:4000/api';
 };
 
-const rawBaseQuery = fetchBaseQuery({ baseUrl: getApiBaseUrl(), timeout: 2500 });
+const rawBaseQuery = fetchBaseQuery({ baseUrl: getApiBaseUrl(), timeout: 1800 });
 
-// Client-side persistence for GitHub Pages / static mode
-const clientBookingsStore: BookingRecord[] = [...STATIC_BOOKINGS];
+// Client-side persistent stores (hydrated from localStorage in browser)
+let clientRoomsStore: Room[] = [...STATIC_SUITES];
+let clientBookingsStore: BookingRecord[] = [...STATIC_BOOKINGS];
+let clientReviewsStore: RoomReview[] = [...STATIC_REVIEWS];
+let isHydrated = false;
+
+function hydrateLocalStores() {
+  if (isHydrated || typeof window === 'undefined') return;
+  isHydrated = true;
+  try {
+    const savedRooms = window.localStorage.getItem('aura_rooms_catalog_v1');
+    if (savedRooms) {
+      const parsed = JSON.parse(savedRooms);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        clientRoomsStore = parsed;
+      }
+    }
+    const savedBookings = window.localStorage.getItem('aura_bookings_v1');
+    if (savedBookings) {
+      const parsed = JSON.parse(savedBookings);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        clientBookingsStore = parsed;
+      }
+    }
+    const savedReviews = window.localStorage.getItem('aura_room_reviews_v1');
+    if (savedReviews) {
+      const parsed = JSON.parse(savedReviews);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        clientReviewsStore = parsed;
+      }
+    }
+  } catch (_e) {
+    // Ignore storage errors
+  }
+}
+
+function persistLocalStores() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem('aura_rooms_catalog_v1', JSON.stringify(clientRoomsStore));
+    window.localStorage.setItem('aura_bookings_v1', JSON.stringify(clientBookingsStore));
+    window.localStorage.setItem('aura_room_reviews_v1', JSON.stringify(clientReviewsStore));
+  } catch (_e) {
+    // Ignore storage quota errors
+  }
+}
+
+function enrichRoomWithRating(room: Room): Room {
+  const roomReviews = clientReviewsStore.filter(
+    (rev) => rev.roomId === room.id || rev.roomSlug === room.slug
+  );
+  if (roomReviews.length === 0) {
+    return {
+      ...room,
+      rating: room.rating || 4.9,
+      reviewsCount: room.reviewsCount || 6
+    };
+  }
+  const sum = roomReviews.reduce((acc, r) => acc + r.rating, 0);
+  const avg = Math.round((sum / roomReviews.length) * 10) / 10;
+  return {
+    ...room,
+    rating: avg,
+    reviewsCount: roomReviews.length
+  };
+}
 
 const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, extraOptions) => {
-  try {
-    const result = await rawBaseQuery(args, api, extraOptions);
-    if (!result.error) {
-      return result;
-    }
-  } catch (_err) {
-    // Express API unreachable (e.g. hosted on GitHub Pages) -> fallback below
-  }
+  hydrateLocalStores();
 
   const url = typeof args === 'string' ? args : args.url || '';
   const method = typeof args === 'string' ? 'GET' : args.method || 'GET';
 
+  // Handle local interactive mutations first (Reviews, Room Admin CRUD) so they always work even on static GitHub Pages
+  if (method === 'GET' && url.startsWith('/reviews')) {
+    const queryString = url.includes('?') ? url.split('?')[1] : '';
+    const params = new URLSearchParams(queryString);
+    const roomSlug = params.get('roomSlug');
+    const list = roomSlug
+      ? clientReviewsStore.filter(
+          (r) => r.roomSlug === roomSlug || r.roomId === roomSlug
+        )
+      : [...clientReviewsStore];
+    return { data: { reviews: list } };
+  }
+
+  if (method === 'POST' && url === '/reviews') {
+    const body = args.body as Omit<RoomReview, 'id' | 'createdAt'>;
+    const newReview: RoomReview = {
+      id: `rev-${Date.now()}`,
+      roomId: body.roomId,
+      roomSlug: body.roomSlug,
+      roomName: body.roomName,
+      authorName: body.authorName,
+      authorEmail: body.authorEmail,
+      authorBadge: body.authorBadge || 'Résident Vérifié • Séjour Confirmé',
+      rating: Math.min(5, Math.max(1, Number(body.rating) || 5)),
+      comment: body.comment,
+      photos: Array.isArray(body.photos) ? body.photos : [],
+      stayDate: body.stayDate || 'Octobre 2026',
+      createdAt: new Date().toISOString()
+    };
+    clientReviewsStore = [newReview, ...clientReviewsStore];
+    persistLocalStores();
+    return { data: { review: newReview } };
+  }
+
+  if (method === 'POST' && url === '/rooms/upsert') {
+    const incoming = args.body as Room;
+    const cleanSlug =
+      incoming.slug?.trim() ||
+      incoming.name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+    const roomRecord: Room = {
+      ...incoming,
+      id: incoming.id || `room-custom-${cleanSlug}`,
+      slug: cleanSlug,
+      gallery:
+        incoming.gallery && incoming.gallery.length > 0
+          ? incoming.gallery
+          : [incoming.heroImage],
+      isAvailableForDates: true
+    };
+
+    const existingIdx = clientRoomsStore.findIndex(
+      (r) => r.id === roomRecord.id || r.slug === roomRecord.slug
+    );
+    if (existingIdx >= 0) {
+      clientRoomsStore[existingIdx] = roomRecord;
+    } else {
+      clientRoomsStore = [roomRecord, ...clientRoomsStore];
+    }
+    persistLocalStores();
+    return { data: { room: enrichRoomWithRating(roomRecord) } };
+  }
+
+  if (method === 'DELETE' && url.startsWith('/rooms/')) {
+    const idOrSlug = decodeURIComponent(url.replace('/rooms/', '')).trim();
+    clientRoomsStore = clientRoomsStore.filter(
+      (r) => r.id !== idOrSlug && r.slug !== idOrSlug
+    );
+    persistLocalStores();
+    return { data: { deletedId: idOrSlug } };
+  }
+
   if (method === 'GET' && url.startsWith('/rooms/')) {
     const slug = decodeURIComponent(url.replace('/rooms/', '')).trim();
-    const room = STATIC_SUITES.find((r) => r.slug === slug || r.id === slug);
+    const room = clientRoomsStore.find((r) => r.slug === slug || r.id === slug);
     if (!room) {
       return { error: { status: 404, data: { error: 'Chambre introuvable' } } };
     }
-    return { data: room };
+    return { data: enrichRoomWithRating(room) };
   }
 
   if (method === 'GET' && url.startsWith('/rooms')) {
@@ -63,7 +199,7 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
     const viewType = params.get('viewType');
     const guests = Number(params.get('guests') || '1');
 
-    let rooms = [...STATIC_SUITES];
+    let rooms = clientRoomsStore.map(enrichRoomWithRating);
     if (category && category !== 'ALL') {
       rooms = rooms.filter((r) => r.category === category);
     }
@@ -77,7 +213,7 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
     return {
       data: {
         rooms,
-        meta: { total: rooms.length, source: 'github-pages-static-engine' }
+        meta: { total: rooms.length, source: 'hybrid-dynamic-engine' }
       }
     };
   }
@@ -115,14 +251,15 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
       ...clientBookingsStore[index],
       status: newStatus
     };
+    persistLocalStores();
     return { data: { booking: clientBookingsStore[index] } };
   }
 
   if (method === 'POST' && url === '/bookings') {
     const payload = args.body as CreateBookingPayload;
     const room =
-      STATIC_SUITES.find((r) => r.id === payload.roomId || r.slug === payload.roomId) ||
-      STATIC_SUITES[0];
+      clientRoomsStore.find((r) => r.id === payload.roomId || r.slug === payload.roomId) ||
+      clientRoomsStore[0];
     const selectedAddOns = STATIC_ADDONS.filter((a) => payload.addOnIds.includes(a.id));
 
     const start = new Date(payload.checkIn);
@@ -145,7 +282,7 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
       Math.round((net * HOTEL_CONFIG.pricing.taxRatePercent) / 100) +
       HOTEL_CONFIG.pricing.cityTaxPerNight * nights * payload.adults;
 
-    const referenceCode = `AURA-${new Date().getFullYear()}-${Math.floor(
+    const referenceCode = `BENIN-${new Date().getFullYear()}-${Math.floor(
       1000 + Math.random() * 9000
     )}`;
 
@@ -182,7 +319,8 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
       createdAt: new Date().toISOString()
     };
 
-    clientBookingsStore.unshift(booking);
+    clientBookingsStore = [booking, ...clientBookingsStore];
+    persistLocalStores();
     return {
       data: {
         booking,
@@ -193,7 +331,11 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
 
   if (method === 'GET' && url.startsWith('/bookings/')) {
     const ref = decodeURIComponent(url.replace('/bookings/', '')).trim().toUpperCase();
-    const found = clientBookingsStore.find((b) => b.referenceCode.toUpperCase() === ref);
+    const found = clientBookingsStore.find(
+      (b) =>
+        b.referenceCode.toUpperCase() === ref ||
+        b.referenceCode.toUpperCase().replace('AURA', 'BENIN') === ref
+    );
     if (!found) {
       return {
         error: {
@@ -205,13 +347,20 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
     return { data: { booking: found } };
   }
 
+  try {
+    const result = await rawBaseQuery(args, api, extraOptions);
+    if (!result.error) return result;
+  } catch (_err) {
+    // Fallback handled above
+  }
+
   return { error: { status: 404, data: { error: 'Not found' } } };
 };
 
 export const hotelApi = createApi({
   reducerPath: 'hotelApi',
   baseQuery: hybridBaseQuery,
-  tagTypes: ['Rooms', 'Bookings', 'AddOns'],
+  tagTypes: ['Rooms', 'Bookings', 'AddOns', 'Reviews'],
   endpoints: (builder) => ({
     getRooms: builder.query<
       { rooms: Room[]; meta: { total: number; source: string } },
@@ -232,7 +381,44 @@ export const hotelApi = createApi({
     }),
     getRoomBySlug: builder.query<Room, string>({
       query: (slug) => `/rooms/${slug}`,
-      providesTags: (_res, _err, slug) => [{ type: 'Rooms', id: slug }]
+      providesTags: (_res, _err, slug) => [{ type: 'Rooms', id: slug }, 'Rooms']
+    }),
+    upsertRoom: builder.mutation<
+      { room: Room },
+      Partial<Room> & { name: string; pricePerNight: number }
+    >({
+      query: (room) => ({
+        url: '/rooms/upsert',
+        method: 'POST',
+        body: room
+      }),
+      invalidatesTags: ['Rooms']
+    }),
+    deleteRoom: builder.mutation<{ deletedId: string }, string | { id: string }>({
+      query: (arg) => {
+        const idOrSlug = typeof arg === 'string' ? arg : arg.id;
+        return {
+          url: `/rooms/${encodeURIComponent(idOrSlug)}`,
+          method: 'DELETE'
+        };
+      },
+      invalidatesTags: ['Rooms']
+    }),
+    getReviews: builder.query<{ reviews: RoomReview[] }, string | void>({
+      query: (roomSlug) =>
+        roomSlug ? `/reviews?roomSlug=${encodeURIComponent(roomSlug)}` : '/reviews',
+      providesTags: ['Reviews']
+    }),
+    addRoomReview: builder.mutation<
+      { review: RoomReview },
+      Omit<RoomReview, 'id' | 'createdAt'>
+    >({
+      query: (body) => ({
+        url: '/reviews',
+        method: 'POST',
+        body
+      }),
+      invalidatesTags: ['Reviews', 'Rooms']
     }),
     getAddOns: builder.query<{ addOns: ExperienceAddOn[] }, void>({
       query: () => '/addons',
@@ -277,6 +463,10 @@ export const hotelApi = createApi({
 export const {
   useGetRoomsQuery,
   useGetRoomBySlugQuery,
+  useUpsertRoomMutation,
+  useDeleteRoomMutation,
+  useGetReviewsQuery,
+  useAddRoomReviewMutation,
   useGetAddOnsQuery,
   useGetAllBookingsQuery,
   useUpdateBookingStatusMutation,

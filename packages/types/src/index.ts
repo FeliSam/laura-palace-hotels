@@ -39,6 +39,23 @@ export interface Room {
   isFeatured: boolean;
   availableCount?: number;
   isAvailableForDates?: boolean;
+  rating?: number;
+  reviewsCount?: number;
+}
+
+export interface RoomReview {
+  id: string;
+  roomId: string;
+  roomSlug: string;
+  roomName: string;
+  authorName: string;
+  authorEmail?: string;
+  authorBadge?: string;
+  rating: number; // 1 to 5 stars
+  comment: string;
+  photos: string[];
+  stayDate?: string;
+  createdAt: string;
 }
 
 // ==========================================
@@ -104,7 +121,10 @@ export interface BookingRecord {
   nights: number;
   adults: number;
   children: number;
-  room: Pick<Room, 'id' | 'slug' | 'name' | 'subtitle' | 'heroImage' | 'category' | 'sizeSqm'>;
+  room: Pick<
+    Room,
+    'id' | 'slug' | 'name' | 'subtitle' | 'heroImage' | 'category' | 'sizeSqm' | 'rating' | 'reviewsCount'
+  >;
   addOns: ExperienceAddOn[];
   guest: CreateBookingPayload['guest'];
   pricing: PriceBreakdown;

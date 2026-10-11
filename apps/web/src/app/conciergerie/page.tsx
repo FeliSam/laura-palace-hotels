@@ -34,7 +34,8 @@ import {
   ArrowRight,
   Lock,
   Sparkles,
-  XCircle
+  XCircle,
+  Star
 } from 'lucide-react';
 
 export default function ConciergeriePage() {
@@ -382,12 +383,18 @@ export default function ConciergeriePage() {
                               className="w-20 h-16 object-cover border border-luxury-border shrink-0"
                             />
                             <div className="min-w-0 flex-1">
-                              <Link
-                                href={`/suites/${booking.room.slug}`}
-                                className="font-serif text-lg text-luxury-text hover:text-luxury-gold truncate block"
-                              >
-                                {booking.room.name}
-                              </Link>
+                              <div className="flex items-center justify-between gap-2">
+                                <Link
+                                  href={`/suites/${booking.room.slug}`}
+                                  className="font-serif text-lg text-luxury-text hover:text-luxury-gold truncate block"
+                                >
+                                  {booking.room.name}
+                                </Link>
+                                <span className="inline-flex items-center gap-1 text-amber-500 text-xs font-semibold shrink-0">
+                                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                                  <span>{(booking.room.rating || 4.9).toFixed(1)}</span>
+                                </span>
+                              </div>
                               <p className="text-xs text-luxury-muted">
                                 Du {booking.checkIn} au {booking.checkOut} ({booking.nights} nuits)
                               </p>
@@ -415,7 +422,15 @@ export default function ConciergeriePage() {
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Link
+                              href={`/suites/${booking.room.slug}#avis-clients`}
+                              className="px-3 py-1.5 bg-luxury-card border border-luxury-gold/50 hover:border-luxury-gold text-[11px] text-luxury-gold font-semibold flex items-center gap-1"
+                            >
+                              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                              <span>Noter & Photos</span>
+                            </Link>
+
                             <Link
                               href={`/suites/${booking.room.slug}`}
                               className="px-3 py-1.5 border border-luxury-border hover:border-luxury-gold text-[11px] text-luxury-text flex items-center gap-1"

@@ -39,7 +39,8 @@ import {
   Smartphone,
   CreditCard,
   Building2,
-  Lock
+  Lock,
+  Star
 } from 'lucide-react';
 
 type SimulatedPaymentMethod = 'MTN_MOMO' | 'BANK_CARD' | 'ON_SITE';
@@ -80,6 +81,9 @@ export function BookingCheckoutDrawer() {
   const [formError, setFormError] = useState<string | null>(null);
   const [activePhotoIdx, setActivePhotoIdx] = useState(0);
 
+  // Explicit Confirmation state in Step 3 before processing payment/booking
+  const [isConfirmationStepReady, setIsConfirmationStepReady] = useState(false);
+
   // Simulated Payment State (MTN MoMo / Carte Bancaire / Sur place)
   const [paymentMethod, setPaymentMethod] = useState<SimulatedPaymentMethod>('MTN_MOMO');
   const [momoNumber, setMomoNumber] = useState('+229 01 97 45 88 20');
@@ -96,7 +100,11 @@ export function BookingCheckoutDrawer() {
 
   const availableRooms = roomsData?.rooms || [];
   const availableAddOns = addOnsData?.addOns || [];
-  const chosenRoom = selectedRoom || availableRooms[0] || null;
+  const chosenRoom =
+    (selectedRoom && availableRooms.find((r) => r.id === selectedRoom.id)) ||
+    selectedRoom ||
+    availableRooms[0] ||
+    null;
 
   // Ensure Redux has the active room synced when drawer opens
   useEffect(() => {
@@ -105,10 +113,15 @@ export function BookingCheckoutDrawer() {
     }
   }, [isDrawerOpen, selectedRoom, availableRooms, dispatch]);
 
-  // Reset active photo index when chosen room changes
+  // Reset active photo index and confirmation step when room or checkoutStep changes
   useEffect(() => {
     setActivePhotoIdx(0);
   }, [chosenRoom?.id]);
+
+  useEffect(() => {
+    setIsConfirmationStepReady(false);
+    setFormError(null);
+  }, [checkoutStep, paymentMethod]);
 
   // Auto-fill guest info when user is logged in
   useEffect(() => {
@@ -137,29 +150,41 @@ export function BookingCheckoutDrawer() {
       ? [chosenRoom.heroImage]
       : [];
 
-  const handleConfirmReservation = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateStep3Inputs = (): boolean => {
     setFormError(null);
 
     if (!chosenRoom) {
       setFormError('Veuillez sélectionner une chambre.');
-      return;
+      return false;
     }
 
     if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.email || !guestInfo.phone) {
-      setFormError('Veuillez renseigner vos coordonnées complètes pour la confirmation.');
-      return;
+      setFormError('Veuillez renseigner vos coordonnées complètes (Nom, Prénom, Email, Téléphone).');
+      return false;
     }
 
     if (paymentMethod === 'MTN_MOMO' && momoNumber.trim().length < 8) {
       setFormError('Veuillez saisir un numéro MTN Mobile Money valide (+229...).');
-      return;
+      return false;
     }
 
     if (paymentMethod === 'BANK_CARD' && cardNumber.trim().length < 8) {
       setFormError('Veuillez vérifier les informations de votre carte bancaire.');
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const handlePrepareConfirmation = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (validateStep3Inputs()) {
+      setIsConfirmationStepReady(true);
+    }
+  };
+
+  const handleConfirmReservation = async () => {
+    if (!validateStep3Inputs() || !chosenRoom) return;
 
     try {
       // Simulate realistic payment gateway authorization (1.2s)
@@ -458,6 +483,13 @@ export function BookingCheckoutDrawer() {
                       <span className="absolute top-3 left-3 px-2.5 py-1 bg-black/75 text-amber-300 text-[10px] uppercase tracking-widest font-semibold">
                         ✓ Chambre Choisie
                       </span>
+                      <span className="absolute top-3 right-3 px-2.5 py-1 bg-black/80 text-amber-300 text-[11px] font-semibold flex items-center gap-1 border border-amber-400/30">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span>{(chosenRoom.rating || 4.9).toFixed(1)}</span>
+                        <span className="text-[10px] text-stone-300">
+                          ({chosenRoom.reviewsCount || 6} avis)
+                        </span>
+                      </span>
                       <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
                         <div>
                           <span className="text-[10px] uppercase tracking-widest text-amber-300 block">
@@ -506,6 +538,11 @@ export function BookingCheckoutDrawer() {
                         <span className="flex items-center gap-1.5">
                           <BedDouble className="w-3.5 h-3.5 text-luxury-gold" />
                           {chosenRoom.bedConfiguration}
+                        </span>
+                        <span className="flex items-center gap-1 text-amber-500 font-semibold">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                          {(chosenRoom.rating || 4.9).toFixed(1)}/5 ({chosenRoom.reviewsCount || 6}{' '}
+                          avis)
                         </span>
                       </div>
 
@@ -616,8 +653,12 @@ export function BookingCheckoutDrawer() {
               </div>
             </div>
           ) : (
-            /* STEP 3: VIP GUEST COORDINATES + SIMULATED PAYMENT (MTN MOMO / CARTE BANCAIRE) */
-            <form id="vip-booking-form" onSubmit={handleConfirmReservation} className="space-y-5">
+            /* STEP 3: VIP GUEST COORDINATES + SIMULATED PAYMENT + EXPLICIT CONFIRMATION STEP */
+            <form
+              id="vip-booking-form"
+              onSubmit={handlePrepareConfirmation}
+              className="space-y-5"
+            >
               {currentUser && (
                 <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-xs text-luxury-text flex items-center justify-between">
                   <span>
@@ -652,9 +693,10 @@ export function BookingCheckoutDrawer() {
                     </label>
                     <select
                       value={guestInfo.title}
-                      onChange={(e) =>
-                        dispatch(updateGuestInfo({ title: e.target.value as any }))
-                      }
+                      onChange={(e) => {
+                        setIsConfirmationStepReady(false);
+                        dispatch(updateGuestInfo({ title: e.target.value as any }));
+                      }}
                       className="w-full px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                     >
                       <option value="M.">M.</option>
@@ -671,7 +713,10 @@ export function BookingCheckoutDrawer() {
                       required
                       type="text"
                       value={guestInfo.firstName}
-                      onChange={(e) => dispatch(updateGuestInfo({ firstName: e.target.value }))}
+                      onChange={(e) => {
+                        setIsConfirmationStepReady(false);
+                        dispatch(updateGuestInfo({ firstName: e.target.value }));
+                      }}
                       placeholder="Koffi"
                       className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                     />
@@ -687,7 +732,10 @@ export function BookingCheckoutDrawer() {
                       required
                       type="text"
                       value={guestInfo.lastName}
-                      onChange={(e) => dispatch(updateGuestInfo({ lastName: e.target.value }))}
+                      onChange={(e) => {
+                        setIsConfirmationStepReady(false);
+                        dispatch(updateGuestInfo({ lastName: e.target.value }));
+                      }}
                       placeholder="Soglo"
                       className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                     />
@@ -699,7 +747,10 @@ export function BookingCheckoutDrawer() {
                     <input
                       type="time"
                       value={guestInfo.arrivalTime || '14:00'}
-                      onChange={(e) => dispatch(updateGuestInfo({ arrivalTime: e.target.value }))}
+                      onChange={(e) => {
+                        setIsConfirmationStepReady(false);
+                        dispatch(updateGuestInfo({ arrivalTime: e.target.value }));
+                      }}
                       className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                     />
                   </div>
@@ -714,7 +765,10 @@ export function BookingCheckoutDrawer() {
                       required
                       type="email"
                       value={guestInfo.email}
-                      onChange={(e) => dispatch(updateGuestInfo({ email: e.target.value }))}
+                      onChange={(e) => {
+                        setIsConfirmationStepReady(false);
+                        dispatch(updateGuestInfo({ email: e.target.value }));
+                      }}
                       placeholder="client@entreprise-benin.bj"
                       className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                     />
@@ -727,7 +781,10 @@ export function BookingCheckoutDrawer() {
                       required
                       type="tel"
                       value={guestInfo.phone}
-                      onChange={(e) => dispatch(updateGuestInfo({ phone: e.target.value }))}
+                      onChange={(e) => {
+                        setIsConfirmationStepReady(false);
+                        dispatch(updateGuestInfo({ phone: e.target.value }));
+                      }}
                       placeholder="+229 01 97 00 00 00"
                       className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                     />
@@ -835,15 +892,18 @@ export function BookingCheckoutDrawer() {
                       <input
                         type="tel"
                         value={momoNumber}
-                        onChange={(e) => setMomoNumber(e.target.value)}
+                        onChange={(e) => {
+                          setIsConfirmationStepReady(false);
+                          setMomoNumber(e.target.value);
+                        }}
                         placeholder="+229 01 97 00 00 00"
                         className="w-full px-3.5 py-2 bg-luxury-card border border-luxury-border text-xs font-mono text-luxury-text"
                       />
                     </div>
 
                     <p className="text-[11px] text-luxury-muted">
-                      En cliquant sur <strong>Payer & Confirmer</strong>, une validation MTN Mobile
-                      Money (*880#) sera simulée automatiquement sans aucun débit réel.
+                      Après vérification de vos informations, vous devrez cliquer sur le bouton{' '}
+                      <strong>Confirmer la Demande</strong> avant tout traitement MTN MoMo (*880#).
                     </p>
                   </div>
                 )}
@@ -867,7 +927,10 @@ export function BookingCheckoutDrawer() {
                         <input
                           type="text"
                           value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value)}
+                          onChange={(e) => {
+                            setIsConfirmationStepReady(false);
+                            setCardNumber(e.target.value);
+                          }}
                           className="w-full px-3 py-2 bg-luxury-card border border-luxury-border text-xs font-mono text-luxury-text"
                         />
                       </div>
@@ -878,7 +941,10 @@ export function BookingCheckoutDrawer() {
                         <input
                           type="text"
                           value={cardHolder}
-                          onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
+                          onChange={(e) => {
+                            setIsConfirmationStepReady(false);
+                            setCardHolder(e.target.value.toUpperCase());
+                          }}
                           className="w-full px-3 py-2 bg-luxury-card border border-luxury-border text-xs uppercase text-luxury-text"
                         />
                       </div>
@@ -892,7 +958,10 @@ export function BookingCheckoutDrawer() {
                         <input
                           type="text"
                           value={cardExpiry}
-                          onChange={(e) => setCardExpiry(e.target.value)}
+                          onChange={(e) => {
+                            setIsConfirmationStepReady(false);
+                            setCardExpiry(e.target.value);
+                          }}
                           className="w-full px-3 py-2 bg-luxury-card border border-luxury-border text-xs font-mono text-luxury-text"
                         />
                       </div>
@@ -903,7 +972,10 @@ export function BookingCheckoutDrawer() {
                         <input
                           type="text"
                           value={cardCvv}
-                          onChange={(e) => setCardCvv(e.target.value)}
+                          onChange={(e) => {
+                            setIsConfirmationStepReady(false);
+                            setCardCvv(e.target.value);
+                          }}
                           className="w-full px-3 py-2 bg-luxury-card border border-luxury-border text-xs font-mono text-luxury-text"
                         />
                       </div>
@@ -913,7 +985,7 @@ export function BookingCheckoutDrawer() {
 
                 {paymentMethod === 'ON_SITE' && (
                   <div className="p-4 bg-luxury-surface border border-luxury-border text-xs text-luxury-muted">
-                    Votre chambre est bloquée immédiatement. Vous réglerez le montant de{' '}
+                    Votre chambre sera réservée après confirmation. Vous réglerez le montant de{' '}
                     <strong className="text-luxury-gold">
                       {formatCurrencyAmount(pricing.totalPrice, currency)}
                     </strong>{' '}
@@ -947,6 +1019,106 @@ export function BookingCheckoutDrawer() {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* EXPLICIT CONFIRMATION GATE BEFORE PROCESSING */}
+              <div className="pt-3 border-t border-luxury-border">
+                {!isConfirmationStepReady ? (
+                  <div className="p-4 bg-luxury-surface border border-luxury-gold/40 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] uppercase tracking-widest text-luxury-gold font-semibold">
+                        3. Vérification Avant Traitement
+                      </span>
+                      <span className="text-[10px] text-luxury-muted">Étape obligatoire</span>
+                    </div>
+                    <p className="text-xs text-luxury-muted leading-relaxed">
+                      Aucune demande ni aucun paiement ne sera traité automatiquement. Cliquez
+                      ci-dessous pour vérifier votre récapitulatif et débloquer le bouton{' '}
+                      <strong className="text-luxury-text">Confirmer la Demande</strong>.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handlePrepareConfirmation()}
+                      className="w-full py-3 bg-luxury-card hover:bg-luxury-gold hover:text-white border border-luxury-gold text-luxury-text text-xs uppercase tracking-[0.18em] font-semibold transition-colors"
+                    >
+                      Vérifier mes informations & Préparer la Confirmation →
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-5 bg-emerald-500/10 border-2 border-emerald-500/60 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs uppercase tracking-[0.2em] text-emerald-500 font-bold flex items-center gap-1.5">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>3. Confirmation Finale de votre Demande</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsConfirmationStepReady(false)}
+                        className="text-[11px] text-luxury-muted hover:text-luxury-text underline"
+                      >
+                        Modifier
+                      </button>
+                    </div>
+
+                    <div className="p-3.5 bg-luxury-card border border-luxury-border space-y-1.5 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-luxury-muted">Client :</span>
+                        <span className="font-semibold text-luxury-text">
+                          {guestInfo.title} {guestInfo.firstName} {guestInfo.lastName} (
+                          {guestInfo.phone})
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-luxury-muted">Chambre choisie :</span>
+                        <span className="font-semibold text-luxury-text">
+                          {chosenRoom?.name} (★ {(chosenRoom?.rating || 4.9).toFixed(1)})
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-luxury-muted">Séjour :</span>
+                        <span className="text-luxury-text">
+                          {checkIn} → {checkOut} ({pricing.nights} nuit
+                          {pricing.nights > 1 ? 's' : ''})
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-luxury-muted">Mode de règlement :</span>
+                        <span className="font-semibold text-luxury-gold">
+                          {paymentMethod === 'MTN_MOMO'
+                            ? `MTN Mobile Money (${momoNumber})`
+                            : paymentMethod === 'BANK_CARD'
+                            ? `Carte Bancaire (${cardNumber.slice(-4)})`
+                            : 'Règlement sur place à l’hôtel'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between pt-1.5 border-t border-luxury-border">
+                        <span className="font-semibold text-luxury-text">Total TTC à valider :</span>
+                        <span className="font-serif text-base font-bold text-luxury-gold">
+                          {formatCurrencyAmount(pricing.totalPrice, currency)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={handleConfirmReservation}
+                      className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs uppercase tracking-[0.2em] font-bold flex items-center justify-center gap-2 shadow-lg transition-colors disabled:opacity-50"
+                    >
+                      {isBusy ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Traitement de la demande en cours...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Confirmer la Demande & Traiter le Paiement</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </form>
           )}
@@ -1031,28 +1203,31 @@ export function BookingCheckoutDrawer() {
                   <span>Continuer</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
+              ) : !isConfirmationStepReady ? (
+                <button
+                  type="button"
+                  onClick={() => handlePrepareConfirmation()}
+                  className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-xs uppercase tracking-[0.16em] flex items-center gap-2 transition-colors"
+                >
+                  <ShieldCheck className="w-4 h-4 text-luxury-gold" />
+                  <span>Vérifier & Préparer la Confirmation</span>
+                </button>
               ) : (
                 <button
-                  type="submit"
-                  form="vip-booking-form"
+                  type="button"
                   disabled={isBusy}
-                  className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-xs uppercase tracking-[0.16em] flex items-center gap-2 disabled:opacity-50 transition-colors"
+                  onClick={handleConfirmReservation}
+                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-[0.16em] flex items-center gap-2 disabled:opacity-50 transition-colors"
                 >
                   {isBusy ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Traitement du paiement...</span>
+                      <span>Traitement...</span>
                     </>
                   ) : (
                     <>
-                      <ShieldCheck className="w-4 h-4 text-luxury-gold" />
-                      <span>
-                        {paymentMethod === 'MTN_MOMO'
-                          ? 'Payer par MTN MoMo & Confirmer'
-                          : paymentMethod === 'BANK_CARD'
-                          ? 'Payer par Carte & Confirmer'
-                          : 'Confirmer la Réservation'}
-                      </span>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Confirmer & Traiter la Demande</span>
                     </>
                   )}
                 </button>

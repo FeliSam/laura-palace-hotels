@@ -1,4 +1,4 @@
-import { Room, ExperienceAddOn, BookingRecord } from '@hotel/types';
+import { Room, ExperienceAddOn, BookingRecord, RoomReview } from '@hotel/types';
 
 export const STATIC_SUITES: Room[] = [
   {
@@ -41,7 +41,9 @@ export const STATIC_SUITES: Room[] = [
     ],
     isFeatured: true,
     availableCount: 8,
-    isAvailableForDates: true
+    isAvailableForDates: true,
+    rating: 4.8,
+    reviewsCount: 18
   },
   {
     id: 'chambre-executive-ocean',
@@ -471,3 +473,60 @@ export const STATIC_BOOKINGS: BookingRecord[] = [
     createdAt: new Date(Date.now() - 3600000 * 48).toISOString()
   }
 ];
+
+export const STATIC_REVIEWS: RoomReview[] = [
+  {
+    id: 'rev-benin-1',
+    roomId: 'chambre-executive-ocean',
+    roomSlug: 'chambre-executive-ocean',
+    roomName: 'Chambre Exécutive Vue Océan Atlantique',
+    authorName: 'M. Koffi Soglo',
+    authorEmail: 'k.soglo@entreprise-benin.bj',
+    authorBadge: 'Séjour Vérifié • 3 Nuits',
+    rating: 5,
+    comment:
+      'Vue imprenable sur l’Océan Atlantique depuis le Boulevard de la Marina. Le Wi-Fi fibre est ultra-stable pour les réunions et le petit-déjeuner béninois (Akassa & poissons braisés) est exceptionnel.',
+    photos: [
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=900&q=80'
+    ],
+    stayDate: 'Octobre 2026',
+    createdAt: new Date(Date.now() - 86400000 * 3).toISOString()
+  },
+  {
+    id: 'rev-benin-2',
+    roomId: 'chambre-superieure-marina',
+    roomSlug: 'chambre-superieure-marina',
+    roomName: 'Chambre Supérieure Vue Jardin & Piscine',
+    authorName: 'Mme Aïcha Bello-Hountondji',
+    authorEmail: 'aicha.bello@diaspora-invest.com',
+    authorBadge: 'Séjour Vérifié • 4 Nuits',
+    rating: 5,
+    comment:
+      'Literie King Size digne des plus grands hôtels 5 étoiles de la sous-région. La climatisation est parfaitement silencieuse et le service d’étage est très réactif.',
+    photos: [
+      'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=900&q=80'
+    ],
+    stayDate: 'Septembre 2026',
+    createdAt: new Date(Date.now() - 86400000 * 7).toISOString()
+  },
+  {
+    id: 'rev-benin-3',
+    roomId: 'suite-junior-diplomatique',
+    roomSlug: 'suite-junior-diplomatique',
+    roomName: 'Suite Junior Diplomatique Marina',
+    authorName: 'Dr. Ousmane Diop',
+    authorEmail: 'o.diop@boad-uemoa.org',
+    authorBadge: 'Mission Officielle UEMOA',
+    rating: 5,
+    comment:
+      'Le salon séparé m’a permis de recevoir mes partenaires à Cotonou en toute confidentialité. Transfert aéroport impeccable en 5 minutes.',
+    photos: [
+      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=900&q=80'
+    ],
+    stayDate: 'Septembre 2026',
+    createdAt: new Date(Date.now() - 86400000 * 12).toISOString()
+  }
+];
+
