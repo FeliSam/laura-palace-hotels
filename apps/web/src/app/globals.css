@@ -10,6 +10,8 @@
 
 :root,
 html[data-color-mode="light"] {
+  --font-cormorant: 'Cormorant Garamond', Georgia, serif;
+  --font-jakarta: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --bg-primary: #F8F5F0;
   --bg-secondary: #EFECE6;
   --surface-card: #FFFFFF;
