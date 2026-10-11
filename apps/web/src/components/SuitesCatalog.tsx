@@ -171,40 +171,40 @@ function RoomCardWithGallery({
         </div>
 
         {/* Editorial Details */}
-        <div className="p-6 sm:p-8 space-y-5">
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-luxury-muted pb-4 border-b border-luxury-border">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="flex items-center gap-1.5 text-luxury-text font-medium">
+        <div className="p-4 sm:p-6 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-luxury-muted pb-3 border-b border-luxury-border">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="flex items-center gap-1 text-luxury-text font-medium">
                 <Maximize2 className="w-3.5 h-3.5 text-luxury-gold" />
                 {room.sizeSqm} m²
               </span>
               <span>•</span>
-              <span className="flex items-center gap-1.5 text-luxury-text font-medium">
+              <span className="flex items-center gap-1 text-luxury-text font-medium">
                 <Users className="w-3.5 h-3.5 text-luxury-gold" />
-                Jusqu’à {room.maxGuests} résidents
+                Max {room.maxGuests} pers.
               </span>
             </div>
             <Link
               href={`/suites/${room.slug}#avis-clients`}
               className="text-amber-500 font-semibold hover:underline flex items-center gap-1"
             >
-              <span>★★★★★</span>
+              <span>★</span>
               <span className="text-luxury-text">{(room.rating || 4.9).toFixed(1)}/5</span>
             </Link>
           </div>
 
-          <p className="text-sm text-luxury-muted leading-relaxed line-clamp-3">
+          <p className="text-xs sm:text-sm text-luxury-muted leading-relaxed line-clamp-2">
             {room.description}
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          <div className="grid grid-cols-2 gap-1.5 pt-0.5">
             {room.amenities.slice(0, 4).map((amenity) => (
               <div
                 key={amenity.id}
-                className="text-xs text-luxury-text flex items-center gap-2"
+                className="text-xs text-luxury-text flex items-center gap-1.5 truncate"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-luxury-gold" />
-                <span>{amenity.label}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-luxury-gold shrink-0" />
+                <span className="truncate">{amenity.label}</span>
               </div>
             ))}
           </div>
@@ -212,31 +212,31 @@ function RoomCardWithGallery({
       </div>
 
       {/* Price & Direct Reservation Bar */}
-      <div className="px-6 sm:px-8 py-5 bg-luxury-surface/50 border-t border-luxury-border flex flex-wrap items-center justify-between gap-4">
+      <div className="px-4 sm:px-6 py-4 bg-luxury-surface/50 border-t border-luxury-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <span className="text-[10px] uppercase tracking-[0.18em] text-luxury-muted block">
             {formatCurrencyAmount(room.pricePerNight, currency)} / nuit
           </span>
-          <span className="font-serif text-2xl text-luxury-text font-medium">
+          <span className="font-serif text-xl sm:text-2xl text-luxury-text font-medium">
             {formatCurrencyAmount(totalForStay, currency)}{' '}
             <span className="font-sans text-[11px] text-luxury-muted font-normal">
-              ({nights} nuit{nights > 1 ? 's' : ''})
+              ({nights}N)
             </span>
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-2 sm:flex items-center gap-2">
           {/* Dedicated Page Link */}
           <Link
             href={`/suites/${room.slug}`}
-            className="px-4 py-2.5 border border-luxury-border hover:border-luxury-gold text-[11px] uppercase tracking-[0.15em] text-luxury-text font-medium transition-colors"
+            className="px-3.5 py-2.5 border border-luxury-border hover:border-luxury-gold text-[11px] uppercase tracking-[0.14em] text-luxury-text font-medium transition-colors text-center"
           >
-            Voir la Chambre
+            Détails
           </Link>
 
           <button
             onClick={onSelectForBooking}
-            className="px-5 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-[0.16em] font-semibold transition-colors flex items-center gap-1.5"
+            className="px-4 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-[0.14em] font-semibold transition-colors flex items-center justify-center gap-1.5"
           >
             {isSelected ? (
               <>
@@ -284,16 +284,16 @@ export function SuitesCatalog({ limit }: { limit?: number }) {
   }, [data?.rooms, sortBy, limit]);
 
   return (
-    <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+    <section className="py-10 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
       {/* Editorial Filter Bar */}
       {!limit && (
-        <div className="flex flex-wrap items-center justify-between gap-4 pb-8 mb-12 border-b border-luxury-border">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-6 mb-8 border-b border-luxury-border">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {CATEGORY_TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => dispatch(setCategoryFilter(tab.id))}
-                className={`px-4 py-2 text-[11px] tracking-[0.16em] uppercase transition-all border ${
+                className={`px-3 py-2 text-[10px] sm:text-[11px] tracking-[0.14em] uppercase transition-all border ${
                   category === tab.id
                     ? 'bg-luxury-text text-luxury-bg border-luxury-text font-semibold'
                     : 'bg-luxury-surface/60 text-luxury-muted hover:text-luxury-text border-luxury-border'
@@ -304,13 +304,13 @@ export function SuitesCatalog({ limit }: { limit?: number }) {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2 bg-luxury-surface/60 px-3.5 py-2 border border-luxury-border text-xs">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-luxury-gold" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-luxury-surface/60 px-3 py-2 border border-luxury-border text-xs">
+              <SlidersHorizontal className="w-3.5 h-3.5 text-luxury-gold shrink-0" />
               <select
                 value={viewType}
                 onChange={(e) => dispatch(setViewFilter(e.target.value as ViewType | 'ALL'))}
-                className="bg-transparent text-luxury-text focus:outline-none text-xs"
+                className="w-full min-w-0 bg-transparent text-luxury-text focus:outline-none text-xs"
               >
                 <option value="ALL" className="bg-luxury-card text-luxury-text">
                   Toutes les vues
@@ -325,7 +325,7 @@ export function SuitesCatalog({ limit }: { limit?: number }) {
                   Cocoteraie & Lagon
                 </option>
                 <option value="EIFFEL_SKYLINE" className="bg-luxury-card text-luxury-text">
-                  Panorama Marina & Amazone
+                  Marina & Amazone
                 </option>
               </select>
             </div>
@@ -333,7 +333,7 @@ export function SuitesCatalog({ limit }: { limit?: number }) {
             <select
               value={sortBy}
               onChange={(e) => dispatch(setSortBy(e.target.value as any))}
-              className="bg-luxury-surface/60 px-3.5 py-2 border border-luxury-border text-xs text-luxury-text focus:outline-none"
+              className="w-full min-w-0 bg-luxury-surface/60 px-3 py-2 border border-luxury-border text-xs text-luxury-text focus:outline-none"
             >
               <option value="FEATURED" className="bg-luxury-card text-luxury-text">
                 Tri : Recommandé
@@ -354,16 +354,16 @@ export function SuitesCatalog({ limit }: { limit?: number }) {
 
       {/* Suites Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {[1, 2].map((n) => (
             <div
               key={n}
-              className="h-[540px] bg-luxury-surface animate-pulse border border-luxury-border"
+              className="h-[480px] bg-luxury-surface animate-pulse border border-luxury-border"
             />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
           {sortedRooms.map((room: Room) => (
             <RoomCardWithGallery
               key={room.id}

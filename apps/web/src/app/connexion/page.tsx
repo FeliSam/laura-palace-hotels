@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SiteShell } from '@/components/SiteShell';
+import { EditBookingModal } from '@/components/EditBookingModal';
 import {
   useAppDispatch,
   useAppSelector,
@@ -130,6 +131,7 @@ export default function ConnexionPage() {
 
   // Rented Room Review & Photo Upload Modal State
   const [reviewingBooking, setReviewingBooking] = useState<BookingRecord | null>(null);
+  const [editingBooking, setEditingBooking] = useState<BookingRecord | null>(null);
   const [reviewRating, setReviewRating] = useState<number>(5);
   const [reviewComment, setReviewComment] = useState('');
   const [reviewPhotos, setReviewPhotos] = useState<string[]>([]);
@@ -676,25 +678,36 @@ export default function ConnexionPage() {
                           </div>
 
                           <div className="pt-2 border-t border-luxury-border flex flex-wrap items-center justify-between gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setReviewingBooking(booking);
-                                setReviewRating(5);
-                                setReviewComment('');
-                                setReviewPhotos([]);
-                              }}
-                              className="px-4 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-colors"
-                            >
-                              <Camera className="w-3.5 h-3.5 text-luxury-gold" />
-                              <span>★ Laisser un Avis & Photos</span>
-                            </button>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setEditingBooking(booking)}
+                                className="px-3.5 py-2 border border-luxury-gold text-luxury-text hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-colors"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 text-luxury-gold" />
+                                <span>Modifier la Réservation</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReviewingBooking(booking);
+                                  setReviewRating(5);
+                                  setReviewComment('');
+                                  setReviewPhotos([]);
+                                }}
+                                className="px-3.5 py-2 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-colors"
+                              >
+                                <Camera className="w-3.5 h-3.5 text-luxury-gold" />
+                                <span>★ Avis & Photos</span>
+                              </button>
+                            </div>
 
                             <Link
                               href={`/suites/${liveRoom.slug}#avis-clients`}
                               className="text-luxury-gold hover:underline font-medium text-[11px]"
                             >
-                              Voir la chambre & les avis →
+                              Voir la chambre →
                             </Link>
                           </div>
                         </div>
@@ -725,16 +738,16 @@ export default function ConnexionPage() {
               </div>
 
               {/* 1-Click Demo Cards for all 4 Roles */}
-              <div className="p-6 editorial-card border-l-2 border-l-luxury-gold space-y-4">
+              <div className="p-4 sm:p-6 editorial-card border-l-2 border-l-luxury-gold space-y-3">
                 <div className="flex items-center gap-2 text-luxury-gold text-xs uppercase tracking-widest font-semibold">
                   <Sparkles className="w-4 h-4" />
                   <span>Connexion Rapide Démo (1 Clic)</span>
                 </div>
                 <p className="text-xs text-luxury-muted">
-                  Cliquez sur l’un des 4 profils ci-dessous pour tester immédiatement ses droits :
+                  Sélectionnez un profil pour tester immédiatement ses droits :
                 </p>
 
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {ROLE_OPTIONS.map((item) => {
                     const demo = DEMO_USERS[item.role];
                     const Icon = item.icon;
@@ -748,19 +761,19 @@ export default function ConnexionPage() {
                             router.push('/admin');
                           }
                         }}
-                        className="w-full p-3.5 bg-luxury-surface hover:bg-luxury-card border border-luxury-border hover:border-luxury-gold text-left transition-all flex items-center justify-between group"
+                        className="w-full p-3 bg-luxury-surface hover:bg-luxury-card border border-luxury-border hover:border-luxury-gold text-left transition-all flex items-center justify-between group"
                       >
-                        <div className="space-y-0.5 pr-2">
+                        <div className="space-y-0.5 pr-2 min-w-0">
                           <div className="flex items-center gap-1.5">
-                            <Icon className="w-3.5 h-3.5 text-luxury-gold" />
+                            <Icon className="w-3.5 h-3.5 text-luxury-gold shrink-0" />
                             <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
                               {item.shortLabel}
                             </span>
                           </div>
-                          <span className="font-serif text-base text-luxury-text block">
+                          <span className="font-serif text-sm sm:text-base text-luxury-text block truncate">
                             {demo.title} {demo.firstName} {demo.lastName}
                           </span>
-                          <span className="text-[11px] text-luxury-muted block">
+                          <span className="text-[11px] text-luxury-muted block truncate">
                             {demo.email}
                           </span>
                         </div>
@@ -774,13 +787,13 @@ export default function ConnexionPage() {
 
             {/* Right 7 Columns: Role Selector + Login / Registration Form */}
             <div className="lg:col-span-7">
-              <div className="p-6 sm:p-10 editorial-card space-y-6">
+              <div className="p-4 sm:p-8 editorial-card space-y-5">
                 {/* 4 Role Tabs */}
                 <div>
                   <label className="block text-[10px] uppercase tracking-widest text-luxury-muted mb-2">
-                    Choisissez votre profil de connexion
+                    Profil de connexion
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-1.5 bg-luxury-surface border border-luxury-border">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 p-1.5 bg-luxury-surface border border-luxury-border">
                     {ROLE_OPTIONS.map((item) => {
                       const Icon = item.icon;
                       const active = selectedRole === item.role;
@@ -789,7 +802,7 @@ export default function ConnexionPage() {
                           type="button"
                           key={item.role}
                           onClick={() => handleRoleSwitch(item.role)}
-                          className={`py-2.5 px-2 text-[10px] uppercase tracking-wider font-semibold flex flex-col items-center justify-center gap-1 transition-all ${
+                          className={`py-2 px-2 text-[10px] uppercase tracking-wider font-semibold flex flex-col items-center justify-center gap-1 transition-all ${
                             active
                               ? 'bg-luxury-text text-luxury-bg shadow-sm'
                               : 'text-luxury-muted hover:text-luxury-text'
@@ -804,19 +817,19 @@ export default function ConnexionPage() {
                 </div>
 
                 {authError && (
-                  <div className="p-4 bg-red-500/15 border border-red-500/40 text-xs text-luxury-text flex items-center gap-2">
+                  <div className="p-3 bg-red-500/15 border border-red-500/40 text-xs text-luxury-text flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4 text-red-500 shrink-0" />
                     <span>{authError}</span>
                   </div>
                 )}
 
                 {!isRegistering ? (
-                  <form onSubmit={handleLoginSubmit} className="space-y-5">
+                  <form onSubmit={handleLoginSubmit} className="space-y-4">
                     <div>
                       <span className="text-[10px] uppercase tracking-widest text-luxury-gold font-semibold">
-                        PROFIL SÉLECTIONNÉ : {activeRoleMeta.shortLabel}
+                        PROFIL : {activeRoleMeta.shortLabel}
                       </span>
-                      <h2 className="font-serif text-2xl text-luxury-text mt-0.5">
+                      <h2 className="font-serif text-xl sm:text-2xl text-luxury-text mt-0.5">
                         {activeRoleMeta.title}
                       </h2>
                       <p className="text-xs text-luxury-muted mt-1">
@@ -825,101 +838,100 @@ export default function ConnexionPage() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-widest text-luxury-muted mb-1.5">
-                        Adresse Email Professionnelle ou Personnelle
+                      <label className="block text-[10px] uppercase tracking-widest text-luxury-muted mb-1">
+                        Email
                       </label>
                       <div className="relative">
-                        <Mail className="w-4 h-4 text-luxury-gold absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <Mail className="w-4 h-4 text-luxury-gold absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           required
                           type="email"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 bg-luxury-surface border border-luxury-border text-sm text-luxury-text"
+                          className="w-full min-w-0 pl-9 pr-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-widest text-luxury-muted mb-1.5">
+                      <label className="block text-[10px] uppercase tracking-widest text-luxury-muted mb-1">
                         Mot de Passe
                       </label>
                       <div className="relative">
-                        <KeyRound className="w-4 h-4 text-luxury-gold absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <KeyRound className="w-4 h-4 text-luxury-gold absolute left-3 top-1/2 -translate-y-1/2" />
                         <input
                           required
                           type="password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 bg-luxury-surface border border-luxury-border text-sm text-luxury-text"
+                          className="w-full min-w-0 pl-9 pr-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text"
                         />
                       </div>
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full py-4 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.2em] font-semibold flex items-center justify-center gap-2 transition-colors"
+                      className="w-full py-3.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.18em] font-semibold flex items-center justify-center gap-2 transition-colors"
                     >
                       <Lock className="w-4 h-4 text-luxury-gold" />
                       <span>Se Connecter ({activeRoleMeta.shortLabel})</span>
                     </button>
 
-                    <div className="pt-4 border-t border-luxury-border text-center">
+                    <div className="pt-3 border-t border-luxury-border text-center">
                       <button
                         type="button"
                         onClick={() => setIsRegistering(true)}
                         className="text-xs text-luxury-gold hover:underline font-medium"
                       >
-                        Créer un nouveau compte utilisateur (Client, Directeur, Admin ou Réception) →
+                        Créer un nouveau compte →
                       </button>
                     </div>
                   </form>
                 ) : (
                   /* NEW ACCOUNT REGISTRATION FORM (ANY ROLE) */
-                  <form onSubmit={handleRegisterSubmit} className="space-y-4">
+                  <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
                     <div>
-                      <h2 className="font-serif text-2xl text-luxury-text">
-                        Créer un Nouveau Compte Utilisateur
+                      <h2 className="font-serif text-xl sm:text-2xl text-luxury-text">
+                        Créer un Compte
                       </h2>
-                      <p className="text-xs text-luxury-muted mt-1">
-                        Choisissez votre rôle (Client, Directeur, Administrateur ou Réception) et
-                        vos coordonnées.
+                      <p className="text-xs text-luxury-muted mt-0.5">
+                        Sélectionnez votre fonction et renseignez vos coordonnées.
                       </p>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-luxury-gold font-semibold mb-1">
-                        Type de Compte / Fonction
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-gold font-semibold mb-1">
+                        Fonction / Profil
                       </label>
                       <select
                         value={regRole}
                         onChange={(e) => setRegRole(e.target.value as UserRole)}
-                        className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                        className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                       >
-                        <option value="GUEST">Client / Résident de l’Hôtel</option>
-                        <option value="DIRECTEUR">Directeur Général / Direction</option>
+                        <option value="GUEST">Client / Résident</option>
+                        <option value="DIRECTEUR">Directeur Général</option>
                         <option value="ADMIN">Administrateur Hôtel</option>
-                        <option value="RECEPTION">Chef de Réception & Conciergerie</option>
+                        <option value="RECEPTION">Chef de Réception</option>
                       </select>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
                       <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                        <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
                           Civilité
                         </label>
                         <select
                           value={regTitle}
                           onChange={(e) => setRegTitle(e.target.value as any)}
-                          className="w-full px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                          className="w-full px-2.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                         >
                           <option value="M.">M.</option>
                           <option value="Mme">Mme</option>
                           <option value="Dr.">Dr.</option>
                         </select>
                       </div>
-                      <div className="col-span-3">
-                        <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                      <div className="col-span-2 sm:col-span-3">
+                        <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
                           Prénom *
                         </label>
                         <input
@@ -927,29 +939,29 @@ export default function ConnexionPage() {
                           type="text"
                           value={regFirstName}
                           onChange={(e) => setRegFirstName(e.target.value)}
-                          placeholder="Ex: Chimène"
-                          className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                          placeholder="Chimène"
+                          className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                        Nom de Famille *
+                      <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
+                        Nom *
                       </label>
                       <input
                         required
                         type="text"
                         value={regLastName}
                         onChange={(e) => setRegLastName(e.target.value)}
-                        placeholder="Ex: Zinsou"
-                        className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                        placeholder="Zinsou"
+                        className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                        <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
                           Email *
                         </label>
                         <input
@@ -958,11 +970,11 @@ export default function ConnexionPage() {
                           value={regEmail}
                           onChange={(e) => setRegEmail(e.target.value)}
                           placeholder="votre@email.bj"
-                          className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                          className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                         />
                       </div>
                       <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
+                        <label className="block text-[10px] uppercase tracking-wider text-luxury-muted mb-1">
                           Téléphone / WhatsApp *
                         </label>
                         <input
@@ -970,19 +982,19 @@ export default function ConnexionPage() {
                           type="tel"
                           value={regPhone}
                           onChange={(e) => setRegPhone(e.target.value)}
-                          className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                          className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                         />
                       </div>
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full py-4 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.2em] font-semibold transition-colors"
+                      className="w-full py-3.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-[0.18em] font-semibold transition-colors"
                     >
-                      Créer mon Compte & Accéder au Portail
+                      Créer mon Compte
                     </button>
 
-                    <div className="pt-2 text-center">
+                    <div className="pt-1 text-center">
                       <button
                         type="button"
                         onClick={() => setIsRegistering(false)}
@@ -1001,18 +1013,18 @@ export default function ConnexionPage() {
 
       {/* Modal: Leave Review & Upload Stay Photos for a Rented Room */}
       {reviewingBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
           <div
             onClick={() => setReviewingBooking(null)}
             className="fixed inset-0 bg-black/75 backdrop-blur-sm"
           />
-          <div className="relative z-10 w-full max-w-xl editorial-card p-6 sm:p-8 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative z-10 w-full max-w-xl editorial-card p-4 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-luxury-border">
               <div>
-                <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-gold font-semibold">
-                  AVIS CLIENT & PHOTOS DE SÉJOUR • RÉF {reviewingBooking.referenceCode}
+                <span className="text-[10px] uppercase tracking-[0.2em] text-luxury-gold font-semibold">
+                  AVIS & PHOTOS • RÉF {reviewingBooking.referenceCode}
                 </span>
-                <h3 className="font-serif text-2xl text-luxury-text mt-0.5">
+                <h3 className="font-serif text-xl sm:text-2xl text-luxury-text mt-0.5">
                   Noter « {reviewingBooking.room.name} »
                 </h3>
               </div>
@@ -1152,6 +1164,18 @@ export default function ConnexionPage() {
           </div>
         </div>
       )}
+
+      {/* Modal: Modify an Existing Reservation */}
+      <EditBookingModal
+        booking={editingBooking}
+        onClose={() => setEditingBooking(null)}
+        onUpdated={(updated) => {
+          setReviewSuccessToast(
+            `✓ La réservation ${updated.referenceCode} a été modifiée avec succès.`
+          );
+          setTimeout(() => setReviewSuccessToast(null), 4500);
+        }}
+      />
     </SiteShell>
   );
 }

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SiteShell } from '@/components/SiteShell';
 import { PageHeroBanner } from '@/components/PageHeroBanner';
+import { EditBookingModal } from '@/components/EditBookingModal';
+import { BookingRecord } from '@hotel/types';
 import {
   useAppDispatch,
   useAppSelector,
@@ -47,6 +49,7 @@ export default function ConciergeriePage() {
 
   const [referenceInput, setReferenceInput] = useState('BENIN-2026-8841');
   const [triggerLookup, { data, isFetching, error }] = useLazyGetBookingByReferenceQuery();
+  const [editingBooking, setEditingBooking] = useState<BookingRecord | null>(null);
 
   // Editable Personal Info State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -423,6 +426,15 @@ export default function ConciergeriePage() {
                           </div>
 
                           <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setEditingBooking(booking)}
+                              className="px-3 py-1.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] font-semibold flex items-center gap-1 transition-colors"
+                            >
+                              <Edit3 className="w-3 h-3 text-luxury-gold" />
+                              <span>Modifier</span>
+                            </button>
+
                             <Link
                               href={`/suites/${booking.room.slug}#avis-clients`}
                               className="px-3 py-1.5 bg-luxury-card border border-luxury-gold/50 hover:border-luxury-gold text-[11px] text-luxury-gold font-semibold flex items-center gap-1"
@@ -464,77 +476,74 @@ export default function ConciergeriePage() {
           </div>
         ) : (
           /* PROMPT TO CONNECT TO SEE PERSONAL RESERVATIONS */
-          <div className="p-6 sm:p-8 editorial-card border-l-4 border-l-luxury-gold flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-1.5 max-w-2xl">
+          <div className="p-4 sm:p-6 editorial-card border-l-4 border-l-luxury-gold flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="space-y-1 max-w-xl">
               <div className="flex items-center gap-2 text-luxury-gold text-xs uppercase tracking-widest font-semibold">
                 <Sparkles className="w-4 h-4" />
-                <span>Accès Dynamique aux Réservations</span>
+                <span>Suivi des Réservations</span>
               </div>
-              <h2 className="font-serif text-2xl sm:text-3xl text-luxury-text">
-                Connectez-vous pour afficher automatiquement vos réservations
+              <h2 className="font-serif text-xl sm:text-2xl text-luxury-text">
+                Connectez-vous pour afficher et modifier vos réservations
               </h2>
-              <p className="text-xs sm:text-sm text-luxury-muted">
-                En vous connectant en tant que Client, Directeur, Administrateur ou Réception, vos
-                réservations s’affichent directement sur cette page et vous pouvez modifier vos
-                informations personnelles.
+              <p className="text-xs text-luxury-muted">
+                Accédez à vos séjours enregistrés et modifiez vos dates, votre chambre ou vos coordonnées.
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
               <button
                 type="button"
                 onClick={() => dispatch(loginDemoRole('GUEST'))}
-                className="px-4 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-wider font-semibold transition-colors"
+                className="px-4 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-wider font-semibold transition-colors"
               >
-                Connexion Démo Client (1 Clic)
+                Démo Client (1 Clic)
               </button>
               <button
                 type="button"
                 onClick={() => dispatch(loginDemoRole('DIRECTEUR'))}
-                className="px-4 py-3 border border-luxury-gold text-luxury-text hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-wider font-semibold transition-colors"
+                className="px-4 py-2.5 border border-luxury-gold text-luxury-text hover:bg-luxury-gold hover:text-white text-xs uppercase tracking-wider font-semibold transition-colors"
               >
-                Connexion Démo Directeur
+                Démo Directeur
               </button>
               <Link
                 href="/connexion"
-                className="px-4 py-3 bg-luxury-surface border border-luxury-border hover:border-luxury-gold text-xs uppercase tracking-wider text-luxury-muted hover:text-luxury-text"
+                className="px-4 py-2.5 bg-luxury-surface border border-luxury-border hover:border-luxury-gold text-xs uppercase tracking-wider text-luxury-muted hover:text-luxury-text"
               >
-                Page Connexion →
+                Connexion →
               </Link>
             </div>
           </div>
         )}
 
         {/* 2. REFERENCE LOOKUP & CONCIERGE SERVICES */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 items-start">
           {/* Left: Live Dossier Lookup by Reference Code */}
-          <div className="lg:col-span-6 p-8 sm:p-10 editorial-card space-y-6">
+          <div className="lg:col-span-6 p-4 sm:p-8 editorial-card space-y-5">
             <div>
-              <span className="text-[10px] uppercase tracking-[0.26em] text-luxury-gold block mb-2">
-                RECHERCHE PAR NUMÉRO DE DOSSIER
+              <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-gold block mb-1">
+                RECHERCHE PAR RÉFÉRENCE
               </span>
-              <h2 className="font-serif text-3xl text-luxury-text font-normal">
-                Rechercher une Réservation par Référence
+              <h2 className="font-serif text-2xl sm:text-3xl text-luxury-text font-normal">
+                Retrouver ou Modifier un Dossier
               </h2>
               <p className="text-xs text-luxury-muted mt-1">
-                Saisissez un numéro de référence (exemple :{' '}
-                <strong className="text-luxury-text">BENIN-2026-8841</strong> ou{' '}
-                <strong className="text-luxury-text">BENIN-2026-8902</strong>).
+                Exemples : <strong className="text-luxury-text">BENIN-2026-8841</strong> ou{' '}
+                <strong className="text-luxury-text">BENIN-2026-8902</strong>.
               </p>
             </div>
 
-            <form onSubmit={handleLookup} className="flex flex-col sm:flex-row gap-3">
+            <form onSubmit={handleLookup} className="flex flex-col sm:flex-row gap-2.5">
               <input
                 type="text"
                 value={referenceInput}
                 onChange={(e) => setReferenceInput(e.target.value.toUpperCase())}
                 placeholder="Ex: BENIN-2026-8841"
-                className="flex-1 px-4 py-3 bg-luxury-surface border border-luxury-border text-sm font-mono uppercase text-luxury-text focus:outline-none focus:border-luxury-gold"
+                className="flex-1 min-w-0 px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm font-mono uppercase text-luxury-text focus:outline-none focus:border-luxury-gold"
               />
               <button
                 type="submit"
                 disabled={isFetching}
-                className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-[0.2em] font-medium transition-colors flex items-center justify-center gap-2"
+                className="px-5 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-[0.18em] font-medium transition-colors flex items-center justify-center gap-2"
               >
                 <Search className="w-3.5 h-3.5" />
                 <span>Rechercher</span>
@@ -542,39 +551,48 @@ export default function ConciergeriePage() {
             </form>
 
             {Boolean(error) && (
-              <div className="p-4 border border-red-500/40 bg-red-500/10 text-xs text-luxury-text">
-                Aucune réservation trouvée pour ce numéro. Essayez la référence{' '}
-                <strong>BENIN-2026-8841</strong>.
+              <div className="p-3.5 border border-red-500/40 bg-red-500/10 text-xs text-luxury-text">
+                Dossier introuvable. Essayez <strong>BENIN-2026-8841</strong>.
               </div>
             )}
 
             {data?.booking && (
-              <div className="p-6 bg-luxury-surface border border-luxury-border space-y-4 text-xs">
-                <div className="flex items-center justify-between pb-3 border-b border-luxury-border">
+              <div className="p-4 sm:p-5 bg-luxury-surface border border-luxury-border space-y-3.5 text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-luxury-border">
                   <div>
                     <span className="text-[10px] uppercase tracking-widest text-luxury-muted block">
-                      Référence Officielle
+                      Référence
                     </span>
-                    <span className="font-mono text-base font-bold text-luxury-gold">
+                    <span className="font-mono text-sm sm:text-base font-bold text-luxury-gold">
                       {data.booking.referenceCode}
                     </span>
                   </div>
-                  <span className="px-3 py-1 bg-emerald-500/15 text-emerald-500 text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3" />
-                    {data.booking.status}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setEditingBooking(data.booking)}
+                      className="px-3 py-1.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[10px] uppercase tracking-wider font-semibold flex items-center gap-1 transition-colors"
+                    >
+                      <Edit3 className="w-3 h-3 text-luxury-gold" />
+                      <span>Modifier</span>
+                    </button>
+                    <span className="px-2.5 py-1 bg-emerald-500/15 text-emerald-500 text-[10px] uppercase tracking-widest font-semibold flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      {data.booking.status}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <span className="text-luxury-muted block">Résident Principal</span>
+                    <span className="text-luxury-muted block">Client</span>
                     <span className="text-luxury-text font-medium text-sm">
                       {data.booking.guest.title} {data.booking.guest.firstName}{' '}
                       {data.booking.guest.lastName}
                     </span>
                   </div>
                   <div>
-                    <span className="text-luxury-muted block">Chambre Attribuée</span>
+                    <span className="text-luxury-muted block">Chambre</span>
                     <Link
                       href={`/suites/${data.booking.room.slug}`}
                       className="text-luxury-gold hover:underline font-medium text-sm block"
@@ -583,36 +601,24 @@ export default function ConciergeriePage() {
                     </Link>
                   </div>
                   <div>
-                    <span className="text-luxury-muted block">Dates de Séjour</span>
+                    <span className="text-luxury-muted block">Dates</span>
                     <span className="text-luxury-text">
-                      Du {data.booking.checkIn} au {data.booking.checkOut} ({data.booking.nights}{' '}
-                      nuits)
+                      {data.booking.checkIn} → {data.booking.checkOut} ({data.booking.nights}N)
                     </span>
                   </div>
                   <div>
-                    <span className="text-luxury-muted block">Heure d’arrivée prévue</span>
+                    <span className="text-luxury-muted block">Arrivée</span>
                     <span className="text-luxury-text">
                       {data.booking.guest.arrivalTime || '14:00'}
                     </span>
                   </div>
                 </div>
 
-                {data.booking.guest.specialRequests && (
-                  <div className="pt-2 border-t border-luxury-border">
-                    <span className="text-luxury-muted block mb-1">
-                      Instructions transmises à la Réception :
-                    </span>
-                    <p className="italic text-luxury-text">
-                      « {data.booking.guest.specialRequests} »
-                    </p>
-                  </div>
-                )}
-
-                <div className="pt-3 border-t border-luxury-border flex items-center justify-between">
+                <div className="pt-2.5 border-t border-luxury-border flex items-center justify-between">
                   <span className="uppercase tracking-widest text-luxury-muted">
-                    Total Séjour Confirmé
+                    Total TTC
                   </span>
-                  <span className="font-serif text-2xl text-luxury-gold font-semibold">
+                  <span className="font-serif text-xl sm:text-2xl text-luxury-gold font-semibold">
                     {formatCurrencyAmount(data.booking.pricing.totalPrice, currency)}
                   </span>
                 </div>
@@ -621,63 +627,63 @@ export default function ConciergeriePage() {
           </div>
 
           {/* Right: Bespoke Concierge Services in Benin */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.26em] text-luxury-gold block">
-                LOGISTIQUE & ACCUEIL BÉNIN
+          <div className="lg:col-span-6 space-y-4">
+            <div className="space-y-1">
+              <span className="text-[10px] uppercase tracking-[0.22em] text-luxury-gold block">
+                SERVICES HÔTELIERS • COTONOU
               </span>
-              <h3 className="font-serif text-3xl text-luxury-text font-normal">
-                Prestations de Notre Conciergerie à Cotonou
+              <h3 className="font-serif text-2xl sm:text-3xl text-luxury-text font-normal">
+                Prestations Conciergerie
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               {[
                 {
                   icon: Plane,
-                  title: 'Navette Aéroport Cotonou',
-                  desc: 'Accueil personnalisé à l’Aéroport International Cardinal Bernardin Gantin (COO) à 5 minutes de l’hôtel.'
+                  title: 'Navette Aéroport (COO)',
+                  desc: 'Transfert VIP depuis l’Aéroport de Cotonou à 5 min.'
                 },
                 {
                   icon: Car,
-                  title: 'Véhicules SUV Climatisés',
-                  desc: 'Location de 4x4 avec chauffeur privé pour vos rendez-vous ministériels à Cotonou, Porto-Novo ou Ouidah.'
+                  title: 'SUV avec Chauffeur',
+                  desc: 'Location 4x4 climatisé pour Cotonou, Porto-Novo et Ouidah.'
                 },
                 {
                   icon: ShieldCheck,
-                  title: 'Protocole & Sécurité 24h/24',
-                  desc: 'Parking privé sécurisé, contrôle d’accès diplomatique et salles de réunion confidentielles.'
+                  title: 'Sécurité & Parking 24h/24',
+                  desc: 'Parking privé gardé et salles de réunion climatisées.'
                 },
                 {
                   icon: Clock,
-                  title: 'Excursions Ouidah & Ganvié',
-                  desc: 'Organisation de visites guidées sur la Route des Pêches, la Cité lacustre de Ganvié et le Parc de la Pendjari.'
+                  title: 'Excursions Ganvié & Ouidah',
+                  desc: 'Visites guidées sur la Route des Pêches et la cité lacustre.'
                 }
               ].map((service) => {
                 const Icon = service.icon;
                 return (
-                  <div key={service.title} className="p-6 editorial-card space-y-2.5">
+                  <div key={service.title} className="p-4 sm:p-5 editorial-card space-y-1.5">
                     <Icon className="w-5 h-5 text-luxury-gold" />
-                    <h4 className="font-serif text-xl text-luxury-text">{service.title}</h4>
+                    <h4 className="font-serif text-lg text-luxury-text">{service.title}</h4>
                     <p className="text-xs text-luxury-muted leading-relaxed">{service.desc}</p>
                   </div>
                 );
               })}
             </div>
 
-            <div className="p-6 bg-luxury-surface border border-luxury-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-1 text-xs">
-                <p className="text-luxury-text font-semibold uppercase tracking-widest">
-                  Ligne Directe Réception & Conciergerie
+            <div className="p-4 sm:p-5 bg-luxury-surface border border-luxury-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-0.5 text-xs">
+                <p className="text-luxury-text font-semibold uppercase tracking-wider">
+                  Réception 24h/24
                 </p>
                 <p className="text-luxury-muted flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-luxury-gold" />
-                  {HOTEL_CONFIG.contact.phone} • {HOTEL_CONFIG.contact.conciergeEmail}
+                  <Phone className="w-3.5 h-3.5 text-luxury-gold shrink-0" />
+                  <span>{HOTEL_CONFIG.contact.phone}</span>
                 </p>
               </div>
               <button
                 onClick={() => dispatch(setDrawerOpen(true))}
-                className="px-5 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-[0.18em] font-medium transition-colors shrink-0"
+                className="px-4 py-2.5 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white text-[11px] uppercase tracking-[0.16em] font-medium transition-colors shrink-0"
               >
                 Nouvelle Réservation
               </button>
@@ -685,6 +691,16 @@ export default function ConciergeriePage() {
           </div>
         </div>
       </section>
+
+      <EditBookingModal
+        booking={editingBooking}
+        onClose={() => setEditingBooking(null)}
+        onUpdated={(updated) => {
+          if (data?.booking?.referenceCode === updated.referenceCode) {
+            triggerLookup(updated.referenceCode);
+          }
+        }}
+      />
     </SiteShell>
   );
 }

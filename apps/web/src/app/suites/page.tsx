@@ -21,16 +21,16 @@ export default function SuitesPage() {
   return (
     <SiteShell>
       <PageHeroBanner
-        kicker="COLLECTION D’APPARTEMENTS & HÔTELS PARTICULIERS"
-        title="Suites Signature, Penthouses & Villas"
-        subtitle="Chaque résidence dispose d’un service de Majordome dédié 24h/24, d’un accueil personnalisé en Rolls-Royce et d’un accès privilégié aux Thermes."
+        kicker="HÉBERGEMENT & SUITES • COTONOU"
+        title="Chambres, Suites & Villas"
+        subtitle="Sélectionnez vos dates pour consulter nos disponibilités et tarifs officiels en Francs CFA."
         imageUrl="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=2000&q=85"
       >
         {/* Inline Date & Guest Refinement Bar */}
-        <div className="bg-luxury-card border border-luxury-border p-4 sm:p-5 max-w-4xl">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+        <div className="bg-luxury-card border border-luxury-border p-3.5 sm:p-5 max-w-4xl">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 items-end">
             <div>
-              <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-luxury-muted mb-1">
+              <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-luxury-muted mb-1">
                 <Calendar className="w-3 h-3 text-luxury-gold" />
                 Arrivée
               </label>
@@ -38,12 +38,12 @@ export default function SuitesPage() {
                 type="date"
                 value={checkIn}
                 onChange={(e) => dispatch(setDates({ checkIn: e.target.value, checkOut }))}
-                className="w-full px-3 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                className="w-full min-w-0 px-3 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
               />
             </div>
 
             <div>
-              <label className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-luxury-muted mb-1">
+              <label className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-luxury-muted mb-1">
                 <span>Départ</span>
                 <span className="text-luxury-gold font-semibold">{nights} nuit{nights > 1 ? 's' : ''}</span>
               </label>
@@ -52,12 +52,12 @@ export default function SuitesPage() {
                 value={checkOut}
                 min={checkIn}
                 onChange={(e) => dispatch(setDates({ checkIn, checkOut: e.target.value }))}
-                className="w-full px-3 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                className="w-full min-w-0 px-3 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
               />
             </div>
 
             <div>
-              <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-luxury-muted mb-1">
+              <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-luxury-muted mb-1">
                 <Users className="w-3 h-3 text-luxury-gold" />
                 Résidents ({adults + children})
               </label>

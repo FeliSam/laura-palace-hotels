@@ -255,6 +255,89 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
     return { data: { booking: clientBookingsStore[index] } };
   }
 
+  if (method === 'PUT' && url.startsWith('/bookings/')) {
+    const ref = decodeURIComponent(url.replace('/bookings/', '')).trim().toUpperCase();
+    const index = clientBookingsStore.findIndex(
+      (b) => b.referenceCode.toUpperCase() === ref || b.id === ref
+    );
+    if (index === -1) {
+      return { error: { status: 404, data: { error: 'Dossier de réservation introuvable' } } };
+    }
+
+    const existing = clientBookingsStore[index];
+    const body = args.body || {};
+
+    const updatedRoom = body.roomId
+      ? enrichRoomWithRating(
+          clientRoomsStore.find((r) => r.id === body.roomId || r.slug === body.roomId) ||
+            clientRoomsStore[0]
+        )
+      : enrichRoomWithRating(
+          clientRoomsStore.find((r) => r.id === existing.room.id) || clientRoomsStore[0]
+        );
+
+    const checkIn = body.checkIn || existing.checkIn;
+    const checkOut = body.checkOut || existing.checkOut;
+    const adults = typeof body.adults === 'number' ? body.adults : existing.adults;
+    const children = typeof body.children === 'number' ? body.children : existing.children;
+
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const nights = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / 86400000));
+
+    const roomSubtotal = updatedRoom.pricePerNight * nights;
+    const addOnsSubtotal = existing.addOns.reduce((acc, addon) => {
+      if (addon.pricingType === 'PER_NIGHT') return acc + addon.price * nights;
+      if (addon.pricingType === 'PER_GUEST') return acc + addon.price * (adults + children);
+      return acc + addon.price;
+    }, 0);
+
+    const gross = roomSubtotal + addOnsSubtotal;
+    const discountAmount = existing.pricing.discountAmount || 0;
+    const net = Math.max(0, gross - discountAmount);
+    const taxesAndFees =
+      Math.round((net * HOTEL_CONFIG.pricing.taxRatePercent) / 100) +
+      HOTEL_CONFIG.pricing.cityTaxPerNight * nights * adults;
+
+    const updatedBooking: BookingRecord = {
+      ...existing,
+      status: body.status || existing.status,
+      checkIn,
+      checkOut,
+      nights,
+      adults,
+      children,
+      room: {
+        id: updatedRoom.id,
+        slug: updatedRoom.slug,
+        name: updatedRoom.name,
+        subtitle: updatedRoom.subtitle,
+        heroImage: updatedRoom.heroImage,
+        category: updatedRoom.category,
+        sizeSqm: updatedRoom.sizeSqm,
+        ...(updatedRoom.rating ? { rating: updatedRoom.rating } : {}),
+        ...(updatedRoom.reviewsCount ? { reviewsCount: updatedRoom.reviewsCount } : {})
+      },
+      guest: {
+        ...existing.guest,
+        ...(body.guest || {})
+      },
+      pricing: {
+        ...existing.pricing,
+        nights,
+        roomRatePerNight: updatedRoom.pricePerNight,
+        roomSubtotal,
+        addOnsSubtotal,
+        taxesAndFees,
+        totalPrice: net + taxesAndFees
+      }
+    };
+
+    clientBookingsStore[index] = updatedBooking;
+    persistLocalStores();
+    return { data: { booking: updatedBooking } };
+  }
+
   if (method === 'POST' && url === '/bookings') {
     const payload = args.body as CreateBookingPayload;
     const room =
@@ -442,6 +525,26 @@ export const hotelApi = createApi({
       }),
       invalidatesTags: ['Bookings', 'Rooms']
     }),
+    updateBooking: builder.mutation<
+      { booking: BookingRecord },
+      {
+        referenceCode: string;
+        roomId?: string;
+        checkIn?: string;
+        checkOut?: string;
+        adults?: number;
+        children?: number;
+        status?: BookingRecord['status'];
+        guest?: Partial<BookingRecord['guest']>;
+      }
+    >({
+      query: ({ referenceCode, ...body }) => ({
+        url: `/bookings/${encodeURIComponent(referenceCode)}`,
+        method: 'PUT',
+        body
+      }),
+      invalidatesTags: ['Bookings', 'Rooms']
+    }),
     createBooking: builder.mutation<
       { booking: BookingRecord; message: string },
       CreateBookingPayload
@@ -470,6 +573,7 @@ export const {
   useGetAddOnsQuery,
   useGetAllBookingsQuery,
   useUpdateBookingStatusMutation,
+  useUpdateBookingMutation,
   useCreateBookingMutation,
   useGetBookingByReferenceQuery,
   useLazyGetBookingByReferenceQuery

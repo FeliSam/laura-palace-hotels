@@ -28,11 +28,11 @@ interface AfricanDish {
 const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
   {
     id: 'dish-amiwo-pintade',
-    name: 'Amiwo Royal du Danxomè à la Pintade Fermière',
-    localSubtitle: 'Spécialité Royale d’Abomey & Cotonou',
+    name: 'Amiwo Royal à la Pintade Fermière',
+    localSubtitle: 'Spécialité Royale d’Abomey',
     category: 'BENIN_TERROIR',
     description:
-      'Pâte rouge de maïs mijotée au bouillon d’épices douces, servie avec une pintade fermière braisée au feu de bois, jus réduit aux oignons caramélisés et piment vert parfumé.',
+      'Pâte rouge de maïs épicée servie avec pintade braisée au feu de bois et piment vert.',
     priceXof: 14500,
     image:
       'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=85',
@@ -41,11 +41,11 @@ const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
   },
   {
     id: 'dish-agoun-igname',
-    name: 'Agoun (Igname Pilée de Savalou) & Sauce Arachide ou Gboma',
-    localSubtitle: 'Tradition des Collines • Viande de Brousse ou Bœuf Fondant',
+    name: 'Agoun (Igname Pilée) & Sauce Gboma',
+    localSubtitle: 'Tradition de Savalou',
     category: 'BENIN_TERROIR',
     description:
-      'Igname Laboko pilée dans les règles de l’art jusqu’à une texture souple et aérienne, accompagnée au choix d’une sauce Gboma (épinards locaux, crabes et crevettes fumées) ou sauce arachide onctueuse.',
+      'Igname Laboko pilée accompagnée d’une sauce Gboma aux crabes ou sauce arachide onctueuse.',
     priceXof: 13000,
     image:
       'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1000&q=85',
@@ -54,11 +54,11 @@ const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
   },
   {
     id: 'dish-atassi-royal',
-    name: 'Atassi Gourmet & Poisson Capitaine Braisé (Watché)',
-    localSubtitle: 'Riz & Haricots Rouges du Terroir • Sauce Friture Tomate (Dja)',
+    name: 'Atassi Gourmet & Capitaine Braisé',
+    localSubtitle: 'Riz & Haricots • Sauce Dja',
     category: 'BENIN_TERROIR',
     description:
-      'Le célèbre duo béninois de riz et haricots parfumés, dressé avec sa friture de tomates confites aux épices locales (Dja), œuf fermier, wagassi grillé (fromage peulh) et filet de poisson braisé.',
+      'Duo béninois de riz et haricots rouges avec friture de tomates (Dja), wagassi et poisson braisé.',
     priceXof: 12000,
     image:
       'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1000&q=85',
@@ -67,11 +67,11 @@ const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
   },
   {
     id: 'dish-langouste-peches',
-    name: 'Langouste Royale de l’Atlantique Grillée au Beurre d’Ail',
-    localSubtitle: 'Pêche du Jour • Route des Pêches & Ouidah',
+    name: 'Langouste Grillée au Beurre d’Ail',
+    localSubtitle: 'Pêche du Jour • Ouidah',
     category: 'ATLANTIC_GRILL',
     description:
-      'Langouste entière pêchée au large de Ouidah, saisie à la flamme au beurre d’ail, citron vert et herbes fraîches, accompagnée d’alloco croustillants (bananes plantains mûres) et riz basmati.',
+      'Langouste entière de Ouidah saisie au beurre d’ail et citron vert, servie avec alloco et riz.',
     priceXof: 26000,
     image:
       'https://images.unsplash.com/photo-1559737558-2f5a35f4523b?auto=format&fit=crop&w=1000&q=85',
@@ -79,11 +79,11 @@ const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
   },
   {
     id: 'dish-bar-braise-cotonou',
-    name: 'Grand Bar / Daurade Braisée Façon Fidjrossè & Alloco',
-    localSubtitle: 'Marinade Secrète aux Épices Africaines & Attiéké Fin',
+    name: 'Daurade Braisée Fidjrossè & Alloco',
+    localSubtitle: 'Épices Africaines & Attiéké',
     category: 'ATLANTIC_GRILL',
     description:
-      'Poisson entier mariné aux épices douces (gingembre, ail, poivre de Penja), braisé lentement et servi avec attiéké chaud, alloco dorés et rougail d’oignons et tomates fraîches.',
+      'Poisson entier mariné au gingembre et poivre de Penja, servi avec attiéké et alloco dorés.',
     priceXof: 16500,
     image:
       'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1000&q=85',
@@ -92,11 +92,11 @@ const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
   },
   {
     id: 'dish-wagassi-assiette',
-    name: 'MédaiIlons de Wagassi Grillé du Nord-Bénin & Sauce Épicée',
-    localSubtitle: 'Fromage Traditionnel Peulh de Parakou • Entrée Chaude',
+    name: 'Wagassi Grillé du Nord-Bénin',
+    localSubtitle: 'Fromage Peulh de Parakou',
     category: 'BENIN_TERROIR',
     description:
-      'Tranches de fromage traditionnel au lait de vache du Borgou dorées à la poêle, servies sur un lit de légumes croquants et réduction de piment doux fumé.',
+      'Fromage traditionnel du Borgou doré à la poêle, légumes croquants et piment doux.',
     priceXof: 8500,
     image:
       'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1000&q=85',
@@ -105,11 +105,11 @@ const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
   },
   {
     id: 'dish-kedjenou-poulet',
-    name: 'Kédjenou de Volaille Fermière & Riz Jollof d’Afrique de l’Ouest',
-    localSubtitle: 'Classiques Panafricains • Cuisson à l’Étouffée',
+    name: 'Kédjenou de Volaille & Riz Jollof',
+    localSubtitle: 'Cuisson à l’Étouffée',
     category: 'WEST_AFRICA',
     description:
-      'Volaille fermière mijotée à l’étouffée avec aubergines, tomates fraîches, gingembre et feuilles aromatiques, accompagnée d’un riz Jollof fumé aux épices douces.',
+      'Volaille fermière mijotée aux légumes et gingembre, servie avec un riz Jollof fumé.',
     priceXof: 15000,
     image:
       'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=1000&q=85',
@@ -118,11 +118,11 @@ const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
   },
   {
     id: 'dish-ananas-pain-de-sucre',
-    name: 'Carpaccio d’Ananas « Pain de Sucre » d’Allada & Élixir de Bissap',
-    localSubtitle: 'IGP Plateau d’Allada • Infusion Hibiscus Menthe & Baobab',
+    name: 'Ananas Pain de Sucre & Bissap',
+    localSubtitle: 'IGP Plateau d’Allada',
     category: 'DESSERTS_BOISSONS',
     description:
-      'Fines tranches du célèbre ananas Pain de Sucre du Bénin infusées à la vanille et au citron vert, accompagnées d’un sorbet artisanal au fruit du baobab et jus de Bissap glacé.',
+      'Carpaccio d’ananas d’Allada à la vanille, sorbet baobab et jus de Bissap glacé à la menthe.',
     priceXof: 7500,
     image:
       'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?auto=format&fit=crop&w=1000&q=85',
@@ -132,10 +132,10 @@ const AFRICAN_GASTRONOMY_MENU: AfricanDish[] = [
 
 const DISH_TABS: Array<{ id: DishCategory; label: string }> = [
   { id: 'ALL', label: 'Toute la Carte' },
-  { id: 'BENIN_TERROIR', label: 'Mets Royaux du Bénin' },
-  { id: 'ATLANTIC_GRILL', label: 'Grillades de l’Atlantique' },
-  { id: 'WEST_AFRICA', label: 'Saveurs d’Afrique de l’Ouest' },
-  { id: 'DESSERTS_BOISSONS', label: 'Douceurs & Jus Naturels' }
+  { id: 'BENIN_TERROIR', label: 'Mets du Bénin' },
+  { id: 'ATLANTIC_GRILL', label: 'Grillades Mer' },
+  { id: 'WEST_AFRICA', label: 'Afrique de l’Ouest' },
+  { id: 'DESSERTS_BOISSONS', label: 'Desserts & Jus' }
 ];
 
 export function ExperiencesSection() {
@@ -155,38 +155,36 @@ export function ExperiencesSection() {
   return (
     <section
       id="experiences"
-      className="py-20 bg-luxury-bg border-y border-luxury-border transition-colors duration-300"
+      className="py-12 sm:py-20 bg-luxury-bg border-y border-luxury-border transition-colors duration-300"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 space-y-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 space-y-16 sm:space-y-20">
         {/* PART 1: CARTE GASTRONOMIQUE BÉNINOISE & AFRICAINE */}
-        <div className="space-y-10">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-8 border-b border-luxury-border">
+        <div className="space-y-6 sm:space-y-8">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-6 border-b border-luxury-border">
             <div>
-              <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-2 mb-1.5">
                 <Utensils className="w-4 h-4 text-luxury-gold" />
-                <span className="text-xs uppercase tracking-[0.26em] text-luxury-gold font-semibold">
-                  LA TABLE DE LA MARINA • HAUTE CUISINE BÉNINOISE & AFRICAINE
+                <span className="text-[10px] sm:text-xs uppercase tracking-[0.22em] text-luxury-gold font-semibold">
+                  LA TABLE DE LA MARINA • CUISINE BÉNINOISE
                 </span>
               </div>
-              <h2 className="font-serif text-3xl sm:text-5xl text-luxury-text font-normal">
-                Carte des Mets du Bénin & Grillades de la Mer
+              <h2 className="font-serif text-2xl sm:text-4xl text-luxury-text font-normal">
+                Mets du Bénin & Grillades de l’Atlantique
               </h2>
             </div>
 
-            <p className="text-xs sm:text-sm text-luxury-muted max-w-md leading-relaxed">
-              Notre Chef sublime les recettes ancestrales du Bénin (Amiwo, Agoun de Savalou, Atassi,
-              Wagassi du Borgou) et les produits frais de la Route des Pêches. Service en salle, au
-              bord de la piscine ou en chambre.
+            <p className="text-xs text-luxury-muted max-w-md leading-relaxed">
+              Recettes du terroir béninois et pêche fraîche de Ouidah. Service en salle, piscine ou en chambre.
             </p>
           </div>
 
           {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {DISH_TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveDishTab(tab.id)}
-                className={`px-4 py-2 rounded-full text-xs tracking-[0.14em] uppercase transition-all border ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs tracking-[0.12em] uppercase transition-all border ${
                   activeDishTab === tab.id
                     ? 'bg-luxury-text text-luxury-bg border-luxury-text font-semibold shadow-sm'
                     : 'bg-luxury-surface text-luxury-muted hover:text-luxury-text border-luxury-border'
@@ -198,14 +196,14 @@ export function ExperiencesSection() {
           </div>
 
           {/* Dishes Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {filteredDishes.map((dish) => (
               <article
                 key={dish.id}
                 className="editorial-card overflow-hidden flex flex-col justify-between group"
               >
                 <div>
-                  <div className="relative h-52 overflow-hidden bg-black">
+                  <div className="relative h-48 overflow-hidden bg-black">
                     <img
                       src={dish.image}
                       alt={dish.name}
@@ -237,22 +235,22 @@ export function ExperiencesSection() {
                     </div>
                   </div>
 
-                  <div className="p-5 space-y-2.5">
-                    <h3 className="font-serif text-xl text-luxury-text leading-snug">
+                  <div className="p-4 space-y-2">
+                    <h3 className="font-serif text-lg sm:text-xl text-luxury-text leading-snug">
                       {dish.name}
                     </h3>
-                    <p className="text-xs text-luxury-muted leading-relaxed">
+                    <p className="text-xs text-luxury-muted leading-relaxed line-clamp-2">
                       {dish.description}
                     </p>
                   </div>
                 </div>
 
-                <div className="px-5 py-3.5 border-t border-luxury-border bg-luxury-surface/40 flex items-center justify-between">
+                <div className="px-4 py-3 border-t border-luxury-border bg-luxury-surface/40 flex items-center justify-between">
                   <div>
                     <span className="text-[10px] uppercase tracking-wider text-luxury-muted block">
                       Tarif Carte
                     </span>
-                    <span className="font-serif text-lg text-luxury-gold font-semibold">
+                    <span className="font-serif text-base sm:text-lg text-luxury-gold font-semibold">
                       {formatCurrencyAmount(dish.priceXof, currency)}
                     </span>
                   </div>

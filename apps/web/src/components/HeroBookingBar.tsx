@@ -47,46 +47,46 @@ export function HeroBookingBar() {
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/35 pointer-events-none" />
 
       {/* Editorial Headline */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 w-full my-auto pt-16 pb-12">
-        <div className="max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-3 px-3.5 py-1.5 bg-black/55 backdrop-blur-md border border-white/20">
-            <span className="w-6 h-[1px] bg-[#D4AF6A]" />
-            <span className="text-[11px] uppercase tracking-[0.28em] text-[#E5C98B] font-medium">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 w-full my-auto pt-12 pb-8 sm:pt-16 sm:pb-12">
+        <div className="max-w-3xl space-y-4 sm:space-y-5">
+          <div className="inline-flex items-center gap-2.5 px-3 py-1 bg-black/55 backdrop-blur-md border border-white/20">
+            <span className="w-5 h-[1px] bg-[#D4AF6A]" />
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.24em] text-[#E5C98B] font-medium">
               {currentTheme.locationOverride || 'Boulevard de la Marina • Cotonou, Bénin'}
             </span>
           </div>
 
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-[66px] leading-[1.05] font-normal tracking-tight text-white drop-shadow-sm">
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-[62px] leading-[1.08] font-normal tracking-tight text-white drop-shadow-sm">
             {currentTheme.tagline}
           </h1>
 
-          <p className="text-base sm:text-lg text-white/90 max-w-2xl leading-relaxed font-light">
-            {HOTEL_CONFIG.brand.storyDescription}
+          <p className="text-sm sm:text-base text-white/90 max-w-xl leading-relaxed font-light">
+            Chambres climatisées, suites vue océan, gastronomie béninoise et navette Aéroport Cadjèhoun.
           </p>
 
-          <div className="flex flex-wrap items-center gap-6 pt-2 text-[11px] tracking-[0.18em] uppercase text-[#E5C98B]">
-            <span className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4" />
-              Tarif Officiel Palace & Surclassement Prioritaire
+          <div className="flex flex-wrap items-center gap-4 pt-1 text-[10px] sm:text-[11px] tracking-[0.16em] uppercase text-[#E5C98B]">
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Tarifs Officiels FCFA
             </span>
-            <span className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              Service Majordome 24h/24 Inclus
+            <span className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              Conciergerie 24h/24
             </span>
           </div>
         </div>
       </div>
 
       {/* Architectural Booking Bar */}
-      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 w-full pb-10">
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 w-full pb-8 sm:pb-10">
         <form
           onSubmit={handleSearchAvailability}
-          className="editorial-card shadow-2xl p-4 sm:p-6"
+          className="editorial-card shadow-2xl p-3.5 sm:p-6"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-end">
             {/* Check-in */}
-            <div className="lg:col-span-3 space-y-1.5">
-              <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-luxury-muted font-semibold">
+            <div className="lg:col-span-3 space-y-1">
+              <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-luxury-muted font-semibold">
                 <Calendar className="w-3 h-3 text-luxury-gold" />
                 Arrivée
               </label>
@@ -94,13 +94,13 @@ export function HeroBookingBar() {
                 type="date"
                 value={checkIn}
                 onChange={(e) => dispatch(setDates({ checkIn: e.target.value, checkOut }))}
-                className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-sm text-luxury-text focus:outline-none focus:border-luxury-gold"
+                className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text focus:outline-none focus:border-luxury-gold"
               />
             </div>
 
             {/* Check-out */}
-            <div className="lg:col-span-3 space-y-1.5">
-              <label className="flex items-center justify-between text-[10px] uppercase tracking-[0.22em] text-luxury-muted font-semibold">
+            <div className="lg:col-span-3 space-y-1">
+              <label className="flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-luxury-muted font-semibold">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-3 h-3 text-luxury-gold" />
                   Départ
@@ -114,17 +114,17 @@ export function HeroBookingBar() {
                 value={checkOut}
                 min={checkIn}
                 onChange={(e) => dispatch(setDates({ checkIn, checkOut: e.target.value }))}
-                className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-sm text-luxury-text focus:outline-none focus:border-luxury-gold"
+                className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs sm:text-sm text-luxury-text focus:outline-none focus:border-luxury-gold"
               />
             </div>
 
             {/* Guests */}
-            <div className="lg:col-span-2 space-y-1.5">
-              <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-luxury-muted font-semibold">
+            <div className="lg:col-span-2 space-y-1">
+              <label className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-luxury-muted font-semibold">
                 <Users className="w-3 h-3 text-luxury-gold" />
                 Résidents
               </label>
-              <div className="flex items-center justify-between px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text">
+              <div className="flex items-center justify-between px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text">
                 <span className="font-medium">
                   {adults} Adulte{adults > 1 ? 's' : ''}
                 </span>
@@ -148,24 +148,24 @@ export function HeroBookingBar() {
             </div>
 
             {/* Category */}
-            <div className="lg:col-span-2 space-y-1.5">
-              <label className="block text-[10px] uppercase tracking-[0.22em] text-luxury-muted font-semibold">
-                Collection
+            <div className="lg:col-span-2 space-y-1">
+              <label className="block text-[10px] uppercase tracking-[0.2em] text-luxury-muted font-semibold">
+                Catégorie
               </label>
               <select
                 value={category}
                 onChange={(e) => dispatch(setCategoryFilter(e.target.value as SuiteCategory))}
-                className="w-full px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text focus:outline-none focus:border-luxury-gold"
+                className="w-full min-w-0 px-3 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text focus:outline-none focus:border-luxury-gold"
               >
-                <option value="ALL">Toutes les Suites</option>
-                <option value="ROYAL_PENTHOUSE">Penthouses</option>
-                <option value="PRIVATE_VILLA">Villas Privées</option>
-                <option value="SIGNATURE_SUITE">Suites Signature</option>
+                <option value="ALL">Toutes les Chambres</option>
+                <option value="SIGNATURE_SUITE">Classiques</option>
+                <option value="ROYAL_PENTHOUSE">Suites Exécutives</option>
+                <option value="PRIVATE_VILLA">Villas Océan</option>
               </select>
             </div>
 
             {/* Submit to /suites page */}
-            <div className="lg:col-span-2">
+            <div className="sm:col-span-2 lg:col-span-2">
               <button
                 type="submit"
                 className="w-full py-3 px-4 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-[11px] uppercase tracking-[0.2em] transition-colors flex items-center justify-center gap-2"
