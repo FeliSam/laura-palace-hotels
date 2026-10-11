@@ -8,7 +8,7 @@ export const STATIC_SUITES: Room[] = [
     subtitle: 'Standard International • Climatisation & Wi-Fi Haut Débit',
     category: 'SIGNATURE_SUITE',
     description:
-      'Idéale pour vos séjours d’affaires ou de détente à Cotonou. Chambre spacieuse et lumineuse dotée d’un lit King Size grand confort, bureau ergonomique, fibre optique dédiée, télévision Smart 55" et balcon donnant sur les jardins et la piscine.',
+      'Idéale pour vos séjours d’affaires ou de détente à Cotonou. Chambre spacieuse et lumineuse dotée d’un lit King Size grand confort, bureau ergonomique, fibre optique dédiée, télévision Smart 55", salle de bain en marbre avec douche pluie et balcon donnant sur les jardins tropicaux et la piscine.',
     pricePerNight: 95000,
     sizeSqm: 34,
     maxGuests: 2,
@@ -20,18 +20,24 @@ export const STATIC_SUITES: Room[] = [
       'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=85',
     gallery: [
       'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=1400&q=85'
+      'https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=85'
     ],
     amenities: [
       { id: 'wifi', label: 'Wi-Fi Fibre Haut Débit Gratuit', icon: 'Wifi', premium: true },
       { id: 'breakfast', label: 'Petit-Déjeuner Buffet Inclus', icon: 'Coffee', premium: true },
       { id: 'ac', label: 'Climatisation Individuelle Silencieuse', icon: 'Wind' },
-      { id: 'pool', label: 'Accès Libre Piscine & Salle de Sport', icon: 'Waves' }
+      { id: 'pool', label: 'Accès Libre Piscine & Salle de Sport', icon: 'Waves' },
+      { id: 'desk', label: 'Bureau Affaires & Coffre-Fort Laptop', icon: 'Briefcase' },
+      { id: 'tv', label: 'Smart TV 55" Chaînes Canal+ & Internationales', icon: 'Tv' }
     ],
     highlights: [
-      'Petit-déjeuner buffet complet inclus dès 06h30',
-      'Accès gratuit à la piscine extérieure et au studio fitness',
-      'Espace de travail avec prises internationales et coffre-fort'
+      'Petit-déjeuner buffet complet inclus dès 06h30 au restaurant',
+      'Accès gratuit à la piscine extérieure de 25m et au studio fitness',
+      'Espace de travail ergonomique avec prises internationales',
+      'Service en chambre (Room Service) disponible 24h/24'
     ],
     isFeatured: true,
     availableCount: 8,
@@ -44,7 +50,7 @@ export const STATIC_SUITES: Room[] = [
     subtitle: 'Étage Exécutif • Accès Salon VIP & Vue Mer',
     category: 'SIGNATURE_SUITE',
     description:
-      'Située dans les étages supérieurs avec une vue dégagée sur l’Océan Atlantique et la côte de Fidjrossè. Comprend une machine expresso, un plateau de courtoisie béninois, une douche à effet pluie et l’accès au Salon Exécutif.',
+      'Située dans les étages supérieurs avec une vue dégagée sur l’Océan Atlantique et la côte de Fidjrossè. Comprend une machine expresso, un plateau de courtoisie béninois, une salle de bain panoramique avec douche à effet pluie et l’accès privilégié au Salon Exécutif.',
     pricePerNight: 135000,
     sizeSqm: 42,
     maxGuests: 3,
@@ -56,17 +62,23 @@ export const STATIC_SUITES: Room[] = [
       'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1600&q=85',
     gallery: [
       'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85'
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1400&q=85'
     ],
     amenities: [
       { id: 'shuttle', label: 'Navette Aéroport Cotonou Gratuite', icon: 'Car', premium: true },
       { id: 'lounge', label: 'Accès Salon VIP & Rafraîchissements', icon: 'Crown', premium: true },
-      { id: 'coffee', label: 'Machine Nespresso & Mini-Bar', icon: 'Coffee' }
+      { id: 'coffee', label: 'Machine Nespresso & Mini-Bar', icon: 'Coffee' },
+      { id: 'view', label: 'Baie Vitrée Vue Océan Atlantique', icon: 'Sun' },
+      { id: 'wifi', label: 'Fibre Optique Dédiée Haut Débit', icon: 'Wifi' }
     ],
     highlights: [
       'Transfert Aéroport International de Cotonou aller-retour offert',
       'Check-in prioritaire et départ tardif selon disponibilité (14h00)',
-      'Petit-déjeuner continental ou buffet servi au restaurant'
+      'Petit-déjeuner continental ou buffet servi au restaurant',
+      'Accès au Salon Exécutif avec boissons et presse quotidienne'
     ],
     isFeatured: true,
     availableCount: 6,
@@ -79,7 +91,7 @@ export const STATIC_SUITES: Room[] = [
     subtitle: 'Salon Séparé & Terrasse sur le Boulevard de la Marina',
     category: 'ROYAL_PENTHOUSE',
     description:
-      'Conçue pour les dirigeants, diplomates et séjours prolongés au Bénin. Dispose d’un salon de réception indépendant pour vos rendez-vous privés, d’une grande chambre en-suite et d’une terrasse surplombant l’océan.',
+      'Conçue pour les dirigeants, diplomates et séjours prolongés au Bénin. Dispose d’un salon de réception indépendant pour vos rendez-vous privés, d’une grande chambre en-suite, d’une salle de bain avec baignoire îlot et d’une terrasse surplombant l’océan.',
     pricePerNight: 195000,
     sizeSqm: 68,
     maxGuests: 3,
@@ -91,18 +103,23 @@ export const STATIC_SUITES: Room[] = [
       'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85',
     gallery: [
       'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1400&q=85'
+      'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85'
     ],
     amenities: [
       { id: 'salon', label: 'Salon de Réception Privé (4 pers.)', icon: 'Users', premium: true },
       { id: 'shuttle', label: 'Accueil VIP Aéroport & Chauffeur', icon: 'Car', premium: true },
       { id: 'pressing', label: 'Service Pressing Express Inclus', icon: 'Sparkles' },
-      { id: 'terrace', label: 'Terrasse Privée Vue Océan', icon: 'Sun' }
+      { id: 'terrace', label: 'Terrasse Privée Vue Océan', icon: 'Sun' },
+      { id: 'bath', label: 'Baignoire Îlot & Douche Italienne', icon: 'Waves' }
     ],
     highlights: [
       'Accueil personnalisé à l’aéroport de Cotonou avec véhicule privé',
       'Salon privé idéal pour vos réunions d’affaires confidentielles',
-      'Corbeille de fruits tropicaux et boissons fraîches à l’arrivée'
+      'Corbeille de fruits tropicaux (ananas Pain de Sucre, mangues) à l’arrivée',
+      'Pressing offert pour 2 pièces par jour'
     ],
     isFeatured: true,
     availableCount: 3,
@@ -115,7 +132,7 @@ export const STATIC_SUITES: Room[] = [
     subtitle: 'Terrasse Privée, Jardin de Cocotiers & Accès Plage',
     category: 'PRIVATE_VILLA',
     description:
-      'Pour les familles ou les escapades balnéaires : un pavillon indépendant niché au calme dans la cocoteraie avec terrasse ombragée, deux chambres climatisées et accès direct à la piscine lagon et à la plage.',
+      'Pour les familles ou les escapades balnéaires : un pavillon indépendant niché au calme dans la cocoteraie avec terrasse ombragée, deux chambres climatisées, grand salon lumineux et accès direct à la piscine lagon et à la plage.',
     pricePerNight: 240000,
     sizeSqm: 95,
     maxGuests: 4,
@@ -127,17 +144,22 @@ export const STATIC_SUITES: Room[] = [
       'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1600&q=85',
     gallery: [
       'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1400&q=85'
+      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1400&q=85'
     ],
     amenities: [
       { id: 'family', label: '2 Chambres & Grand Salon Familial', icon: 'Home', premium: true },
       { id: 'terrace', label: 'Véranda Privée sous les Cocotiers', icon: 'Trees', premium: true },
-      { id: 'breakfast', label: 'Petit-Déjeuner Inclus pour 4 Personnes', icon: 'Utensils' }
+      { id: 'breakfast', label: 'Petit-Déjeuner Inclus pour 4 Personnes', icon: 'Utensils' },
+      { id: 'beach', label: 'Accès Direct Plage & Transats Privés', icon: 'Sun' }
     ],
     highlights: [
       'Parfait pour les séjours en famille ou entre amis au Bénin',
-      'Petit-déjeuner complet inclus pour tous les occupants',
-      'Accès direct à la piscine et aux jardins sans ascenseur'
+      'Petit-déjeuner complet inclus pour les 4 occupants',
+      'Accès direct à la piscine lagon et aux jardins sans ascenseur',
+      'Service grillades de poissons et langoustes sur votre terrasse privée'
     ],
     isFeatured: true,
     availableCount: 4,
@@ -162,17 +184,22 @@ export const STATIC_SUITES: Room[] = [
       'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1600&q=85',
     gallery: [
       'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1600&q=85',
-      'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1400&q=85'
+      'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1400&q=85'
     ],
     amenities: [
       { id: 'vip', label: 'Véhicule SUV Climatisé avec Chauffeur Inclus', icon: 'Car', premium: true },
       { id: 'butler', label: 'Service Majordome & Conciergerie 24h/24', icon: 'Crown', premium: true },
-      { id: 'dining', label: 'Salle de Réunion / Dîner Privé 8 Places', icon: 'Utensils', premium: true }
+      { id: 'dining', label: 'Salle de Réunion / Dîner Privé 8 Places', icon: 'Utensils', premium: true },
+      { id: 'security', label: 'Accès Ascenseur Sécurisé VIP', icon: 'ShieldCheck' }
     ],
     highlights: [
       'Transfert VIP Salon d’Honneur Aéroport de Cotonou inclus',
       'Service d’étage et conciergerie dédiée 24h/24',
-      'Accès illimité au Spa, Hammam et espace bien-être'
+      'Accès illimité au Spa, Hammam et espace bien-être',
+      'Mise à disposition d’un véhicule avec chauffeur sur Cotonou'
     ],
     isFeatured: false,
     availableCount: 1,
@@ -185,7 +212,7 @@ export const STATIC_SUITES: Room[] = [
     subtitle: 'Résidence Haut Standing Indépendante pour Délégations & Familles',
     category: 'PRIVATE_VILLA',
     description:
-      'Une villa contemporaine entièrement privatisée au sein du domaine hôtelier, dotée de 3 chambres avec salles de bain privatives, piscine privée, salon cathédrale et service hôtelier complet.',
+      'Une villa contemporaine entièrement privatisée au sein du domaine hôtelier, dotée de 3 chambres avec salles de bain privatives, piscine privée chauffée, salon cathédrale et service hôtelier complet.',
     pricePerNight: 450000,
     sizeSqm: 210,
     maxGuests: 6,
@@ -196,17 +223,23 @@ export const STATIC_SUITES: Room[] = [
     heroImage:
       'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85',
     gallery: [
-      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85'
+      'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85',
+      'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=1400&q=85',
+      'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1400&q=85'
     ],
     amenities: [
       { id: 'priv-pool', label: 'Piscine Privée & Terrasse Lounge', icon: 'Waves', premium: true },
       { id: 'security', label: 'Sécurité & Parking Privé Devant la Villa', icon: 'ShieldCheck', premium: true },
-      { id: 'chef', label: 'Chef à Domicile sur Demande', icon: 'Utensils' }
+      { id: 'chef', label: 'Chef à Domicile sur Demande', icon: 'Utensils' },
+      { id: 'wifi', label: 'Wi-Fi Fibre Dédié & Salon Cinéma', icon: 'Wifi' }
     ],
     highlights: [
       'Idéal pour les familles nombreuses, artistes ou délégations officielles',
       'Intimité totale avec tous les services 5★ de l’hôtel',
-      'Navette aéroport aller-retour incluse'
+      'Navette aéroport aller-retour incluse',
+      'Possibilité de dîner barbecue privé préparé par notre Chef'
     ],
     isFeatured: false,
     availableCount: 2,

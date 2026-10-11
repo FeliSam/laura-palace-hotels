@@ -7,26 +7,48 @@ import {
   AppStore,
   useAppSelector,
   useAppDispatch,
-  setColorMode
+  setColorMode,
+  loginSuccess
 } from '@hotel/store';
 import { HOTEL_CONFIG } from '@hotel/config';
 
 function ThemeCssVariablesInjector({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
   const { activeTheme, customAccentColor, colorMode } = useAppSelector((state) => state.ui);
+  const { currentUser } = useAppSelector((state) => state.auth);
   const palette = HOTEL_CONFIG.themes[activeTheme] || HOTEL_CONFIG.themes['palace-parisien'];
 
-  // Hydrate saved colorMode on mount
+  // Hydrate saved colorMode & authenticated user on mount
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem('aura_color_mode');
       if (saved === 'light' || saved === 'dark') {
         dispatch(setColorMode(saved));
       }
+      const savedUser = window.localStorage.getItem('aura_auth_user');
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        if (parsed && parsed.email) {
+          dispatch(loginSuccess(parsed));
+        }
+      }
     } catch (_e) {
       // Ignore storage error
     }
   }, [dispatch]);
+
+  // Persist user session to localStorage
+  useEffect(() => {
+    try {
+      if (currentUser) {
+        window.localStorage.setItem('aura_auth_user', JSON.stringify(currentUser));
+      } else {
+        window.localStorage.removeItem('aura_auth_user');
+      }
+    } catch (_e) {
+      // Ignore storage error
+    }
+  }, [currentUser]);
 
   useEffect(() => {
     const root = document.documentElement;

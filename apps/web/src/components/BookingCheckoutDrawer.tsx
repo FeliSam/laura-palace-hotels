@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
   useAppDispatch,
   useAppSelector,
   setDrawerOpen,
   setCheckoutStep,
   setDates,
-   toggleAddOn,
+  setGuests,
+  toggleAddOn,
   setPromoCode,
   updateGuestInfo,
   toggleVipPreference,
@@ -28,7 +30,12 @@ import {
   ShieldCheck,
   Tag,
   Crown,
-  Loader2
+  Loader2,
+  Maximize2,
+  Users,
+  BedDouble,
+  RefreshCw,
+  Eye
 } from 'lucide-react';
 
 const VIP_PREFERENCES_OPTIONS = [
@@ -56,6 +63,7 @@ export function BookingCheckoutDrawer() {
     lastConfirmedBookingRef
   } = useAppSelector((state) => state.booking);
   const { currency, customHotelName } = useAppSelector((state) => state.ui);
+  const { currentUser } = useAppSelector((state) => state.auth);
   const pricing = useAppSelector(selectPriceBreakdown);
 
   const { data: roomsData } = useGetRoomsQuery();
@@ -64,30 +72,66 @@ export function BookingCheckoutDrawer() {
 
   const [promoInput, setPromoInput] = useState(promoCode);
   const [formError, setFormError] = useState<string | null>(null);
-
-  if (!isDrawerOpen) return null;
+  const [activePhotoIdx, setActivePhotoIdx] = useState(0);
 
   const availableRooms = roomsData?.rooms || [];
   const availableAddOns = addOnsData?.addOns || [];
+  const chosenRoom = selectedRoom || availableRooms[0] || null;
+
+  // Ensure Redux has the active room synced when drawer opens
+  useEffect(() => {
+    if (isDrawerOpen && !selectedRoom && availableRooms.length > 0) {
+      dispatch(selectRoomForBooking({ room: availableRooms[0], openDrawer: true }));
+    }
+  }, [isDrawerOpen, selectedRoom, availableRooms, dispatch]);
+
+  // Reset active photo index when chosen room changes
+  useEffect(() => {
+    setActivePhotoIdx(0);
+  }, [chosenRoom?.id]);
+
+  // Auto-fill guest info when user is logged in
+  useEffect(() => {
+    if (currentUser && !guestInfo.email) {
+      dispatch(
+        updateGuestInfo({
+          title: currentUser.title,
+          firstName: currentUser.firstName,
+          lastName: currentUser.lastName,
+          email: currentUser.email,
+          phone: currentUser.phone,
+          country: currentUser.country
+        })
+      );
+    }
+  }, [currentUser, guestInfo.email, dispatch]);
+
+  if (!isDrawerOpen) return null;
+
+  const roomGallery =
+    chosenRoom?.gallery && chosenRoom.gallery.length > 0
+      ? chosenRoom.gallery
+      : chosenRoom
+      ? [chosenRoom.heroImage]
+      : [];
 
   const handleConfirmReservation = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
 
-    const activeRoom = selectedRoom || availableRooms[0];
-    if (!activeRoom) {
-      setFormError('Veuillez sélectionner une suite.');
+    if (!chosenRoom) {
+      setFormError('Veuillez sélectionner une chambre.');
       return;
     }
 
     if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.email || !guestInfo.phone) {
-      setFormError('Veuillez renseigner vos coordonnées complètes pour l’émission du dossier VIP.');
+      setFormError('Veuillez renseigner vos coordonnées complètes pour la confirmation.');
       return;
     }
 
     try {
       const result = await createBooking({
-        roomId: activeRoom.id,
+        roomId: chosenRoom.id,
         checkIn,
         checkOut,
         adults,
@@ -120,12 +164,14 @@ export function BookingCheckoutDrawer() {
           <div>
             <span className="text-[10px] uppercase tracking-[0.25em] text-luxury-gold font-semibold flex items-center gap-1.5">
               <Crown className="w-3.5 h-3.5" />
-              Conciergerie & Réservation Officielle
+              Réservation Directe — {customHotelName}
             </span>
             <h2 className="font-serif text-2xl sm:text-3xl text-luxury-text mt-0.5">
               {lastConfirmedBookingRef
                 ? 'Confirmation de Votre Séjour'
-                : 'Configurateur de Séjour Sur-Mesure'}
+                : chosenRoom
+                ? chosenRoom.name
+                : 'Votre Réservation'}
             </h2>
           </div>
 
@@ -141,9 +187,9 @@ export function BookingCheckoutDrawer() {
         {!lastConfirmedBookingRef && (
           <div className="px-6 py-3 bg-luxury-surface/60 border-b border-luxury-border grid grid-cols-3 gap-2 text-xs">
             {[
-              { step: 1, label: '1. Suite & Dates' },
-              { step: 2, label: '2. Privilèges & Spa' },
-              { step: 3, label: '3. Dossier VIP' }
+              { step: 1, label: '1. Chambre Choisie' },
+              { step: 2, label: '2. Options & Restauration' },
+              { step: 3, label: '3. Coordonnées Client' }
             ].map((item) => (
               <button
                 key={item.step}
@@ -177,9 +223,9 @@ export function BookingCheckoutDrawer() {
                   Merci, {guestInfo.title} {guestInfo.lastName}
                 </h3>
                 <p className="text-sm text-luxury-muted max-w-md mx-auto">
-                  Votre Majordome dédié au sein de{' '}
-                  <strong className="text-luxury-text">{customHotelName}</strong> a reçu vos
-                  préférences d’arrivée.
+                  La Réception de{' '}
+                  <strong className="text-luxury-text">{customHotelName}</strong> a enregistré votre
+                  réservation et prépare votre accueil à Cotonou.
                 </p>
               </div>
 
@@ -194,8 +240,8 @@ export function BookingCheckoutDrawer() {
 
               <div className="text-left p-5 bg-luxury-surface border border-luxury-border space-y-2 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-luxury-muted">Suite réservée :</span>
-                  <span className="text-luxury-text font-semibold">{selectedRoom?.name}</span>
+                  <span className="text-luxury-muted">Chambre réservée :</span>
+                  <span className="text-luxury-text font-semibold">{chosenRoom?.name}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-luxury-muted">Dates :</span>
@@ -219,13 +265,14 @@ export function BookingCheckoutDrawer() {
                   }}
                   className="px-6 py-3 bg-luxury-text text-luxury-bg hover:bg-luxury-gold hover:text-white font-semibold text-xs uppercase tracking-widest"
                 >
-                  Terminer & Retourner au Palace
+                  Terminer & Fermer
                 </button>
               </div>
             </div>
           ) : checkoutStep === 1 ? (
-            /* STEP 1: SUITE & DATES */
+            /* STEP 1: ONLY THE CHOSEN ROOM + DATES */
             <div className="space-y-6">
+              {/* Dates & Guests */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[11px] uppercase tracking-widest text-luxury-gold font-semibold mb-1.5">
@@ -240,7 +287,7 @@ export function BookingCheckoutDrawer() {
                 </div>
                 <div>
                   <label className="block text-[11px] uppercase tracking-widest text-luxury-gold font-semibold mb-1.5">
-                    Date de départ ({pricing.nights} nuits)
+                    Date de départ ({pricing.nights} nuit{pricing.nights > 1 ? 's' : ''})
                   </label>
                   <input
                     type="date"
@@ -252,60 +299,162 @@ export function BookingCheckoutDrawer() {
                 </div>
               </div>
 
-              {/* Suite Selector */}
-              <div className="space-y-3">
-                <label className="block text-[11px] uppercase tracking-widest text-luxury-gold font-semibold">
-                  Suite ou Villa Sélectionnée
-                </label>
-                <div className="space-y-3">
-                  {availableRooms.map((room) => {
-                    const isSelected = selectedRoom?.id === room.id;
-                    return (
-                      <div
-                        key={room.id}
-                        onClick={() =>
-                          dispatch(selectRoomForBooking({ room, openDrawer: true }))
-                        }
-                        className={`p-4 border cursor-pointer transition-all flex items-center gap-4 ${
-                          isSelected
-                            ? 'bg-luxury-card border-luxury-gold ring-1 ring-luxury-gold'
-                            : 'bg-luxury-surface/60 border-luxury-border hover:border-luxury-gold'
-                        }`}
-                      >
-                        <img
-                          src={room.heroImage}
-                          alt={room.name}
-                          className="w-20 h-16 object-cover shrink-0"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-serif text-lg text-luxury-text truncate">
-                            {room.name}
-                          </h4>
-                          <p className="text-xs text-luxury-muted">
-                            {room.sizeSqm} m² • Jusqu’à {room.maxGuests} résidents
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <span className="font-serif text-lg text-luxury-gold font-semibold block">
-                            {formatCurrencyAmount(room.pricePerNight, currency)}
-                          </span>
-                          <span className="text-[10px] text-luxury-muted">/ nuit</span>
-                        </div>
-                      </div>
-                    );
-                  })}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] uppercase tracking-widest text-luxury-muted mb-1">
+                    Adultes
+                  </label>
+                  <select
+                    value={adults}
+                    onChange={(e) =>
+                      dispatch(setGuests({ adults: Number(e.target.value), children }))
+                    }
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                  >
+                    {[1, 2, 3, 4, 5, 6].map((n) => (
+                      <option key={n} value={n}>
+                        {n} Adulte{n > 1 ? 's' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] uppercase tracking-widest text-luxury-muted mb-1">
+                    Enfants
+                  </label>
+                  <select
+                    value={children}
+                    onChange={(e) =>
+                      dispatch(setGuests({ adults, children: Number(e.target.value) }))
+                    }
+                    className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
+                  >
+                    {[0, 1, 2, 3].map((n) => (
+                      <option key={n} value={n}>
+                        {n} Enfant{n > 1 ? 's' : ''}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
+
+              {/* Focused Card: Displays ONLY the Chosen Room */}
+              {chosenRoom && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] uppercase tracking-widest text-luxury-gold font-semibold">
+                      Chambre Sélectionnée pour votre Séjour
+                    </span>
+                    <Link
+                      href="/suites"
+                      onClick={() => dispatch(setDrawerOpen(false))}
+                      className="inline-flex items-center gap-1.5 text-[11px] text-luxury-muted hover:text-luxury-gold underline underline-offset-4 transition-colors"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Changer de chambre</span>
+                    </Link>
+                  </div>
+
+                  <div className="editorial-card border-2 border-luxury-gold/50 overflow-hidden">
+                    {/* Chosen Room Multi-Image Preview */}
+                    <div className="relative h-52 bg-black overflow-hidden">
+                      <img
+                        src={roomGallery[activePhotoIdx] || chosenRoom.heroImage}
+                        alt={chosenRoom.name}
+                        className="w-full h-full object-cover transition-all duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/25 pointer-events-none" />
+                      <span className="absolute top-3 left-3 px-2.5 py-1 bg-black/75 text-amber-300 text-[10px] uppercase tracking-widest font-semibold">
+                        ✓ Chambre Choisie
+                      </span>
+                      <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
+                        <div>
+                          <span className="text-[10px] uppercase tracking-widest text-amber-300 block">
+                            {chosenRoom.viewLabel}
+                          </span>
+                          <h3 className="font-serif text-2xl leading-tight">{chosenRoom.name}</h3>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-serif text-xl text-amber-300 font-semibold block">
+                            {formatCurrencyAmount(chosenRoom.pricePerNight, currency)}
+                          </span>
+                          <span className="text-[10px] text-stone-300">/ nuit</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Thumbnail switcher for the chosen room */}
+                    {roomGallery.length > 1 && (
+                      <div className="px-4 py-2.5 bg-luxury-surface border-b border-luxury-border flex items-center gap-2 overflow-x-auto">
+                        {roomGallery.map((imgUrl, idx) => (
+                          <button
+                            type="button"
+                            key={idx}
+                            onClick={() => setActivePhotoIdx(idx)}
+                            className={`w-14 h-10 shrink-0 overflow-hidden border transition-all ${
+                              activePhotoIdx === idx
+                                ? 'border-luxury-gold ring-2 ring-luxury-gold'
+                                : 'border-luxury-border opacity-65 hover:opacity-100'
+                            }`}
+                          >
+                            <img src={imgUrl} alt="" className="w-full h-full object-cover" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Room details & link to full page */}
+                    <div className="p-4 space-y-3">
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-luxury-muted">
+                        <span className="flex items-center gap-1.5">
+                          <Maximize2 className="w-3.5 h-3.5 text-luxury-gold" />
+                          {chosenRoom.sizeSqm} m²
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 text-luxury-gold" />
+                          Max {chosenRoom.maxGuests} résidents
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <BedDouble className="w-3.5 h-3.5 text-luxury-gold" />
+                          {chosenRoom.bedConfiguration}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-luxury-muted leading-relaxed">
+                        {chosenRoom.subtitle}
+                      </p>
+
+                      <div className="pt-2 border-t border-luxury-border flex items-center justify-between">
+                        <Link
+                          href={`/suites/${chosenRoom.slug}`}
+                          onClick={() => dispatch(setDrawerOpen(false))}
+                          className="inline-flex items-center gap-1.5 text-xs text-luxury-gold hover:underline font-medium"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Voir la fiche détaillée & toutes les photos</span>
+                        </Link>
+                        <span className="text-xs font-semibold text-luxury-text">
+                          Sous-total ({pricing.nights}N) :{' '}
+                          <strong className="text-luxury-gold">
+                            {formatCurrencyAmount(pricing.roomSubtotal, currency)}
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : checkoutStep === 2 ? (
             /* STEP 2: BESPOKE ADD-ONS & PROMO CODE */
             <div className="space-y-6">
               <div>
                 <h3 className="font-serif text-2xl text-luxury-text mb-1">
-                  Expériences & Attention Majordome
+                  Options, Navette & Restauration
                 </h3>
                 <p className="text-xs text-luxury-muted">
-                  Sélectionnez les prestations qui seront préparées avant votre arrivée.
+                  Sélectionnez les prestations souhaitées pour votre séjour à{' '}
+                  <strong className="text-luxury-text">{chosenRoom?.name}</strong>.
                 </p>
               </div>
 
@@ -380,6 +529,20 @@ export function BookingCheckoutDrawer() {
           ) : (
             /* STEP 3: VIP GUEST COORDINATES */
             <form id="vip-booking-form" onSubmit={handleConfirmReservation} className="space-y-4">
+              {currentUser && (
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-xs text-luxury-text flex items-center justify-between">
+                  <span>
+                    Connecté en tant que{' '}
+                    <strong>
+                      {currentUser.title} {currentUser.firstName} {currentUser.lastName}
+                    </strong>
+                  </span>
+                  <span className="text-[10px] uppercase tracking-wider text-emerald-600 font-semibold">
+                    Coordonnées pré-remplies
+                  </span>
+                </div>
+              )}
+
               {formError && (
                 <div className="p-3.5 bg-red-500/15 border border-red-500/40 text-xs text-luxury-text">
                   {formError}
@@ -413,7 +576,7 @@ export function BookingCheckoutDrawer() {
                     type="text"
                     value={guestInfo.firstName}
                     onChange={(e) => dispatch(updateGuestInfo({ firstName: e.target.value }))}
-                    placeholder="Jean-Édouard"
+                    placeholder="Koffi"
                     className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
@@ -429,7 +592,7 @@ export function BookingCheckoutDrawer() {
                     type="text"
                     value={guestInfo.lastName}
                     onChange={(e) => dispatch(updateGuestInfo({ lastName: e.target.value }))}
-                    placeholder="de Rochefort"
+                    placeholder="Soglo"
                     className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
@@ -439,7 +602,7 @@ export function BookingCheckoutDrawer() {
                   </label>
                   <input
                     type="time"
-                    value={guestInfo.arrivalTime || '15:00'}
+                    value={guestInfo.arrivalTime || '14:00'}
                     onChange={(e) => dispatch(updateGuestInfo({ arrivalTime: e.target.value }))}
                     className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
@@ -449,27 +612,27 @@ export function BookingCheckoutDrawer() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                    Email Confidentiel *
+                    Email *
                   </label>
                   <input
                     required
                     type="email"
                     value={guestInfo.email}
                     onChange={(e) => dispatch(updateGuestInfo({ email: e.target.value }))}
-                    placeholder="contact@domaine.com"
+                    placeholder="client@entreprise-benin.bj"
                     className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                    Ligne Directe / WhatsApp VIP *
+                    Téléphone / WhatsApp (+229) *
                   </label>
                   <input
                     required
                     type="tel"
                     value={guestInfo.phone}
                     onChange={(e) => dispatch(updateGuestInfo({ phone: e.target.value }))}
-                    placeholder="+33 6 00 00 00 00"
+                    placeholder="+229 01 97 00 00 00"
                     className="w-full px-3.5 py-2.5 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                   />
                 </div>
@@ -478,7 +641,7 @@ export function BookingCheckoutDrawer() {
               {/* VIP Preferences Pills */}
               <div>
                 <label className="block text-[11px] uppercase tracking-wider text-luxury-gold font-semibold mb-2">
-                  Préférences Personnalisées en Suite (Incluses)
+                  Préférences Personnalisées en Chambre (Incluses)
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {VIP_PREFERENCES_OPTIONS.map((pref) => {
@@ -504,7 +667,7 @@ export function BookingCheckoutDrawer() {
 
               <div>
                 <label className="block text-[11px] uppercase tracking-wider text-luxury-muted mb-1">
-                  Instructions Particulières pour votre Majordome
+                  Instructions Particulières pour la Réception
                 </label>
                 <textarea
                   rows={2}
@@ -512,7 +675,7 @@ export function BookingCheckoutDrawer() {
                   onChange={(e) =>
                     dispatch(updateGuestInfo({ specialRequests: e.target.value }))
                   }
-                  placeholder="Allergies, fleurs préférées, numéro de vol privé..."
+                  placeholder="Navette aéroport, allergies alimentaires, arrivée tardive..."
                   className="w-full px-3.5 py-2 bg-luxury-surface border border-luxury-border text-xs text-luxury-text"
                 />
               </div>
@@ -526,14 +689,14 @@ export function BookingCheckoutDrawer() {
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between text-luxury-muted">
                 <span>
-                  {selectedRoom ? selectedRoom.name : 'Sélectionnez une suite'} ({pricing.nights}{' '}
-                  nuit{pricing.nights > 1 ? 's' : ''})
+                  {chosenRoom ? chosenRoom.name : 'Chambre sélectionnée'} ({pricing.nights} nuit
+                  {pricing.nights > 1 ? 's' : ''})
                 </span>
                 <span>{formatCurrencyAmount(pricing.roomSubtotal, currency)}</span>
               </div>
               {pricing.addOnsSubtotal > 0 && (
                 <div className="flex justify-between text-luxury-muted">
-                  <span>Expériences & Privilèges ({selectedAddOns.length})</span>
+                  <span>Options & Restauration ({selectedAddOns.length})</span>
                   <span>+{formatCurrencyAmount(pricing.addOnsSubtotal, currency)}</span>
                 </div>
               )}
@@ -544,7 +707,7 @@ export function BookingCheckoutDrawer() {
                 </div>
               )}
               <div className="flex justify-between text-luxury-muted">
-                <span>Taxes & Services Palace ({HOTEL_CONFIG.pricing.taxRatePercent}%)</span>
+                <span>Taxes & Services ({HOTEL_CONFIG.pricing.taxRatePercent}%)</span>
                 <span>{formatCurrencyAmount(pricing.taxesAndFees, currency)}</span>
               </div>
               <div className="flex justify-between items-baseline pt-2 border-t border-luxury-border">
@@ -575,8 +738,8 @@ export function BookingCheckoutDrawer() {
                 <button
                   type="button"
                   onClick={() => {
-                    if (!selectedRoom && availableRooms.length > 0) {
-                      dispatch(selectRoomForBooking({ room: availableRooms[0], openDrawer: true }));
+                    if (!selectedRoom && chosenRoom) {
+                      dispatch(selectRoomForBooking({ room: chosenRoom, openDrawer: true }));
                     }
                     dispatch(setCheckoutStep((checkoutStep + 1) as 2 | 3));
                   }}
@@ -595,7 +758,7 @@ export function BookingCheckoutDrawer() {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Émission du dossier...</span>
+                      <span>Validation...</span>
                     </>
                   ) : (
                     <>

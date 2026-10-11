@@ -47,6 +47,15 @@ const hybridBaseQuery: BaseQueryFn<any, unknown, unknown> = async (args, api, ex
   const url = typeof args === 'string' ? args : args.url || '';
   const method = typeof args === 'string' ? 'GET' : args.method || 'GET';
 
+  if (method === 'GET' && url.startsWith('/rooms/')) {
+    const slug = decodeURIComponent(url.replace('/rooms/', '')).trim();
+    const room = STATIC_SUITES.find((r) => r.slug === slug || r.id === slug);
+    if (!room) {
+      return { error: { status: 404, data: { error: 'Chambre introuvable' } } };
+    }
+    return { data: room };
+  }
+
   if (method === 'GET' && url.startsWith('/rooms')) {
     const queryString = url.includes('?') ? url.split('?')[1] : '';
     const params = new URLSearchParams(queryString);

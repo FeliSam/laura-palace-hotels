@@ -2,12 +2,15 @@
 
 import React, { useState, useMemo } from 'react';
 import { SiteShell } from '@/components/SiteShell';
+import Link from 'next/link';
 import {
   useAppDispatch,
   useAppSelector,
   useGetAllBookingsQuery,
   useUpdateBookingStatusMutation,
-  setDrawerOpen
+  setDrawerOpen,
+  loginDemoRole,
+  logoutUser
 } from '@hotel/store';
 import { formatCurrencyAmount } from '@hotel/config';
 import { BookingRecord } from '@hotel/types';
@@ -25,12 +28,15 @@ import {
   Eye,
   Phone,
   Mail,
-  X
+  X,
+  Lock,
+  LogOut
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   const dispatch = useAppDispatch();
   const { currency, customHotelName } = useAppSelector((state) => state.ui);
+  const { currentUser } = useAppSelector((state) => state.auth);
   const { data, isLoading } = useGetAllBookingsQuery();
   const [updateStatus, { isLoading: isUpdating }] = useUpdateBookingStatusMutation();
 
@@ -84,7 +90,58 @@ export default function AdminDashboardPage() {
 
   return (
     <SiteShell>
-      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 space-y-10">
+      <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 space-y-8">
+        {/* Session Status Banner */}
+        <div className="p-4 bg-luxury-surface border border-luxury-border flex flex-wrap items-center justify-between gap-4 text-xs">
+          {currentUser?.role === 'ADMIN' ? (
+            <div className="flex items-center gap-2 text-emerald-600 font-medium">
+              <CheckCircle2 className="w-4 h-4" />
+              <span>
+                Session Administrateur Active :{' '}
+                <strong className="text-luxury-text">
+                  {currentUser.title} {currentUser.firstName} {currentUser.lastName}
+                </strong>{' '}
+                ({currentUser.email})
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-luxury-muted">
+              <Lock className="w-4 h-4 text-luxury-gold" />
+              <span>
+                Mode Aperçu Direction — Connectez-vous en tant qu’Administrateur pour une session
+                complète.
+              </span>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            {currentUser?.role === 'ADMIN' ? (
+              <button
+                onClick={() => dispatch(logoutUser())}
+                className="px-3 py-1.5 border border-luxury-border hover:border-red-500/50 text-luxury-muted hover:text-red-500 uppercase tracking-wider text-[10px] font-semibold flex items-center gap-1.5"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Déconnexion Admin</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => dispatch(loginDemoRole('ADMIN'))}
+                  className="px-3.5 py-1.5 bg-luxury-gold text-white uppercase tracking-wider text-[10px] font-semibold"
+                >
+                  Connexion Admin Démo (1 Clic)
+                </button>
+                <Link
+                  href="/connexion"
+                  className="px-3.5 py-1.5 border border-luxury-border hover:border-luxury-gold text-luxury-text uppercase tracking-wider text-[10px] font-semibold"
+                >
+                  Page Connexion →
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+
         {/* Top Admin Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-luxury-border">
           <div>

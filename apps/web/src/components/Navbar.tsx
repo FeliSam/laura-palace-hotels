@@ -18,7 +18,8 @@ import {
   LayoutDashboard,
   Sun,
   Moon,
-  Calendar
+  Calendar,
+  User
 } from 'lucide-react';
 
 export const UNIFIED_NAV_ITEMS = [
@@ -34,6 +35,7 @@ export function Navbar() {
   const dispatch = useAppDispatch();
   const { colorMode, customHotelName } = useAppSelector((state) => state.ui);
   const { selectedRoom, selectedAddOns } = useAppSelector((state) => state.booking);
+  const { currentUser } = useAppSelector((state) => state.auth);
   const nights = useAppSelector(selectBookingNights);
 
   // Smart Hide-on-Scroll-Down / Show-on-Scroll-Up
@@ -60,6 +62,8 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const isConnexionActive = pathname?.startsWith('/connexion');
+
   return (
     <>
       <div className="h-[72px]" />
@@ -69,10 +73,10 @@ export function Navbar() {
           isVisible ? 'translate-y-0' : '-translate-y-full'
         } ${isScrolled ? 'shadow-sm' : ''}`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-[72px] flex items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 h-[72px] flex items-center justify-between gap-3">
           {/* 1. Brand Logo */}
           <Link href="/" className="shrink-0">
-            <span className="block font-serif text-lg sm:text-xl tracking-[0.16em] text-luxury-text font-semibold leading-none">
+            <span className="block font-serif text-base sm:text-xl tracking-[0.16em] text-luxury-text font-semibold leading-none">
               {customHotelName}
             </span>
             <span className="block text-[9px] tracking-[0.26em] uppercase text-luxury-gold mt-1">
@@ -81,7 +85,7 @@ export function Navbar() {
           </Link>
 
           {/* 2. Unified Navigation Pill Bar (Matches Mobile Bottom Nav 1:1) */}
-          <nav className="hidden lg:flex items-center gap-1.5 p-1 rounded-full bg-luxury-surface/90 border border-luxury-border">
+          <nav className="hidden lg:flex items-center gap-1 p-1 rounded-full bg-luxury-surface/90 border border-luxury-border">
             {UNIFIED_NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -93,7 +97,7 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-[11px] tracking-[0.12em] uppercase transition-all ${
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] tracking-[0.12em] uppercase transition-all ${
                     isActive
                       ? 'bg-luxury-text text-luxury-bg font-semibold shadow-sm'
                       : 'text-luxury-muted hover:text-luxury-text'
@@ -110,8 +114,26 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* 3. Right Actions: Light/Dark Switch + Direct Reserve Button */}
-          <div className="flex items-center gap-2.5">
+          {/* 3. Right Actions: Login/Account + Light/Dark Switch + Direct Reserve Button */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/connexion"
+              className={`px-3.5 py-2 rounded-full border text-[11px] tracking-[0.12em] uppercase font-medium flex items-center gap-1.5 transition-all ${
+                isConnexionActive || currentUser
+                  ? 'bg-luxury-surface border-luxury-gold text-luxury-text'
+                  : 'bg-luxury-surface border-luxury-border text-luxury-muted hover:text-luxury-text hover:border-luxury-gold'
+              }`}
+            >
+              <User className="w-3.5 h-3.5 text-luxury-gold" />
+              <span className="hidden sm:inline">
+                {currentUser
+                  ? `${currentUser.firstName} ${
+                      currentUser.role === 'ADMIN' ? '(Admin)' : ''
+                    }`
+                  : 'Connexion'}
+              </span>
+            </Link>
+
             <button
               onClick={() => dispatch(toggleColorMode())}
               title={

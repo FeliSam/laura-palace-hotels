@@ -3,6 +3,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { bookingSlice } from './slices/bookingSlice';
 import { filterSlice } from './slices/filterSlice';
 import { uiSlice } from './slices/uiSlice';
+import { authSlice } from './slices/authSlice';
 import { hotelApi } from './api/hotelApi';
 
 export const makeHotelStore = () =>
@@ -11,6 +12,7 @@ export const makeHotelStore = () =>
       booking: bookingSlice.reducer,
       filters: filterSlice.reducer,
       ui: uiSlice.reducer,
+      auth: authSlice.reducer,
       [hotelApi.reducerPath]: hotelApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
@@ -31,4 +33,5 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 export * from './slices/bookingSlice';
 export * from './slices/filterSlice';
 export * from './slices/uiSlice';
+export * from './slices/authSlice';
 export * from './api/hotelApi';
